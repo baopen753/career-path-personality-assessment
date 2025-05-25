@@ -1,0 +1,56 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/quizz_db
+    driver-class-name: org.postgresql.Driver
+    username: root
+    password: root
+  
+  hikari:
+    maximum-pool-size: 10
+    minimum-idle: 5
+    idle-timeout: 300000
+    connection-timeout: 20000
+    max-lifetime: 1200000
+
+  # JPA/Hibernate Settings
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  # SQL Initialization Setting
+  sql:
+    init:
+      mode: always
+      continue-on-error: true
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
+      platform: postgres
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+# Health Check Settings
+# Commands to verify:
+# curl http://localhost:8080/actuator/health
+# management:
+#   health:
+#     db:
+#       enabled: true
+#   endpoints:
+#     web:
+#       exposure:
+#         include: health,metrics
