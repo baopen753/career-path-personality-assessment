@@ -8,8 +8,8 @@
 		<version>3.5.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>org.baopen753</groupId>
-	<artifactId>quizz-ms</artifactId>
+	<groupId>org.swd392</groupId>
+	<artifactId>quizz-service</artifactId>
 	<version>1.0</version>
 	<name>quizzes</name>
 	<description>This is the quizzes microservice for Career PAth Personality Assessment</description>
@@ -37,11 +37,13 @@
 			<scope>runtime</scope>
 			<optional>true</optional>
 		</dependency>
+
 		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>postgresql</artifactId>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
