@@ -10,7 +10,7 @@
     </parent>
     <groupId>org.swp392</groupId>
     <artifactId>seminar-service</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0</version>
     <name>seminar-service</name>
     <description>seminar-service</description>
     <url/>
@@ -45,9 +45,15 @@
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>
+        <!--		<dependency>-->
+        <!--			<groupId>com.h2database</groupId>-->
+        <!--			<artifactId>h2</artifactId>-->
+        <!--			<scope>runtime</scope>-->
+        <!--		</dependency>-->
+
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
