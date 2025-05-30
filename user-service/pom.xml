@@ -8,7 +8,7 @@
 		<version>3.5.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>org.swp392</groupId>
+	<groupId>org.swd392</groupId>
 	<artifactId>user-service</artifactId>
 	<version>1.0</version>
 	<name>user-service</name>
