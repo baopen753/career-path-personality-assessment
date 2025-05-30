@@ -4,3 +4,10 @@
 *.iml
 *.md
 .vscode/
+
+# Ignore .gitattributes files in modules
+**/.gitattributes
+# Ignore .gitignore files in modules
+**/.gitignore
+# Ignore .mvn directories in modules
+**/.mvn/
