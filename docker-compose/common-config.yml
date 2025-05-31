@@ -1,0 +1,18 @@
+services:
+  network-deploy-service:
+    networks:
+        - swd392
+
+  microservice-base-config:
+    extends:
+      service: network-deploy-service
+    deploy:
+      resource:
+        limits:
+          memory: 800M
+
+  microservice-eureka-config:
+    extends:
+      service: microservice-base-config
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka/

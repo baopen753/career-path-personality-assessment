@@ -1,0 +1,124 @@
+services:
+  eurekaserver:
+    image: "swd392/eurekaserver:s1"
+    container_name: eurekaserver-ms
+    ports:
+      - "8761:8761"
+
+    healthcheck:
+      test: "curl --fail --silent localhost:8761/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    extends:
+      file: docker-compose/common-config.yml
+      service: microservice-base-config
+    environment:
+      SPRING_APPLICATION_NAME: "eurekaserver"
+
+  career:
+    image: "swd392/career-service:s1"
+    container_name: career-ms
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: "curl --fail --silent localhost:8080/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    environment:
+        SPRING_APPLICATION_NAME: "career"
+    extends:
+        file: docker-compose/common-config.yml
+        service: microservice-eureka-config
+
+  package:
+    image: "swd392/package-service:s1"
+    container_name: package-ms
+    ports:
+        - "8081:8080"
+    healthcheck:
+      test: "curl --fail --silent localhost:8080/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    environment:
+      SPRING_APPLICATION_NAME: "package"
+    extends:
+      file: docker-compose/common-config.yml
+      service: microservice-eureka-config
+
+  quiz:
+    image: "swd392/quiz-service:s1"
+    container_name: quiz-ms
+    ports:
+      - "8082:8080"
+    healthcheck:
+      test: "curl --fail --silent localhost:8080/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    environment:
+      SPRING_APPLICATION_NAME: "quiz"
+    extends:
+      file: docker-compose/common-config.yml
+      service: microservice-eureka-config
+
+  seminar:
+    image: "swd392/seminar-service:s1"
+    container_name: seminar-ms
+    ports:
+      - "8083:8080"
+    healthcheck:
+      test: "curl --fail --silent localhost:8080/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    environment:
+      SPRING_APPLICATION_NAME: "seminar"
+    extends:
+      file: docker-compose/common-config.yml
+      service: microservice-eureka-config
+
+  university:
+    image: "swd392/university-service:s1"
+    container_name: university-ms
+    ports:
+      - "8084:8080"
+    healthcheck:
+      test: "curl --fail --silent localhost:8080/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    environment:
+      SPRING_APPLICATION_NAME: "university"
+    extends:
+      file: docker-compose/common-config.yml
+      service: microservice-eureka-config
+
+  user:
+    image: "swd392/user-service:s1"
+    container_name: user-ms
+    ports:
+      - "8085:8080"
+    healthcheck:
+      test: "curl --fail --silent localhost:8080/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    environment:
+      SPRING_APPLICATION_NAME: "user"
+    extends:
+      file: docker-compose/common-config.yml
+      service: microservice-eureka-config
+
+networks:
+  swd392:
+    driver: bridge
