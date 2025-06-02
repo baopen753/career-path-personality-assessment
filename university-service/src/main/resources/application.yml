@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: university-service
+    name: universities
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5436}/${DB_NAME:universityDb}
     driverClassName: org.postgresql.Driver

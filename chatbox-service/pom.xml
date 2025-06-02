@@ -11,7 +11,7 @@
     <groupId>org.swd392</groupId>
     <artifactId>chatbox-service</artifactId>
     <version>1.0</version>
-    <name>chatbox-service</name>
+    <name>chatbox</name>
     <description>chatbox-service</description>
 
     <properties>

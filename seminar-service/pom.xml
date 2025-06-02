@@ -11,7 +11,7 @@
     <groupId>org.swd392</groupId>
     <artifactId>seminar-service</artifactId>
     <version>1.0</version>
-    <name>seminar-service</name>
+    <name>seminars</name>
     <description>seminar-service</description>
 
     <properties>

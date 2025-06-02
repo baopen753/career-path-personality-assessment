@@ -11,7 +11,7 @@
 	<groupId>org.swd392</groupId>
 	<artifactId>user-service</artifactId>
 	<version>1.0</version>
-	<name>user-service</name>
+	<name>users</name>
 	<description>This is the users microservice for Career PAth Personality Assessment</description>
 
 	<properties>

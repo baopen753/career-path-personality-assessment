@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: chatbox-service
+    name: chatbox
 
 # config actuator endpoints
 management:

@@ -11,8 +11,8 @@
     <groupId>org.swd392</groupId>
     <artifactId>university-service</artifactId>
     <version>1.0</version>
-    <name>university-service</name>
-    <description>university-service</description>
+    <name>universities</name>
+    <description>This is the university microservice for Career PAth Personality Assessment</description>
 
     <properties>
         <java.version>21</java.version>

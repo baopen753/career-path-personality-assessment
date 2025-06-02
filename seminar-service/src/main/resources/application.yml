@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: seminar-service
+    name: seminars
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5435}/${DB_NAME:seminarDb}
     driverClassName: org.postgresql.Driver

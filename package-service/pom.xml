@@ -11,7 +11,7 @@
 	<groupId>org.swd392</groupId>
 	<artifactId>package-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>package-service</name>
+	<name>packages</name>
 	<description>package-service</description>
 
 	<properties>

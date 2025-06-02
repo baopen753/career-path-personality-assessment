@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: payment-service
+    name: payments
 
 
 # config actuator endpoints
