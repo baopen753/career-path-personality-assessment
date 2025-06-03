@@ -49,3 +49,10 @@ info:
     name: ${spring.application.name}
     description: "This is api gateway server in Career Path Personality Assessment System"
     version: 1.0.0
+
+
+logging:
+  level:
+    org:
+      swd392:
+        apigateway: DEBUG # Set the logging level for the API Gateway server to DEBUG for detailed logs
