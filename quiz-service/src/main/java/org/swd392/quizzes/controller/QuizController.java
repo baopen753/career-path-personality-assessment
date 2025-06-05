@@ -1,6 +1,36 @@
 package org.swd392.quizzes.controller;
 
-
+//import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.core.env.Environment;
+//import org.springframework.web.bind.annotation.GetMapping;
+//import org.springframework.web.bind.annotation.RequestMapping;
+//import org.springframework.web.bind.annotation.RestController;
+//import org.springframework.web.client.RestTemplate;
+//
+//@RestController
+//@RequestMapping("/quiz")
+//public class QuizController {
+//
+//    @Autowired
+//    private RestTemplate restTemplate;
+//
+//    @Autowired
+//    private Environment env;
+//
+//    @GetMapping("")
+//    public String home() {
+//        return "Hello QuizService " + env.getProperty("local.server.port");
+//    }
+//
+//    @GetMapping("/all")
+//    public String getQUiz() {
+//        //String messageFromAuth = restTemplate.getForObject( "http://auth-service/<uuid>" , String.class);
+//        String messageFromAuth = restTemplate.getForObject( "http://gateway-service/auth-service/auth" , String.class);
+//        return "GetQuiz" + messageFromAuth;
+//    }
+//
+//
+//}
 import org.swd392.quizzes.dto.QuizDTO;
 import org.swd392.quizzes.dto.QuizRequestDTO;
 import org.swd392.quizzes.service.QuizService;

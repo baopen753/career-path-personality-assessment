@@ -1,12 +1,12 @@
 package org.swd392.quizzes.service;
 
-import org.swd392.quizzes.dto.PersonalityStandardDTO;
-import org.swd392.quizzes.entity.PersonalityStandard;
-import org.swd392.quizzes.repository.PersonalityStandardRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.swd392.quizzes.repository.PersonalityStandardRepository;
+import org.swd392.quizzes.dto.PersonalityStandardDTO;
+import org.swd392.quizzes.entity.PersonalityStandard;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
