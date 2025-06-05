@@ -10,7 +10,7 @@ spring:
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:root}
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    database-platform: org.hibernate.dialect.PostgresSQLDialect
     hibernate:
       ddl-auto: update
     show-sql: true

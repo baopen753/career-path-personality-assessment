@@ -1,6 +1,4 @@
 package org.swd392.quizzes.dto;
-
-import org.swd392.quizzes.dto.QuizQuestionDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

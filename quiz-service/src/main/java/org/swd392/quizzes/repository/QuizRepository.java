@@ -1,5 +1,4 @@
 package org.swd392.quizzes.repository;
-
 import org.swd392.quizzes.entity.Quiz;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
