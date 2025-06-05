@@ -1,8 +1,8 @@
-package org.swp392.users.repository;
+package org.swd392.users.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import org.swp392.users.entity.UserProfile;
+import org.swd392.users.entity.UserProfile;
 @Repository
 
 public interface UserProfileRepository extends JpaRepository<UserProfile, Long> {

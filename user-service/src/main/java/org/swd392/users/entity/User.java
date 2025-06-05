@@ -1,4 +1,4 @@
-package org.swp392.users.entity;
+package org.swd392.users.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
