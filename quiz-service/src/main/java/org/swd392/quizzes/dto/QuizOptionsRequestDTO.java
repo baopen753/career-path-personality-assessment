@@ -1,5 +1,4 @@
 package org.swd392.quizzes.dto;
-
 import org.swd392.quizzes.entity.QuizOptions;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

@@ -1,26 +1,16 @@
 package org.swd392.quizzes.service;
 
-import org.swd392.quizzes.dto.PersonalityStandardDTO;
-import org.swd392.quizzes.entity.PersonalityStandard;
-import org.swd392.quizzes.repository.CategoryRepository;
-import org.swd392.quizzes.repository.PersonalityStandardRepository;
-import org.swd392.quizzes.dto.QuizResultDTO;
-import org.swd392.quizzes.dto.QuizSubmissionDTO;
-import org.swd392.quizzes.entity.QuizResult;
-import org.swd392.quizzes.exception.QuizAttemptLimitExceededException;
-import org.swd392.quizzes.exception.QuizNotFoundException;
 import org.swd392.quizzes.dto.QuizDTO;
 import org.swd392.quizzes.dto.QuizRequestDTO;
 import org.swd392.quizzes.entity.Category;
 import org.swd392.quizzes.entity.Quiz;
 import org.swd392.quizzes.exception.CategoryNotFoundException;
-
-import org.swd392.quizzes.exception.QuizQuestionNotFoundException;
-
+import org.swd392.quizzes.exception.QuizNotFoundException;
+import org.swd392.quizzes.repository.CategoryRepository;
+import org.swd392.quizzes.repository.QuizRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.swd392.quizzes.repository.QuizRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;

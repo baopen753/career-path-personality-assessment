@@ -1,13 +1,4 @@
 package org.swd392.quizzes.service;
-
-import org.swd392.quizzes.dto.PersonalityStandardDTO;
-import org.swd392.quizzes.entity.PersonalityStandard;
-import org.swd392.quizzes.repository.PersonalityStandardRepository;
-import org.swd392.quizzes.dto.QuizResultDTO;
-import org.swd392.quizzes.dto.QuizSubmissionDTO;
-import org.swd392.quizzes.entity.QuizResult;
-import org.swd392.quizzes.exception.QuizAttemptLimitExceededException;
-import org.swd392.quizzes.exception.QuizNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
