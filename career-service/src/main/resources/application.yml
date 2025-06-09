@@ -1,20 +1,21 @@
 server:
   port: 8085
+  servlet:
+    context-path: /careers
 
 spring:
   application:
     name: careers
-  datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:careerDb}
-    driverClassName: org.postgresql.Driver
-    username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:root}
-  jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-
+  data:
+    mongodb:
+      data:
+        mongodb:
+          host: ${MONGODB_HOST:localhost}
+          port: ${MONGODB_PORT:27017}
+          username: ${MONGODB_USERNAME:root}
+          password: ${MONGODB_PASSWORD:root}
+          authentication-database: ${MONGODB_AUTH_DB:admin}
+          database: ${MONGODB_DATABASE:career_service}
 # host url database: http://localhost:8080/h2-console
 
 # config actuator endpoints
