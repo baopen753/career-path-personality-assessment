@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: eurekaserver
+
+server:
+    port: 8761
+
+  # config url: for centralized  configuration in config server
+
+# this eureka config can put into config server for dynamically change & modify at runtime
+eureka:
+  instance:
+    hostname: localhost     # hostname of the eureka server
+  client:
+    fetch-registry: false  # this is a central eureka server(applied in single eureka not in eureka cluster), not a client
+    register-with-eureka: false # this is a central eureka server(applied in single eureka not in eureka cluster), not a client
+    service-url:
+        defaultZone: http://${eureka.instance.hostname}:${server.port}/${spring.application.name}/ # url of the eureka server
+
+# config for actuator endpoints
+management:
+  endpoints:
+    web:
+        exposure:
+            include: '*'
+  health:
+    readiness-state:
+        enabled: true
+    liveness-state:
+        enabled: true
+  endpoint:
+    health:
+      probes:
+        enabled: true

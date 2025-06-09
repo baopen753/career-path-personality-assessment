@@ -1,11 +1,11 @@
 server:
-  port: 8080
+  port: 8084
 
 spring:
   application:
-    name: quiz-service
+    name: packages
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:packageDb}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5433}/${DB_NAME:packageDb}
     driverClassName: org.postgresql.Driver
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:root}
@@ -16,3 +16,37 @@ spring:
     show-sql: true
 
 # host url database: http://localhost:8080/h2-console
+
+
+# config actuator endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"  # Expose all actuator endpoints over HTTP
+  endpoint:
+    shutdown:
+      access: unrestricted  # Allow unrestricted access to the shutdown endpoint
+      # NOTE: only use this shutdown endpoint config in dev env
+  info:
+    env:
+      enabled: true         # show info env in /actuator/info
+
+
+# config eureka client
+eureka:
+  instance:
+    prefer-ip-address: true # Tells Eureka to use the IP address instead of the hostname when registering the service. Because there is no DNS locally or in Docker.
+  client:
+    fetch-registry: true # Tells eureka client to fetch the registry from the Eureka server
+    register-with-eureka: true # tells eureka client to register itself with the Eureka server
+    service-url:
+      defaultZone: http://localhost:8761/eureka  # URL of the Eureka server, this url can be hardcoded because it has only 1 Eureka server in the system
+
+
+
+# info of Eureka client on the Eureka Server Dashboard
+info:
+  app:
+    name: ${spring.application.name}
+    description: "This is quiz service in Career Path Personality Assessment System"
