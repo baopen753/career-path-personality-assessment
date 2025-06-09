@@ -1,11 +1,11 @@
-package org.swp392.users.controller;
+package org.swd392.careers.controller;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.swp392.users.entity.UserProfile;
-import org.swp392.users.service.UserProfileService;
+import org.swd392.users.entity.UserProfile;
+import org.swd392.users.service.UserProfileService;
 
 import java.util.List;
 
