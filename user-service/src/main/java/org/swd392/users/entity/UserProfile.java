@@ -47,10 +47,6 @@ public class UserProfile {
     private User user;
 
 
-    public enum AccountType {
-        STUDENT,
-        TEACHER,
-        ADMIN
-    }
+
 }
 
