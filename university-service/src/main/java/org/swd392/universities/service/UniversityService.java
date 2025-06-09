@@ -1,8 +1,8 @@
-package com.sba301.university_service.service;
+package org.swd392.universities.service;
 
-import com.sba301.university_service.dto.UniversityDTO;
-import com.sba301.university_service.entity.University;
-import com.sba301.university_service.repository.UniversityRepository;
+import org.swd392.universities.dto.UniversityDTO;
+import org.swd392.universities.entity.University;
+import org.swd392.universities.repository.UniversityRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
