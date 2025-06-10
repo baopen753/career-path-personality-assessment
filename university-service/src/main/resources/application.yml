@@ -5,19 +5,19 @@ server:
 
 spring:
   application:
-    name: university
+    name: universities
   data:
     mongodb:
-      data:
-        mongodb:
-          host: ${MONGODB_HOST:localhost}
-          port: ${MONGODB_PORT:27016}
-          username: ${MONGODB_USERNAME:root}
-          password: ${MONGODB_PASSWORD:root}
-          authentication-database: ${MONGODB_AUTH_DB:admin}
-          database: ${MONGODB_DATABASE:university_service}
+      uri: mongodb://${MONGODB_USERNAME:root}:${MONGODB_PASSWORD:root}@${MONGODB_HOST:localhost}:${MONGODB_PORT:27016}/${MONGODB_DATABASE:university_service}?authSource=${MONGODB_AUTH_DB:admin}
+      database: ${MONGODB_DATABASE:university_service}
 
-# host url database: http://localhost:8080/h2-console
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
 
 
 # config actuator endpoints

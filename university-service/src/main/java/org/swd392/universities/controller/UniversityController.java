@@ -1,9 +1,9 @@
-package com.sba301.university_service.controller;
+package org.swd392.universities.controller;
 
-import com.sba301.university_service.dto.ApiResponse;
-import com.sba301.university_service.dto.UniversityDTO;
-import com.sba301.university_service.entity.University;
-import com.sba301.university_service.service.UniversityService;
+import org.swd392.universities.dto.ApiResponse;
+import org.swd392.universities.dto.UniversityDTO;
+import org.swd392.universities.entity.University;
+import org.swd392.universities.service.UniversityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

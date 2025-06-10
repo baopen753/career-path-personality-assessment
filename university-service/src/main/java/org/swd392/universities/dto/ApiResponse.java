@@ -1,4 +1,4 @@
-package com.sba301.university_service.dto;
+package org.swd392.universities.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;

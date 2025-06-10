@@ -10,7 +10,6 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -46,7 +45,4 @@ public class UserProfile {
     @JsonBackReference
     private User user;
 
-
-
 }
-

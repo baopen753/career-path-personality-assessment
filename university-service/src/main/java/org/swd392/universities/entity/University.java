@@ -1,4 +1,4 @@
-package com.sba301.university_service.entity;
+package org.swd392.universities.entity;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;

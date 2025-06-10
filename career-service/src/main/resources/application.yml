@@ -1,21 +1,25 @@
 server:
   port: 8085
   servlet:
-    context-path: /careers
+    context-path: /career
 
 spring:
   application:
     name: careers
   data:
     mongodb:
-      data:
-        mongodb:
-          host: ${MONGODB_HOST:localhost}
-          port: ${MONGODB_PORT:27017}
-          username: ${MONGODB_USERNAME:root}
-          password: ${MONGODB_PASSWORD:root}
-          authentication-database: ${MONGODB_AUTH_DB:admin}
-          database: ${MONGODB_DATABASE:career_service}
+      uri: mongodb://${MONGODB_USERNAME:root}:${MONGODB_PASSWORD:root}@${MONGODB_HOST:localhost}:${MONGODB_PORT:27017}/${MONGODB_DATABASE:career_service}?authSource=${MONGODB_AUTH_DB:admin}
+      database: ${MONGODB_DATABASE:career_service}
+
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+
+
 # host url database: http://localhost:8080/h2-console
 
 # config actuator endpoints

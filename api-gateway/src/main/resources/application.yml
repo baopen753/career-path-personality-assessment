@@ -1,5 +1,7 @@
 server:
   port: 8072 # Port for the API Gateway service
+  servlet:
+    context-path: /gateway
 
 spring:
   application:
