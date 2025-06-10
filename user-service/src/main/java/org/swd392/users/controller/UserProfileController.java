@@ -4,6 +4,7 @@ package org.swd392.users.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.swd392.users.dto.UserProfileDTO;
 import org.swd392.users.entity.UserProfile;
 import org.swd392.users.service.UserProfileService;
 
@@ -22,7 +23,7 @@ public class UserProfileController {
     }
 
     @PostMapping("/{userId}")
-    public ResponseEntity<UserProfile> createOrUpdateProfile(@PathVariable Long userId, @RequestBody UserProfile profileDetails) {
+    public ResponseEntity<UserProfile> createOrUpdateProfile(@PathVariable Long userId, @RequestBody UserProfileDTO profileDetails) {
         try {
             UserProfile profile = service.createOrUpdateProfile(userId, profileDetails);
             return ResponseEntity.ok(profile);
