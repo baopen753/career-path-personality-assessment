@@ -1,7 +1,6 @@
 server:
   port: 8082
-  servlet:
-    context-path: /seminar
+ 
 
 spring:
   application:
@@ -16,6 +15,30 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
+  cloud:
+    discovery:
+      enabled: false
+
+  # OpenAPI/Swagger Configuration
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+    disable-swagger-default-url: true
+  show-actuator: true
+  packages-to-scan: org.swd392.seminars
+  default-produces-media-type: application/json
+  default-consumes-media-type: application/json
+  writer-with-default-pretty-printer: true
 
 # host url database: http://localhost:8080/h2-console
 
