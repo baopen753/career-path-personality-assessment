@@ -7,9 +7,9 @@ public class SeminarRequest {
     private String title;
     private String description;
     private Integer duration;
+    private Double price;
     private String meetingUrl;
     private String formUrl;
     private Integer slot;
-    private Double price;
     private String imageUrl;
 } 
