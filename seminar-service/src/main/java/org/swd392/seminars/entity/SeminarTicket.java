@@ -18,6 +18,18 @@ public class SeminarTicket {
     @JoinColumn(name = "seminar_id")
     private Seminar seminar;
 
+    @Column(name = "user_profile_id")
     private Integer userProfileId;
+
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    @Column(name = "starting_time")
+    private LocalDateTime startingTime;
+
+    @Column(name = "booking_time")
     private LocalDateTime bookingTime;
+
+    private boolean status;
+    
 } 
