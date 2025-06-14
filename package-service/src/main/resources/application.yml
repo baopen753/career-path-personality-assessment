@@ -5,7 +5,7 @@ server:
 
 spring:
   application:
-    name: packages
+    name: package
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5433}/${DB_NAME:packageDb}
     driverClassName: org.postgresql.Driver

@@ -5,7 +5,7 @@ server:
 
 spring:
   application:
-    name: universities
+    name: university
   data:
     mongodb:
       uri: mongodb://${MONGODB_USERNAME:root}:${MONGODB_PASSWORD:root}@${MONGODB_HOST:localhost}:${MONGODB_PORT:27016}/${MONGODB_DATABASE:university_service}?authSource=${MONGODB_AUTH_DB:admin}

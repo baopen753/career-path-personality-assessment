@@ -1,6 +1,10 @@
 package org.swd392.users.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.swd392.users.entity.User;
 import org.swd392.users.repository.UserRepository;
@@ -10,18 +14,22 @@ import java.util.Optional;
 
 @Service
 public class UserService {
+
     @Autowired
     private UserRepository userRepository;
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
+
     public Optional<User> getUserById(Long id) {
         return userRepository.findById(id);
     }
+
     public User createUser(User user) {
         return userRepository.save(user);
     }
+
     public Optional<User> updateUser(Long id, User updatedUser) {
         return userRepository.findById(id).map(existingUser -> {
             existingUser.setEmail(updatedUser.getEmail());
@@ -31,6 +39,7 @@ public class UserService {
             return userRepository.save(existingUser);
         });
     }
+
     public boolean deleteUser(Long id) {
         if (userRepository.existsById(id)) {
             userRepository.deleteById(id);
@@ -39,4 +48,16 @@ public class UserService {
         return false;
     }
 
+//    @Override
+//    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+//        User user = userRepository.findUserByEmail(username)
+//                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + username));
+//
+//        org.springframework.security.core.userdetails.User userDetails = new org.springframework.security.core.userdetails.User(
+//                user.getEmail(),
+//                user.getPassword(),
+//                 List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole()))
+//        );
+//        return userDetails;
+//    }
 }
