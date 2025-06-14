@@ -3,54 +3,27 @@ server:
   servlet:
     context-path: /user
 
-#spring:
-#  application:
-#    name: user
-#  datasource:
-#    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5437}/${DB_NAME:UserDB}
-#    driverClassName: org.postgresql.Driver
-#    username: ${DB_USERNAME:root}
-#    password: ${DB_PASSWORD:root}
-#  jpa:
-#    hibernate:
-#      ddl-auto: create
-#    show-sql: true
-#    properties:
-#      hibernate:
-#        dialect: org.hibernate.dialect.PostgreSQLDialect
-#        format_sql: true
-#    defer-datasource-initialization: true  # tell Hibernate to create schema before SQL init
-#  sql:
-#    init:
-#      mode: always
-#      data-locations: classpath:data.sql  # Location of the data.sql file to initialize the database
-
 spring:
   application:
-    name: auth-server
+    name: user
   datasource:
-    url: jdbc:h2:mem:authdb
-    username: sa
-    password: sa
-    driverClassName: org.h2.Driver
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5437}/${DB_NAME:UserDB}
+    driverClassName: org.postgresql.Driver
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: create
     show-sql: true
     properties:
       hibernate:
-        format_sql: true  # Format SQL queries for better readability
-    defer-datasource-initialization: true
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    defer-datasource-initialization: true  # tell Hibernate to create schema before SQL init
   sql:
     init:
-      mode: always  # Always run the SQL scripts on startup
+      mode: always
       data-locations: classpath:data.sql  # Location of the data.sql file to initialize the database
-# host url database: http://localhost:8080/user/h2-console
 
 
 # config actuator endpoints
@@ -89,3 +62,8 @@ info:
 logging:
   level:
     org.springframework.security: DEBUG
+
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html

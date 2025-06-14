@@ -1,30 +1,30 @@
 package org.swd392.users.mapper;
 
-import org.swd392.users.dto.UserDTO;
+import org.swd392.users.dto.UserDto;
 import org.swd392.users.entity.User;
 
 public class UserMapper {
 
-    // Chuyển từ User entity sang UserDTO
-    public static UserDTO toDTO(User user) {
+    // Chuyển từ User entity sang UserDto
+    public static UserDto toDTO(User user) {
         if (user == null) return null;
-        return new UserDTO(
+        return new UserDto(
                 user.getId(),
                 user.getEmail(),
                 user.getPassword(),
-                user.getRole(),
+                user.getRole().getRoleId(),
                 user.isStatus()
         );
     }
 
-    // Chuyển từ UserDTO sang User entity
-    public static User toEntity(UserDTO dto) {
+    // Chuyển từ UserDto sang User entity
+    public static User toEntity(UserDto dto) {
         if (dto == null) return null;
         User user = new User();
         user.setId(dto.getId());
         user.setEmail(dto.getEmail());
         user.setPassword(dto.getPassword());
-        user.setRole(dto.getRole());
+        user.getRole().setRoleId(dto.getRoleId());
         user.setStatus(dto.isStatus());
         return user;
     }
