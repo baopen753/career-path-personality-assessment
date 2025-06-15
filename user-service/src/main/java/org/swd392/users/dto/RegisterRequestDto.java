@@ -14,9 +14,6 @@ import javax.validation.constraints.Size;
 @AllArgsConstructor
 public class RegisterRequestDto {
 
-    @NotBlank(message = "Account name is required")
-    @Size(min = 2, max = 50, message = "Account name must be between 2 and 50 characters")
-    private String accountName;
 
     @NotBlank(message = "Email is required")
     @Email(message = "Please provide a valid email address")

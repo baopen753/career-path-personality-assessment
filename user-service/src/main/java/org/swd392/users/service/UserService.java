@@ -1,7 +1,6 @@
 package org.swd392.users.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -33,8 +32,6 @@ public class UserService implements IUserService {
         return userRepository.findAll();
     }
 
-
-
     public User createUser(User user) {
         return userRepository.save(user);
     }
@@ -57,13 +54,10 @@ public class UserService implements IUserService {
         return false;
     }
 
-
-
     @Override
     public Optional<User> getUserById(Long id) {
         return userRepository.findById(id);
     }
-
 
     @Transactional
     public RegisterResponseDto register(RegisterRequestDto request) {
@@ -75,7 +69,7 @@ public class UserService implements IUserService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exists");
         }
 
-        Role defaultRole = roleRepository.findById(3)
+        Role defaultRole = roleRepository.findById(request.getRoleId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Default user role not found"));
 
         User newUser = new User();

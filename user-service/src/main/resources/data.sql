@@ -8,16 +8,16 @@ INSERT INTO roles (role_name) VALUES
 
 -- Insert users (password = '12345' hashed)
 INSERT INTO users (role_id, status, email, password) VALUES
-                                                         (2, true, 'admin@example.com', '$2a$10$Dow1Q/zAN3uqoj1HGLgBFeox6lHoR2UhlROUQDO8O5z9zUvbcWFCi'),
-                                                         (1, true, 'student1@example.com', '$2a$10$Dow1Q/zAN3uqoj1HGLgBFeox6lHoR2UhlROUQDO8O5z9zUvbcWFCi'),
-                                                         (3, true, 'parent@example.com', '$2a$10$Dow1Q/zAN3uqoj1HGLgBFeox6lHoR2UhlROUQDO8O5z9zUvbcWFCi'),
-                                                         (4, true, 'sysadmin@example.com', '$2a$10$Dow1Q/zAN3uqoj1HGLgBFeox6lHoR2UhlROUQDO8O5z9zUvbcWFCi'),
-                                                         (5, true, 'eventmgr@example.com', '$2a$10$Dow1Q/zAN3uqoj1HGLgBFeox6lHoR2UhlROUQDO8O5z9zUvbcWFCi'),
-                                                         (1, true, 'student2@example.com', '$2a$10$Dow1Q/zAN3uqoj1HGLgBFeox6lHoR2UhlROUQDO8O5z9zUvbcWFCi'),
-                                                         (1, false, 'student3@example.com', '$2a$10$Dow1Q/zAN3uqoj1HGLgBFeox6lHoR2UhlROUQDO8O5z9zUvbcWFCi'),
-                                                         (3, false, 'parent2@example.com', '$2a$10$Dow1Q/zAN3uqoj1HGLgBFeox6lHoR2UhlROUQDO8O5z9zUvbcWFCi'),
-                                                         (2, true, 'admin2@example.com', '$2a$10$Dow1Q/zAN3uqoj1HGLgBFeox6lHoR2UhlROUQDO8O5z9zUvbcWFCi'),
-                                                         (5, true, 'eventmgr2@example.com', '$2a$10$Dow1Q/zAN3uqoj1HGLgBFeox6lHoR2UhlROUQDO8O5z9zUvbcWFCi');
+                                                         (2, true, 'admin@example.com', '$2a$12$Sqd5lHHmpeuThlWd3xyL2eYsT1WjR72cJKRGv9u27HlEWeyk6idj2'),
+                                                         (1, true, 'student1@example.com', '$2a$12$Sqd5lHHmpeuThlWd3xyL2eYsT1WjR72cJKRGv9u27HlEWeyk6idj2'),
+                                                         (3, true, 'parent@example.com', '$2a$12$Sqd5lHHmpeuThlWd3xyL2eYsT1WjR72cJKRGv9u27HlEWeyk6idj2'),
+                                                         (4, true, 'sysadmin@example.com', '$2a$12$Sqd5lHHmpeuThlWd3xyL2eYsT1WjR72cJKRGv9u27HlEWeyk6idj2'),
+                                                         (5, true, 'eventmgr@example.com', '$2a$12$Sqd5lHHmpeuThlWd3xyL2eYsT1WjR72cJKRGv9u27HlEWeyk6idj2'),
+                                                         (1, true, 'student2@example.com', '$2a$12$Sqd5lHHmpeuThlWd3xyL2eYsT1WjR72cJKRGv9u27HlEWeyk6idj2'),
+                                                         (1, false, 'student3@example.com', '$2a$12$Sqd5lHHmpeuThlWd3xyL2eYsT1WjR72cJKRGv9u27HlEWeyk6idj2'),
+                                                         (3, false, 'parent2@example.com', '$2a$12$Sqd5lHHmpeuThlWd3xyL2eYsT1WjR72cJKRGv9u27HlEWeyk6idj2'),
+                                                         (2, true, 'admin2@example.com', '$2a$12$Sqd5lHHmpeuThlWd3xyL2eYsT1WjR72cJKRGv9u27HlEWeyk6idj2'),
+                                                         (5, true, 'eventmgr2@example.com', '$2a$12$Sqd5lHHmpeuThlWd3xyL2eYsT1WjR72cJKRGv9u27HlEWeyk6idj2');
 
 -- Insert user profiles
 INSERT INTO user_profile (

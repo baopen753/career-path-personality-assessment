@@ -3,6 +3,8 @@ package org.swd392.users.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -44,8 +46,7 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/webjars/**"
                         ).permitAll()
-                        .requestMatchers("/authentication/register", "/authentication/login").permitAll()
-                        .requestMatchers("/authentication/**").hasAnyRole("SYSTEM_ADMIN", "ADMIN", "STUDENT", "PARENT","EVENT_MANAGER")
+                        .requestMatchers(HttpMethod.GET, "/api/profiles/profile/**").hasAnyRole("SYSTEM_ADMIN", "ADMIN")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

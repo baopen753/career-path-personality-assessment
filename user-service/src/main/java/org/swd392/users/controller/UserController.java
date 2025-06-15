@@ -1,12 +1,11 @@
 package org.swd392.users.controller;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.swd392.users.entity.User;
 import org.swd392.users.service.UserService;
-
 import java.util.List;
 
 @RestController
@@ -15,6 +14,7 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
 
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {

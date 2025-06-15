@@ -1,13 +1,13 @@
 package org.swd392.users.mapper;
 
-import org.swd392.users.dto.UserProfileDTO;
+import org.swd392.users.dto.UserProfileDto;
 import org.swd392.users.entity.UserProfile;
 
 public class UserProfileMapper {
 
     // Chuyển từ UserProfile entity sang UserProfileDTO
-    public static UserProfileDTO toDTO(UserProfile userProfile) {
-        return new UserProfileDTO(
+    public static UserProfileDto toDTO(UserProfile userProfile) {
+        return new UserProfileDto(
                 userProfile.getUser().getId(),        // userId
                 userProfile.getId(),                  // profileId
                 userProfile.getFullName(),
@@ -22,7 +22,7 @@ public class UserProfileMapper {
     }
 
     // Chuyển từ UserProfileDTO sang UserProfile entity
-    public static UserProfile toEntity(UserProfileDTO dto) {
+    public static UserProfile toEntity(UserProfileDto dto) {
         UserProfile userProfile = new UserProfile();
         userProfile.setId(dto.getProfileId());
         userProfile.setFullName(dto.getFullName());

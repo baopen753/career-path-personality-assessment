@@ -16,6 +16,7 @@ public class UserDto {
     private String email;
     private String password; // Optional, if you want to include password in DTO
     private Integer roleId;
+
     private boolean status;
 
 }
