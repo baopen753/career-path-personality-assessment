@@ -6,7 +6,7 @@ import org.swd392.users.entity.User;
 import org.swd392.users.entity.UserProfile;
 import org.swd392.users.repository.UserProfileRepository;
 import org.swd392.users.repository.UserRepository;
-import org.swd392.users.dto.UserProfileDTO;
+import org.swd392.users.dto.UserProfileDto;
 
 
 import java.util.Optional;
@@ -24,7 +24,7 @@ public class UserProfileService {
         return profileRepository.findByUserId(userId);
     }
 
-    public UserProfile createOrUpdateProfile(Long userId, UserProfileDTO profileDetails) {
+    public UserProfile createOrUpdateProfile(Long userId, UserProfileDto profileDetails) {
         // Lấy người dùng từ DB
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -47,7 +47,7 @@ public class UserProfileService {
         return profileRepository.save(profile);
     }
 
-    public UserProfile updateUserProfile(Long userId, UserProfileDTO profileDetails) {
+    public UserProfile updateUserProfile(Long userId, UserProfileDto profileDetails) {
         // Tương tự như createOrUpdateProfile
         return createOrUpdateProfile(userId, profileDetails);
     }

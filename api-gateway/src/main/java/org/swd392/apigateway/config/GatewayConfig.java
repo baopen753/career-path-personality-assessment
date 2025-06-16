@@ -14,15 +14,25 @@ public class GatewayConfig {
     public RouteLocator myRoutesLocator(RouteLocatorBuilder routeLocatorBuilder) {
         return routeLocatorBuilder.routes()
                 .route(p -> p
-                        .path("/swd391/quizzes/**")
-                        .filters(f -> f.rewritePath("/swd391/quizzes/(?<segment>.*)", "/${segment}")
+                        .path("/swd391/career/**")
+                        .filters(f -> f.rewritePath("/swd391/career/(?<segment>.*)", "/career/${segment}")
                                 .addResponseHeader("X-Response-Time", LocalDateTime.now().toString()))
-                        .uri("lb://QUIZZES"))
+                        .uri("lb://CAREER"))
                 .route(p -> p
-                        .path("/swd391/seminars/**")
-                        .filters(f -> f.rewritePath("/swd391/seminars/(?<segment>.*)", "/${segment}")
+                        .path("/swd391/quiz/**")
+                        .filters(f -> f.rewritePath("/swd391/quiz/(?<segment>.*)", "/quiz/${segment}")
                                 .addResponseHeader("X-Response-Time", LocalDateTime.now().toString()))
-                        .uri("lb://SEMINARS"))
+                        .uri("lb://quiz"))
+                .route(p -> p
+                        .path("/swd391/university/**")
+                        .filters(f -> f.rewritePath("/swd391/university/(?<segment>.*)", "/university/${segment}")
+                                .addResponseHeader("X-Response-Time", LocalDateTime.now().toString()))
+                        .uri("lb://university"))
+                .route(p -> p
+                        .path("/swd391/user/**")
+                        .filters(f -> f.rewritePath("/swd391/user/(?<segment>.*)", "/user/${segment}")
+                                .addResponseHeader("X-Response-Time", LocalDateTime.now().toString()))
+                        .uri("lb://user"))
                 .build();
     }
 }

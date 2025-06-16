@@ -21,7 +21,8 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @Enumerated(EnumType.STRING)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role_id")
     private Role role;
 
     private boolean status;
@@ -89,15 +90,4 @@ public class User {
         this.userProfile = userProfile;
     }
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
-                ", role=" + role +
-                ", status=" + status +
-                ", userProfile=" + userProfile +
-                '}';
-    }
 }

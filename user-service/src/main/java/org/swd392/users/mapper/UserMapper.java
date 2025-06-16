@@ -11,7 +11,7 @@ public class UserMapper {
         UserDTO dto = new UserDTO();
         dto.setEmail(user.getEmail());
         dto.setPassword(user.getPassword());
-        dto.setRole(user.getRole());
+        dto.setRoleDto(RoleMapper.mapToDto(user.getRole()));
         dto.setStatus(user.isStatus());
         return dto;
     }
@@ -22,7 +22,7 @@ public class UserMapper {
         User user = new User();
         user.setEmail(dto.getEmail());
         user.setPassword(dto.getPassword());
-        user.setRole(dto.getRole());
+        user.setRole(RoleMapper.mapToEntity(dto.getRoleDto()));
         user.setStatus(dto.isStatus());
         return user;
     }

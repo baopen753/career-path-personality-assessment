@@ -1,24 +1,15 @@
 package org.swd392.users.dto;
 
 
-import org.swd392.users.entity.Role;
-
 public class UserDTO {
 
     private String email;
     private String password; // Optional, if you want to include password in DTO
-    private Role role;
+    private RoleDto roleDto;
     private boolean status;
 
     // Constructors
     public UserDTO() {
-    }
-
-    public UserDTO(String email, String password, Role role, boolean status) {
-        this.email = email;
-        this.password = password;
-        this.role = role;
-        this.status = status;
     }
 
     public String getEmail() {
@@ -37,12 +28,12 @@ public class UserDTO {
         this.password = password;
     }
 
-    public Role getRole() {
-        return role;
+    public RoleDto getRoleDto() {
+        return roleDto;
     }
 
-    public void setRole(Role role) {
-        this.role = role;
+    public void setRoleDto(RoleDto roleDto) {
+        this.roleDto = roleDto;
     }
 
     public boolean isStatus() {
