@@ -9,6 +9,7 @@ import org.swd392.users.entity.UserProfile;
 import org.swd392.users.service.UserProfileService;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/api/profiles")
 public class UserProfileController {
 

@@ -4,7 +4,7 @@ package org.swd392.users.dto;
 import org.swd392.users.entity.Role;
 
 public class UserDTO {
-    private Long id;
+
     private String email;
     private String password; // Optional, if you want to include password in DTO
     private Role role;
@@ -14,22 +14,13 @@ public class UserDTO {
     public UserDTO() {
     }
 
-    public UserDTO(Long id, String email,String password ,Role role, boolean status) {
-        this.id = id;
-        this.password = password;
+    public UserDTO(String email, String password, Role role, boolean status) {
         this.email = email;
+        this.password = password;
         this.role = role;
         this.status = status;
     }
 
-    // Getters and Setters
-
-    public Long getId() {
-        return id;
-    }
-    public void setId(Long id) {
-        this.id = id;
-    }
     public String getEmail() {
         return email;
     }
@@ -37,9 +28,11 @@ public class UserDTO {
     public void setEmail(String email) {
         this.email = email;
     }
+
     public String getPassword() {
         return password;
     }
+
     public void setPassword(String password) {
         this.password = password;
     }
@@ -60,4 +53,5 @@ public class UserDTO {
         this.status = status;
     }
 }
+    
 
