@@ -9,6 +9,7 @@ import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -50,7 +51,13 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         String token = authHeader.getFirst().replace(BEARER, "");
 
         if (jwtUtil.validateToken(token)) {
-            return chain.filter(exchange);
+
+            ServerHttpRequest request = exchange.getRequest()
+                    .mutate()
+                    .header("X-User-Id", jwtUtil.extractUserId(token).toString())
+                    .build();
+
+            return chain.filter(exchange.mutate().request(request).build());
         } else
             return unAuthenticated(exchange.getResponse());
     }
