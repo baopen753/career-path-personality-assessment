@@ -18,6 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.swd392.users.exception.AuthorizationException;
 import org.swd392.users.filter.JwtAuthenticationFilter;
 
 import java.util.Arrays;
@@ -56,6 +57,7 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 );
 
+        http.exceptionHandling(ehc -> ehc.accessDeniedHandler(new AuthorizationException()));
         http.addFilterAfter(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
