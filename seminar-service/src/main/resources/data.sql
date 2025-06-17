@@ -1,9 +1,9 @@
--- Insert Users with different roles
-INSERT INTO users (id, username, password, role, email, full_name, phone, address, status) VALUES
-(1, 'admin1', '$2a$10$rDkPvvAFV6GgJjXpYWJhUOQZxJZxJZxJZxJZxJZxJZxJZxJZxJZx', 'ADMIN', 'admin1@example.com', 'Admin User', '0123456789', 'Admin Address', true),
-(2, 'event1', '$2a$10$rDkPvvAFV6GgJjXpYWJhUOQZxJZxJZxJZxJZxJZxJZxJZxJZxJZx', 'EVENT_MANAGER', 'event1@example.com', 'Event Manager', '0123456788', 'Event Address', true),
-(3, 'student1', '$2a$10$rDkPvvAFV6GgJjXpYWJhUOQZxJZxJZxJZxJZxJZxJZxJZxJZxJZx', 'STUDENT', 'student1@example.com', 'Student User', '0123456787', 'Student Address', true),
-(4, 'parent1', '$2a$10$rDkPvvAFV6GgJjXpYWJhUOQZxJZxJZxJZxJZxJZxJZxJZxJZxJZx', 'PARENT', 'parent1@example.com', 'Parent User', '0123456786', 'Parent Address', true);
+-- -- Insert Users with different roles
+-- INSERT INTO users (id, username, password, role, email, full_name, phone, address, status) VALUES
+-- (1, 'admin1', '$2a$10$rDkPvvAFV6GgJjXpYWJhUOQZxJZxJZxJZxJZxJZxJZxJZxJZxJZx', 'ADMIN', 'admin1@example.com', 'Admin User', '0123456789', 'Admin Address', true),
+-- (2, 'event1', '$2a$10$rDkPvvAFV6GgJjXpYWJhUOQZxJZxJZxJZxJZxJZxJZxJZxJZxJZx', 'EVENT_MANAGER', 'event1@example.com', 'Event Manager', '0123456788', 'Event Address', true),
+-- (3, 'student1', '$2a$10$rDkPvvAFV6GgJjXpYWJhUOQZxJZxJZxJZxJZxJZxJZxJZxJZxJZx', 'STUDENT', 'student1@example.com', 'Student User', '0123456787', 'Student Address', true),
+-- (4, 'parent1', '$2a$10$rDkPvvAFV6GgJjXpYWJhUOQZxJZxJZxJZxJZxJZxJZxJZxJZxJZx', 'PARENT', 'parent1@example.com', 'Parent User', '0123456786', 'Parent Address', true);
 
 -- Insert Seminars
 INSERT INTO seminars (id, title, description, duration, price, meeting_url, form_url, status, status_approve, slot, image_url, create_by) VALUES

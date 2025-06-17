@@ -2,6 +2,7 @@ package org.swd392.seminars.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.swd392.seminars.payload.request.SeminarTicketRequest;
 import org.swd392.seminars.payload.response.SeminarTicketResponse;
@@ -29,7 +30,7 @@ public class SeminarTicketServiceImpl implements SeminarTicketService {
     @Override
     public SeminarTicketResponse bookTicket(SeminarTicketRequest request) {
         log.info("Starting to book ticket for seminar ID: {}, user ID: {}", request.getSeminarId(), request.getUserProfileId());
-        
+
         // Validate seminar exists
         Seminar seminar = seminarRepository.findById(request.getSeminarId())
                 .orElseThrow(() -> new ResourceNotFoundException("Seminar not found with ID: " + request.getSeminarId()));

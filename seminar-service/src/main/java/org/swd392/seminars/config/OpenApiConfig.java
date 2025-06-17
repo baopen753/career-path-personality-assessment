@@ -17,10 +17,13 @@ public class OpenApiConfig {
     @Value("${server.port}")
     private int serverPort;
 
+    @Value("${server.servlet.context-path}")
+    private String contextPath;
+
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
-                .addServersItem(new Server().url("http://localhost:" + serverPort))
+                .addServersItem(new Server().url("http://localhost:" + serverPort  + contextPath))
                 .components(new Components()
                         .addSecuritySchemes("bearer-jwt",
                                 new SecurityScheme()

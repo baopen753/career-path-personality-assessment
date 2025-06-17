@@ -64,7 +64,7 @@ public class SeminarController {
         @ApiResponse(responseCode = "404", description = "Seminar not found")
     })
     @PutMapping("/{seminarId}/update-seminar")
-    @PreAuthorize("hasRole('EVENT_MANAGER')")
+   // @PreAuthorize("hasRole('EVENT_MANAGER')")
     public ResponseEntity<SeminarResponse> updateSeminar(
             @RequestHeader("X-User-Id") Integer eventManagerId,
             @PathVariable Integer seminarId,
