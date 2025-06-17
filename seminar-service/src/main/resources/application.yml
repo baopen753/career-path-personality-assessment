@@ -2,10 +2,11 @@ server:
   port: 8082
   servlet:
     context-path: /seminar
+ 
 
 spring:
   application:
-    name: seminars
+    name: seminar
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5435}/${DB_NAME:seminarDb}
     driverClassName: org.postgresql.Driver
@@ -14,10 +15,30 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     show-sql: true
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
 
-# host url database: http://localhost:8080/h2-console
+  # OpenAPI/Swagger Configuration
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+    disable-swagger-default-url: true
+  show-actuator: true
+  packages-to-scan: org.swd392.seminars
+  default-produces-media-type: application/json
+  default-consumes-media-type: application/json
+  writer-with-default-pretty-printer: true
+
 
 
 # config actuator endpoints

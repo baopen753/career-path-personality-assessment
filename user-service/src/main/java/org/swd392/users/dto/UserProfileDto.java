@@ -3,7 +3,6 @@ package org.swd392.users.dto;
 import lombok.*;
 import org.swd392.users.entity.AccountType;
 import org.swd392.users.entity.Gender;
-import org.swd392.users.entity.UserProfile;
 
 import java.time.LocalDate;
 
@@ -12,8 +11,9 @@ import java.time.LocalDate;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @ToString
-public class UserProfileDTO {
+public class UserProfileDto {
     private Long userId;
     private Long profileId;
     private String fullName;

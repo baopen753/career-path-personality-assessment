@@ -3,9 +3,10 @@ server:
   servlet:
     context-path: /user
 
+
 spring:
   application:
-    name: users
+    name: user
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5437}/${DB_NAME:UserDB}
     driverClassName: org.postgresql.Driver
@@ -19,8 +20,11 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-
-# host url database: http://localhost:8080/h2-console
+    defer-datasource-initialization: true  # tell Hibernate to create schema before SQL init
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:data.sql  # Location of the data.sql file to initialize the database
 
 
 # config actuator endpoints
@@ -49,9 +53,18 @@ eureka:
       defaultZone: http://localhost:8761/eureka  # URL of the Eureka server, this url can be hardcoded because it has only 1 Eureka server in the system
 
 
-
 # info of Eureka client on the Eureka Server Dashboard
 info:
   app:
     name: ${spring.application.name}
     description: "This is quiz service in Career Path Personality Assessment System"
+
+
+logging:
+  level:
+    org.springframework.security: TRACE
+
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
