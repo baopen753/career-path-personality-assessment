@@ -33,6 +33,13 @@ public class User {
     public User() {
     }
 
+    public User(boolean status, Role role, String email, String password) {
+        this.status = status;
+        this.role = role;
+        this.password = password;
+        this.email = email;
+    }
+
     public User(Long id, String email, String password, Role role, boolean status, UserProfile userProfile) {
         this.id = id;
         this.email = email;

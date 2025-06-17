@@ -9,15 +9,14 @@ import java.util.function.Predicate;
 @Component
 public class RouteValidator {
 
-
+    private static final String CONTEXT_PATH = "/swd391";
 
     public static final List<String> PUBLIC_ENDPOINTS = List.of(
-            "/swd391/user/authentication/register",
-            "/swd391/user/authentication/login",
-            "/swd391/user/authentication/logout"
+            CONTEXT_PATH + "/user/authentication/register",
+            CONTEXT_PATH + "/user/authentication/login",
+            CONTEXT_PATH + "/user/authentication/logout"
     );
 
     public Predicate<ServerHttpRequest> isPublic =
             request -> PUBLIC_ENDPOINTS.stream().anyMatch(uir -> request.getURI().getPath().contains(uir));
-
 }
