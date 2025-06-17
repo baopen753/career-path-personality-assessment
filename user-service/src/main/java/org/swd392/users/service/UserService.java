@@ -76,6 +76,7 @@ public class UserService implements IUserService {
         newUser.setEmail(request.getEmail());
         newUser.setPassword(passwordEncoder.encode(request.getPassword()));
         newUser.setRole(defaultRole);
+        newUser.setStatus(true);
 
         User savedUser = userRepository.save(newUser);
 
