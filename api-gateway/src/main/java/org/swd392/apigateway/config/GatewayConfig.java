@@ -33,6 +33,11 @@ public class GatewayConfig {
                         .filters(f -> f.rewritePath("/swd391/user/(?<segment>.*)", "/user/${segment}")
                                 .addResponseHeader("X-Response-Time", LocalDateTime.now().toString()))
                         .uri("lb://user"))
+                .route(p -> p
+                        .path("/swd391/seminar/**")
+                        .filters(f -> f.rewritePath("/swd391/seminar/(?<segment>.*)", "/seminar/${segment}")
+                                .addResponseHeader("X-Response-Time", LocalDateTime.now().toString()))
+                        .uri("lb://seminar"))
                 .build();
     }
 }
