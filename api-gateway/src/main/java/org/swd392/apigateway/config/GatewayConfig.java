@@ -17,7 +17,7 @@ public class GatewayConfig {
                         .path("/swd391/career/**")
                         .filters(f -> f.rewritePath("/swd391/career/(?<segment>.*)", "/career/${segment}")
                                 .addResponseHeader("X-Response-Time", LocalDateTime.now().toString()))
-                        .uri("lb://CAREER"))
+                        .uri("lb://career"))
                 .route(p -> p
                         .path("/swd391/quiz/**")
                         .filters(f -> f.rewritePath("/swd391/quiz/(?<segment>.*)", "/quiz/${segment}")
@@ -33,6 +33,11 @@ public class GatewayConfig {
                         .filters(f -> f.rewritePath("/swd391/user/(?<segment>.*)", "/user/${segment}")
                                 .addResponseHeader("X-Response-Time", LocalDateTime.now().toString()))
                         .uri("lb://user"))
+                .route(p -> p
+                        .path("/swd391/seminar/**")
+                        .filters(f -> f.rewritePath("/swd391/seminar/(?<segment>.*)", "/seminar/${segment}")
+                                .addResponseHeader("X-Response-Time", LocalDateTime.now().toString()))
+                        .uri("lb://seminar"))
                 .build();
     }
 }

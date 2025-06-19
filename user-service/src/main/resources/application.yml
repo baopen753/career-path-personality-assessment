@@ -3,14 +3,15 @@ server:
   servlet:
     context-path: /user
 
+
 spring:
   application:
     name: user
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5437}/${DB_NAME:UserDB}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:userdb}
     driverClassName: org.postgresql.Driver
-    username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:root}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:12345}
   jpa:
     hibernate:
       ddl-auto: create
@@ -24,7 +25,17 @@ spring:
     init:
       mode: always
       data-locations: classpath:data.sql  # Location of the data.sql file to initialize the database
-
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: testpersonality134@gmail.com
+    password: okjl jixz grdk qcuh
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 # config actuator endpoints
 management:
@@ -61,9 +72,10 @@ info:
 
 logging:
   level:
-    org.springframework.security: DEBUG
+    org.springframework.security: TRACE
 
 
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+

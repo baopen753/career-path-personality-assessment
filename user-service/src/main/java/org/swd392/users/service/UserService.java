@@ -1,15 +1,13 @@
 package org.swd392.users.service;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import org.swd392.users.dto.LoginRequestDto;
-import org.swd392.users.dto.LoginResponseDto;
-import org.swd392.users.dto.RegisterRequestDto;
-import org.swd392.users.dto.RegisterResponseDto;
+import org.swd392.users.dto.*;
 import org.swd392.users.entity.Role;
 import org.swd392.users.entity.User;
 import org.swd392.users.repository.RoleRepository;
@@ -52,6 +50,24 @@ public class UserService implements IUserService {
             return true;
         }
         return false;
+    }
+    public User findUserByEmail( String email) {
+        return userRepository.findUserByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with email: " + email));
+    }
+    public void updatePassword(@Valid ResetPasswordDTO resetPasswordDTO, String email) {
+        {
+            User user = userRepository.findUserByEmail(email)
+                    .orElseThrow(() -> new IllegalArgumentException("Email không tồn tại"));
+
+            if (!resetPasswordDTO.getNewPassword().equals(resetPasswordDTO.getConfirmPassword())) {
+                throw new IllegalArgumentException("Mật khẩu xác nhận không khớp");
+            }
+
+            user.setPassword(passwordEncoder.encode(resetPasswordDTO.getNewPassword()));
+
+            userRepository.save(user);
+        }
     }
 
     @Override
@@ -107,6 +123,7 @@ public class UserService implements IUserService {
                 .token(token)
                 .build();
     }
+
 
     @Override
     @Transactional

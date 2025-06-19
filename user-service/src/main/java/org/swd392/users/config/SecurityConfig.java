@@ -7,6 +7,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
@@ -24,6 +25,7 @@ import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Autowired
@@ -36,6 +38,8 @@ public class SecurityConfig {
                 .csrf(CsrfConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+                                "/api/payments/**",
+                                "/api/otp/**",
                                 "/authentication/register",
                                 "/authentication/login",
                                 "/authentication/logout",
@@ -46,7 +50,7 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/webjars/**"
                         ).permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/profiles/profile/**").hasAnyRole("SYSTEM_ADMIN", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/profiles/profile/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
