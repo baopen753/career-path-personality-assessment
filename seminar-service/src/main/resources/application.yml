@@ -1,7 +1,5 @@
 server:
   port: 8082
-  servlet:
-    context-path: /seminar
  
 
 spring:
@@ -15,12 +13,15 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     show-sql: true
     defer-datasource-initialization: true
   sql:
     init:
       mode: always
+  cloud:
+    discovery:
+      enabled: false
 
   # OpenAPI/Swagger Configuration
 springdoc:
@@ -39,6 +40,7 @@ springdoc:
   default-consumes-media-type: application/json
   writer-with-default-pretty-printer: true
 
+# host url database: http://localhost:8080/h2-console
 
 
 # config actuator endpoints

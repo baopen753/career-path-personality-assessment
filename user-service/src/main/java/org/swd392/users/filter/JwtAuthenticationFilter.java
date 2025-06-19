@@ -14,7 +14,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.swd392.users.entity.User;
 import org.swd392.users.repository.UserRepository;
 import org.swd392.users.service.JwtService;
-import org.springframework.util.AntPathMatcher;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -28,31 +27,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
     private UserRepository userRepository;
-
-    private final AntPathMatcher pathMatcher = new AntPathMatcher();
-
-    private static final String[] PUBLIC_ENDPOINTS = {
-            "/authentication/register",
-            "/authentication/login",
-            "/authentication/logout",
-            "/v3/api-docs/**",
-            "/api-docs/**",
-            "/swagger-ui.html",
-            "/swagger-ui/**",
-            "/swagger-resources/**",
-            "/webjars/**"
-    };
-
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path = request.getServletPath();
-        for (String pattern : PUBLIC_ENDPOINTS) {
-            if (pathMatcher.match(pattern, path)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,

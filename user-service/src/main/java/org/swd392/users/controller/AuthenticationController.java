@@ -19,10 +19,11 @@ public class AuthenticationController {
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<RegisterResponseDto>> register(@Valid @RequestBody RegisterRequestDto request) {
-        userService.register(request);
+        RegisterResponseDto response = userService.register(request);
         return ResponseEntity.ok(ApiResponse.<RegisterResponseDto>builder()
                 .code(200)
                 .message("Registration successful")
+                .result(response)
                 .build());
     }
 
@@ -51,4 +52,5 @@ public class AuthenticationController {
                 .message("Logged out successfully")
                 .build());
     }
+
 }
