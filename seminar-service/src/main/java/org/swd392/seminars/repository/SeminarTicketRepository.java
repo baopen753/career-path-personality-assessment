@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface SeminarTicketRepository extends JpaRepository<SeminarTicket, Integer> {
     List<SeminarTicket> findBySeminarId(Integer seminarId);
-    List<SeminarTicket> findByUserProfileId(Integer userProfileId);
-    boolean existsBySeminarIdAndUserProfileId(Integer seminarId, Integer userProfileId);
+    List<SeminarTicket> findByUserId(Integer userId);
+    boolean existsBySeminarIdAndUserId(Integer seminarId, Integer userId);
     long countBySeminarId(Integer seminarId);
 } 

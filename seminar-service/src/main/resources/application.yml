@@ -1,5 +1,7 @@
 server:
   port: 8082
+  servlet:
+    context-path: /seminar
  
 
 spring:
@@ -8,22 +10,23 @@ spring:
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5435}/${DB_NAME:seminarDb}
     driverClassName: org.postgresql.Driver
-    username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:root}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:12345}
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
     defer-datasource-initialization: true
   sql:
     init:
       mode: always
-  cloud:
-    discovery:
-      enabled: false
 
-  # OpenAPI/Swagger Configuration
+# OpenAPI/Swagger Configuration
 springdoc:
   api-docs:
     enabled: true
@@ -40,9 +43,6 @@ springdoc:
   default-consumes-media-type: application/json
   writer-with-default-pretty-printer: true
 
-# host url database: http://localhost:8080/h2-console
-
-
 # config actuator endpoints
 management:
   endpoints:
@@ -57,21 +57,60 @@ management:
     env:
       enabled: true         # show info env in /actuator/info
 
-
 # config eureka client
 eureka:
-  instance:
-    prefer-ip-address: true # Tells Eureka to use the IP address instead of the hostname when registering the service. Because there is no DNS locally or in Docker.
   client:
-    fetch-registry: true # Tells eureka client to fetch the registry from the Eureka server
-    register-with-eureka: true # tells eureka client to register itself with the Eureka server
-    service-url:
-      defaultZone: http://localhost:8761/eureka  # URL of the Eureka server, this url can be hardcoded because it has only 1 Eureka server in the system
+    enabled: false
+    registerWithEureka: false
+    fetchRegistry: false
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
 
-
+    #register-with-eureka: true
+    #fetch-registry: true
+    #instance:
+    #prefer-ip-address: true
 
 # info of Eureka client on the Eureka Server Dashboard
 info:
   app:
     name: ${spring.application.name}
     description: "This is quiz service in Career Path Personality Assessment System"
+
+# Logging configuration for debugging
+logging:
+  level:
+    org.swd392.seminars: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.cloud.openfeign: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+# Feign Client Configuration - Fix retry and timeout issues
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 10000
+        readTimeout: 30000
+        retryer:
+          period: 1000
+          maxPeriod: 5000
+          maxAttempts: 3
+        loggerLevel: FULL
+  compression:
+    request:
+      enabled: true
+    response:
+      enabled: true
+
+user:
+  service:
+    url: http://localhost:8080
+
+notification:
+  service:
+    url: http://localhost:8083/notification

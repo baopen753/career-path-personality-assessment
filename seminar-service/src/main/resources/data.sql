@@ -6,13 +6,13 @@
 -- (4, 'parent1', '$2a$10$rDkPvvAFV6GgJjXpYWJhUOQZxJZxJZxJZxJZxJZxJZxJZxJZxJZx', 'PARENT', 'parent1@example.com', 'Parent User', '0123456786', 'Parent Address', true);
 
 -- Insert Seminars
-INSERT INTO seminars (id, title, description, duration, price, meeting_url, form_url, status, status_approve, slot, image_url, create_by) VALUES
-(1, 'Web Development Workshop', 'Learn about modern web development', 120, 0, 'https://meet.google.com/web', 'https://forms.google.com/web', 'PENDING', 'PENDING', 20, 'https://example.com/web.jpg', 2),
-(2, 'Data Science Seminar', 'Introduction to Data Science', 90, 0, 'https://meet.google.com/data', 'https://forms.google.com/data', 'ONGOING', 'APPROVED', 15, 'https://example.com/data.jpg', 2),
-(3, 'AI Workshop', 'Deep dive into AI and Machine Learning', 180, 0, 'https://meet.google.com/ai', 'https://forms.google.com/ai', 'COMPLETED', 'APPROVED', 10, 'https://example.com/ai.jpg', 2);
+INSERT INTO seminars (title, description, duration, price, meeting_url, form_url, status, status_approve, slot, image_url, create_by) VALUES
+('Web Development Workshop', 'Learn modern web development techniques and best practices.', 180, 50.0, 'https://meet.google.com/web-dev', 'https://forms.google.com/web-dev', 'PENDING', 'APPROVED', 30, 'https://example.com/images/web-dev.jpg', 3),
+('Data Science Seminar', 'Introduction to data science and machine learning concepts.', 240, 75.0, 'https://meet.google.com/data-sci', 'https://forms.google.com/data-sci', 'ONGOING', 'APPROVED', 25, 'https://example.com/images/data-sci.jpg', 3),
+('AI Workshop', 'Explore artificial intelligence and its applications.', 180, 60.0, 'https://meet.google.com/ai-workshop', 'https://forms.google.com/ai', 'PENDING', 'APPROVED', 20, 'https://example.com/images/ai.jpg', 3);
 
 -- Insert Seminar Tickets
-INSERT INTO seminar_tickets (id, seminar_id, user_profile_id, description, starting_time, booking_time, status) VALUES
-(1, 1, 3, 'Student ticket for Web Development Workshop', '2024-06-20 09:00:00', '2024-06-13 10:00:00', true),
-(2, 2, 4, 'Parent ticket for Data Science Seminar', '2024-06-21 14:00:00', '2024-06-13 11:00:00', true),
-(3, 3, 4, 'Parent ticket for AI Workshop', '2024-06-22 10:00:00', '2024-06-13 12:00:00', true);
+INSERT INTO seminar_tickets (seminar_id, user_id, description, starting_time, booking_time, status) VALUES
+((SELECT id FROM seminars WHERE title = 'Web Development Workshop'), 3, 'Student ticket for Web Development Workshop', '2024-06-20 09:00:00', '2024-06-13 10:00:00', true),
+((SELECT id FROM seminars WHERE title = 'Data Science Seminar'), 4, 'Parent ticket for Data Science Seminar', '2024-06-21 14:00:00', '2024-06-13 11:00:00', true),
+((SELECT id FROM seminars WHERE title = 'AI Workshop'), 4, 'Parent ticket for AI Workshop', '2024-06-22 10:00:00', '2024-06-13 12:00:00', true);

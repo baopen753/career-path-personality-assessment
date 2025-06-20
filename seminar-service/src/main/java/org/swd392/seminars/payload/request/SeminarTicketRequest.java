@@ -15,5 +15,5 @@ public class SeminarTicketRequest {
     private LocalDate startingTime;
     
     @JsonIgnore
-    private Integer userProfileId;
+    private Integer userId;
 } 
