@@ -66,4 +66,41 @@ public class UserController {
         }
         return ResponseEntity.notFound().build();
     }
+    
+    @GetMapping("/{userId}/email")
+    // No @PreAuthorize needed - this endpoint is in PUBLIC_ENDPOINTS for seminar-service calls
+    public ResponseEntity<String> getUserEmail(@PathVariable Integer userId) {
+        return userService.getUserById(userId.longValue())
+                .map(user -> ResponseEntity.ok(user.getEmail()))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{userId}/name")
+    // No @PreAuthorize needed - this endpoint is in PUBLIC_ENDPOINTS for seminar-service calls
+    public ResponseEntity<String> getUserName(@PathVariable Integer userId) {
+        return userService.getUserById(userId.longValue())
+                .map(user -> {
+                    // Try to get name from user profile or use email as fallback
+                    String name = user.getEmail().split("@")[0]; // Use email prefix as name fallback
+                    return ResponseEntity.ok(name);
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{userId}/role")
+    // No @PreAuthorize needed - this endpoint is in PUBLIC_ENDPOINTS for seminar-service calls
+    public ResponseEntity<String> getUserRole(@PathVariable Integer userId) {
+        return userService.getUserById(userId.longValue())
+                .map(user -> ResponseEntity.ok(user.getRole().getRoleName()))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{userId}/info")
+    // No @PreAuthorize needed - this endpoint is in PUBLIC_ENDPOINTS for seminar-service calls
+    public ResponseEntity<UserDTO> getUserInfo(@PathVariable Integer userId) {
+        return userService.getUserById(userId.longValue())
+                .map(UserMapper::toDTO)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 }

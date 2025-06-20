@@ -13,7 +13,11 @@ import org.swd392.users.entity.User;
 import org.swd392.users.repository.RoleRepository;
 import org.swd392.users.repository.UserRepository;
 import org.swd392.users.service.impl.IUserService;
+import org.swd392.users.service.client.NotificationFeignClient;
+import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,6 +29,8 @@ public class UserService implements IUserService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final NotificationFeignClient notificationFeignClient;
+    private final RestTemplate restTemplate;
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -95,12 +101,44 @@ public class UserService implements IUserService {
 
         User savedUser = userRepository.save(newUser);
 
+         // Send welcome email
+         try {
+            sendRegistrationConfirmationEmail(savedUser, defaultRole);
+        } catch (Exception e) {
+            // Log error but don't fail registration
+            System.out.println("Failed to send registration email: " + e.getMessage());
+        }
+
+
         return RegisterResponseDto.builder()
                 .useId(savedUser.getId())
                 .email(savedUser.getEmail())
                 .roleId(savedUser.getRole().getRoleId())
                 .build();
     }
+
+    private void sendRegistrationConfirmationEmail(User user, Role role) {
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            String registrationDate = LocalDateTime.now().format(formatter);
+            String userName = user.getEmail().split("@")[0]; // Use email prefix as name
+            
+            // Call notification service using FeignClient
+            notificationFeignClient.sendAccountRegistrationConfirmation(
+                user.getEmail(),
+                userName,
+                user.getEmail(),
+                role.getRoleName(),
+                registrationDate,
+                "http://localhost:3000/login"
+            );
+            
+            System.out.println("Successfully sent registration confirmation email for user: " + user.getEmail());
+        } catch (Exception e) {            System.out.println("Failed to send registration confirmation email: " + e.getMessage());
+        }
+    }
+
+
 
     @Override
     public LoginResponseDto login(LoginRequestDto request) {
