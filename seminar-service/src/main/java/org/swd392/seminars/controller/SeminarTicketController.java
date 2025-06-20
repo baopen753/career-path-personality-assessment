@@ -11,9 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.swd392.seminars.exception.ResourceNotFoundException;
-import org.swd392.seminars.exception.SeminarTicketException;
-import org.swd392.seminars.exception.UnauthorizedException;
 import org.swd392.seminars.payload.request.SeminarTicketRequest;
 import org.swd392.seminars.payload.response.SeminarTicketResponse;
 import org.swd392.seminars.service.SeminarTicketService;
@@ -64,7 +61,7 @@ public class SeminarTicketController {
         @ApiResponse(responseCode = "404", description = "Ticket not found")
     })
     @PutMapping("/{ticketId}/cancel-ticket")
-    @PreAuthorize("hasAnyRole('STUDENT', 'PARENT')")
+ //   @PreAuthorize("hasAnyRole('STUDENT', 'PARENT')")
     public ResponseEntity<Void> cancelTicket(
             @RequestHeader("X-User-Id") Integer userProfileId,
             @PathVariable Integer ticketId) {
@@ -124,7 +121,7 @@ public class SeminarTicketController {
         @ApiResponse(responseCode = "404", description = "Seminar not found")
     })
     @GetMapping("/seminar/{seminarId}/tickets")
-    @PreAuthorize("hasRole('EVENT_MANAGER')")
+ //   @PreAuthorize("hasRole('EVENT_MANAGER')")
     public ResponseEntity<List<SeminarTicketResponse>> getSeminarTickets(
             @RequestHeader("X-User-Id") Integer eventManagerId,
             @PathVariable Integer seminarId) {

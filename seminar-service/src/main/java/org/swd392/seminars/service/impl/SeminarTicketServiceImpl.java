@@ -2,8 +2,8 @@ package org.swd392.seminars.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.swd392.seminars.payload.request.SeminarTicketRequest;
 import org.swd392.seminars.payload.response.SeminarTicketResponse;
 import org.swd392.seminars.entity.Seminar;
@@ -28,6 +28,7 @@ public class SeminarTicketServiceImpl implements SeminarTicketService {
     private final SeminarRepository seminarRepository;
 
     @Override
+    @Transactional
     public SeminarTicketResponse bookTicket(SeminarTicketRequest request) {
         log.info("Starting to book ticket for seminar ID: {}, user ID: {}", request.getSeminarId(), request.getUserProfileId());
 
@@ -78,12 +79,14 @@ public class SeminarTicketServiceImpl implements SeminarTicketService {
         ticket.setBookingTime(LocalDateTime.now());
         ticket.setStatus(true);
 
-        log.info("Saving new ticket: {}", ticket);
+
         SeminarTicket savedTicket = seminarTicketRepository.save(ticket);
+        log.info("Saving new ticket: {}", ticket);
         return mapToResponse(savedTicket);
     }
 
     @Override
+    @Transactional
     public void cancelTicket(Integer userProfileId, Integer ticketId) {
         log.info("Cancelling ticket ID: {} for user ID: {}", ticketId, userProfileId);
         
@@ -133,7 +136,7 @@ public class SeminarTicketServiceImpl implements SeminarTicketService {
 
     @Override
     public long getBookedTicketsCount(Integer seminarId) {
-        return seminarTicketRepository.countBySeminarId(seminarId);
+        return seminarTicketRepository.countBySeminarIdAndStatusTrue(seminarId);
     }
 
     private SeminarTicketResponse mapToResponse(SeminarTicket ticket) {
