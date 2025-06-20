@@ -1,6 +1,5 @@
 package org.swd392.users.controller;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -8,9 +7,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.swd392.users.dto.ResetPasswordDTO;
+import org.swd392.users.dto.ResponseDTO;
 import org.swd392.users.service.UserService;
 import org.swd392.users.service.impl.OtpService;
-import org.swd392.users.dto.ResponseDTO;
+
+import javax.validation.Valid;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/otp")

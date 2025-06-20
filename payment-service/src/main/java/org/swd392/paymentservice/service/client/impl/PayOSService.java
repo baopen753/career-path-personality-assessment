@@ -1,6 +1,6 @@
-package org.swd392.users.service.impl;
+package org.swd392.paymentservice.service.client.impl;
 
-import org.swd392.users.dto.PaymentRequestDTO;
+import org.swd392.paymentservice.dto.PaymentRequestDTO;
 import vn.payos.PayOS;
 import org.springframework.stereotype.Service;
 import vn.payos.type.PaymentData;

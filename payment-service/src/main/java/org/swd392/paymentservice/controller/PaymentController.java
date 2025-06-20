@@ -1,9 +1,9 @@
-package org.swd392.users.controller;
+package org.swd392.paymentservice.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.swd392.users.dto.PaymentRequestDTO;
-import org.swd392.users.service.impl.PayOSService;
+import org.swd392.paymentservice.dto.PaymentRequestDTO;
+import org.swd392.paymentservice.service.client.impl.PayOSService;
 import vn.payos.type.Webhook;
 import vn.payos.type.WebhookData;
 

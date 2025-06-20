@@ -1,4 +1,4 @@
-package org.swd392.users.dto;
+package org.swd392.paymentservice.dto;
 
 public class PaymentRequestDTO {
     private long amount;
