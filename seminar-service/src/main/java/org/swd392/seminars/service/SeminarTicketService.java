@@ -13,4 +13,5 @@ public interface SeminarTicketService {
     SeminarTicketResponse getTicket(Integer ticketId);
     boolean hasActiveTicket(Integer seminarId, Integer userProfileId);
     long getBookedTicketsCount(Integer seminarId);
+    void deleteBookedTicket(Integer seminarId, Integer userProfileId);
 }

@@ -57,7 +57,7 @@ public class SeminarTicketServiceImpl implements SeminarTicketService {
 
         // Check if seminar is fully booked
         long bookedTickets = getBookedTicketsCount(request.getSeminarId());
-        if (bookedTickets >= seminar.getSlot()) {
+            if (bookedTickets >= seminar.getSlot()) {
             throw new SeminarTicketException("Seminar is fully booked");
         }
 
@@ -137,6 +137,14 @@ public class SeminarTicketServiceImpl implements SeminarTicketService {
     @Override
     public long getBookedTicketsCount(Integer seminarId) {
         return seminarTicketRepository.countBySeminarIdAndStatusTrue(seminarId);
+    }
+
+    @Override
+    @Transactional
+    public void deleteBookedTicket(Integer seminarId, Integer userProfileId) {
+        SeminarTicket seminarTicket = seminarTicketRepository.findBySeminarIdAndUserProfileId(seminarId,userProfileId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with ID: " + seminarId + " and UserProfileId: " + userProfileId));
+        seminarTicketRepository.delete(seminarTicket);
     }
 
     private SeminarTicketResponse mapToResponse(SeminarTicket ticket) {

@@ -1,24 +1,32 @@
 package org.swd392.seminars.dto;
 
+import lombok.Builder;
+
+@Builder
 public class PaymentRequestDTO {
-    private long amount;
+    private Integer amount;
     private String description;
 
     public PaymentRequestDTO() {
     }
-    public PaymentRequestDTO(long amount, String description) {
+
+    public PaymentRequestDTO(Integer amount, String description) {
         this.amount = amount;
         this.description = description;
     }
-    public long getAmount() {
+
+    public Integer getAmount() {
         return amount;
     }
-    public void setAmount(long amount) {
+
+    public void setAmount(Integer amount) {
         this.amount = amount;
     }
+
     public String getDescription() {
         return description;
     }
+
     public void setDescription(String description) {
         this.description = description;
     }

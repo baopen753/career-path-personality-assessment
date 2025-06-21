@@ -22,7 +22,7 @@ spring:
       mode: always
   cloud:
     discovery:
-      enabled: false
+      enabled: true
 
   # OpenAPI/Swagger Configuration
 springdoc:

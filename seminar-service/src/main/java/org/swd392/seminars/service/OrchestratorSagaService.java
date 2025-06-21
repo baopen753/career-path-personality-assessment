@@ -4,6 +4,6 @@ import org.swd392.seminars.payload.request.SeminarTicketRequest;
 
 public interface OrchestratorSagaService {
 
-    void startOrderSaga(Integer userProfileId, SeminarTicketRequest request);
+    void startBookTicketSaga(Integer userProfileId, SeminarTicketRequest request);
 
 }
