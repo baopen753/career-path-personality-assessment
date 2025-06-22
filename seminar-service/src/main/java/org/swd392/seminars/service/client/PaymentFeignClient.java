@@ -13,7 +13,4 @@ public interface PaymentFeignClient {
     @PostMapping("/payment/api/payments/create")
     ResponseEntity<PaymentResponseDto> createPayment(@RequestBody PaymentRequestDTO request);
 
-
-
-
 }

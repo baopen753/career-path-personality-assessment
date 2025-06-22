@@ -6,13 +6,15 @@ import lombok.Builder;
 public class PaymentRequestDTO {
     private Integer amount;
     private String description;
+    private Long sagaId;
 
     public PaymentRequestDTO() {
     }
 
-    public PaymentRequestDTO(Integer amount, String description) {
+    public PaymentRequestDTO(Integer amount, String description, Long sagaId) {
         this.amount = amount;
         this.description = description;
+        this.sagaId = sagaId;
     }
 
     public Integer getAmount() {
@@ -29,5 +31,13 @@ public class PaymentRequestDTO {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Long getSagaId() {
+        return sagaId;
+    }
+
+    public void setSagaId(Long sagaId) {
+        this.sagaId = sagaId;
     }
 }

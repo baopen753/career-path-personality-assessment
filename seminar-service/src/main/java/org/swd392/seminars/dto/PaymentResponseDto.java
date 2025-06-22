@@ -6,6 +6,6 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 public class PaymentResponseDto {
-    private long orderCode;
+    private Long orderCode;
     private String checkoutUrl;
 }

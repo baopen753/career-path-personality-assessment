@@ -1,9 +1,10 @@
 package org.swd392.seminars.service;
 
 import org.swd392.seminars.payload.request.SeminarTicketRequest;
+import org.swd392.seminars.payload.response.PaymentInitiationResponse;
 
 public interface OrchestratorSagaService {
 
-    void startBookTicketSaga(Integer userProfileId, SeminarTicketRequest request);
+    PaymentInitiationResponse startBookTicketSaga(Integer userProfileId, SeminarTicketRequest request);
 
 }

@@ -6,7 +6,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.swd392.seminars.entity.SagaTransaction;
 import org.swd392.seminars.payload.request.SeminarTicketRequest;
+import org.swd392.seminars.payload.response.PaymentInitiationResponse;
+import org.swd392.seminars.repository.SagaTransactionRepository;
 import org.swd392.seminars.service.OrchestratorSagaService;
 
 @Slf4j
@@ -17,11 +20,19 @@ import org.swd392.seminars.service.OrchestratorSagaService;
 public class OrchestratorSagaController {
 
     private final OrchestratorSagaService orchestratorSagaService;
+    private final SagaTransactionRepository sagaTransactionRepository;
 
     @PostMapping
-    public ResponseEntity<?> placeOrderSaga(@RequestHeader("X-User-Id") Integer userProfileId,
-                                            @Valid @RequestBody SeminarTicketRequest request) {
-        orchestratorSagaService.startBookTicketSaga(userProfileId, request);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<PaymentInitiationResponse> placeOrderSaga(@RequestHeader("X-User-Id") Integer userProfileId,
+                                                                    @Valid @RequestBody SeminarTicketRequest request) {
+        PaymentInitiationResponse response = orchestratorSagaService.startBookTicketSaga(userProfileId, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/status/{sagaId}")
+    public ResponseEntity<SagaTransaction> getSagaStatus(@PathVariable Long sagaId) {
+        SagaTransaction sagaTransaction = sagaTransactionRepository.findById(sagaId)
+                .orElseThrow(() -> new RuntimeException("Saga transaction not found"));
+        return ResponseEntity.ok(sagaTransaction);
     }
 }

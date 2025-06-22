@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.swd392.paymentservice.dto.PaymentRequestDTO;
 import org.swd392.paymentservice.dto.PaymentResponseDto;
 import org.swd392.paymentservice.dto.ResponseDTO;
+import org.swd392.paymentservice.service.client.SeminarFeignClient;
 import org.swd392.paymentservice.service.client.impl.PayOSService;
 import vn.payos.type.Webhook;
 import vn.payos.type.WebhookData;
@@ -17,23 +18,20 @@ import vn.payos.type.WebhookData;
 public class PaymentController {
 
     private final PayOSService payOSService;
+    private final SeminarFeignClient seminarFeignClient;
 
-    public PaymentController(PayOSService payOSService) {
+    public PaymentController(PayOSService payOSService, SeminarFeignClient seminarFeignClient) {
         this.payOSService = payOSService;
+        this.seminarFeignClient = seminarFeignClient;
     }
 
     @PostMapping("/create")
-    public ResponseEntity<ResponseDTO<PaymentResponseDto>> createPayment(@RequestBody PaymentRequestDTO request) {
+    public ResponseEntity<PaymentResponseDto> createPayment(@RequestBody PaymentRequestDTO request) {
 
         PaymentResponseDto responsePayment;
         try {
             responsePayment = payOSService.createPaymentLink(request);
-            return ResponseEntity.ok(ResponseDTO.<PaymentResponseDto>builder()
-                    .status(200)
-                    .message("Create Payment Link successfully")
-                    .data(responsePayment)
-                    .build()
-            );
+            return ResponseEntity.ok(responsePayment);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -63,29 +61,30 @@ public class PaymentController {
                 .build());
     }
 
-    //    @PostMapping("/webhook")
-//    public ResponseEntity<String> handleWebhook(@RequestBody Webhook webhook) {
-//        WebhookData data = payOSService.verifyWebhook(webhook);
-//
-//        System.out.println("✅ Webhook xác minh OK | Mã đơn: " + data.getOrderCode() +
-//                " | Mã trạng thái: " + data.getCode() +
-//                " | Mô tả: " + data.getDesc());
-//
-//        return ResponseEntity.ok("OK");
-//    }
-
-
     @PostMapping("/webhook")
     public ResponseEntity<String> handleWebhook(@RequestBody Webhook webhook) {
 
         log.info("📩 Received PayOS webhook: {}", webhook);
         WebhookData data = payOSService.verifyWebhook(webhook);
 
+        Long orderCode = data.getOrderCode();
+        String code = data.getCode();
+
         System.out.println("✅ Webhook xác minh OK | Mã đơn: " + data.getOrderCode() +
                 " | Mã trạng thái: " + data.getCode() +
                 " | Mô tả: " + data.getDesc());
 
+        // Notify seminar service about payment status
+        try {
+            boolean isSuccess = "00".equals(code); // PayOS success code
+            String message = isSuccess ? "Payment successful" : data.getDesc();
+            
+            seminarFeignClient.handlePaymentCallback(String.valueOf(orderCode), isSuccess, message);
+            log.info("✅ Notified seminar service about payment status for order: {}", orderCode);
+        } catch (Exception e) {
+            log.error("❌ Failed to notify seminar service about payment status for order: {}", orderCode, e);
+        }
+
         return ResponseEntity.ok("OK");
     }
-
 }
