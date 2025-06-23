@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.swd392.paymentservice.dto.PaymentCallbackEvent;
 import org.swd392.paymentservice.dto.PaymentRequestDTO;
 import org.swd392.paymentservice.dto.PaymentResponseDto;
 import org.swd392.paymentservice.dto.ResponseDTO;
@@ -44,6 +45,14 @@ public class PaymentController {
 
     @PostMapping("/cancel")
     public ResponseEntity<?> cancelPayment(@RequestParam long orderCode, @RequestParam String reason) {
+
+        PaymentCallbackEvent paymentCallbackEvent = PaymentCallbackEvent.builder()
+                .paymentOrderCode(orderCode)
+                .success(false)
+                .message(reason)
+                .build();
+
+        seminarFeignClient.handlePaymentCallback(paymentCallbackEvent);
         return ResponseEntity.ok(payOSService.cancelPayment(orderCode, reason));
     }
 
@@ -63,28 +72,38 @@ public class PaymentController {
 
     @PostMapping("/webhook")
     public ResponseEntity<String> handleWebhook(@RequestBody Webhook webhook) {
-
         log.info("📩 Received PayOS webhook: {}", webhook);
+    
+        // Defensive: check for test/verification POST
+        if (webhook == null) {
+            log.info("Received test/verification webhook from PayOS. Ignoring.");
+            return ResponseEntity.ok("Test webhook received");
+        }
+    
         WebhookData data = payOSService.verifyWebhook(webhook);
-
+    
         Long orderCode = data.getOrderCode();
         String code = data.getCode();
-
+    
         System.out.println("✅ Webhook xác minh OK | Mã đơn: " + data.getOrderCode() +
                 " | Mã trạng thái: " + data.getCode() +
                 " | Mô tả: " + data.getDesc());
-
-        // Notify seminar service about payment status
+    
         try {
             boolean isSuccess = "00".equals(code); // PayOS success code
             String message = isSuccess ? "Payment successful" : data.getDesc();
-            
-            seminarFeignClient.handlePaymentCallback(String.valueOf(orderCode), isSuccess, message);
+    
+            PaymentCallbackEvent paymentCallbackEvent = PaymentCallbackEvent.builder()
+                    .paymentOrderCode(orderCode)
+                    .success(isSuccess)
+                    .message(message)
+                    .build();
+    
+            seminarFeignClient.handlePaymentCallback(paymentCallbackEvent);
             log.info("✅ Notified seminar service about payment status for order: {}", orderCode);
         } catch (Exception e) {
             log.error("❌ Failed to notify seminar service about payment status for order: {}", orderCode, e);
         }
-
         return ResponseEntity.ok("OK");
     }
 }

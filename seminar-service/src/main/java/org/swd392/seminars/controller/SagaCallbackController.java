@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.*;
 import org.swd392.seminars.event.PaymentCallbackEvent;
+import org.swd392.seminars.service.OrchestratorSagaService;
 
 @Slf4j
 @RestController
@@ -13,17 +14,21 @@ import org.swd392.seminars.event.PaymentCallbackEvent;
 public class SagaCallbackController {
 
     private final ApplicationEventPublisher eventPublisher;
+    private final OrchestratorSagaService orchestratorSagaService;
 
     @PostMapping("/payment-callback")
-    public void handlePaymentCallback(@RequestParam("paymentOrderCode") String paymentOrderCode,
-                                     @RequestParam("success") boolean success,
-                                     @RequestParam("message") String message) {
-        
-        log.info("Received payment callback - Order Code: {}, Success: {}, Message: {}", 
-                paymentOrderCode, success, message);
-        
+    public void handlePaymentCallback(@RequestBody PaymentCallbackEvent paymentCallbackEvent) {
+
+        String paymentOrderCode = paymentCallbackEvent.getPaymentOrderCode();
+        boolean isSuccess = paymentCallbackEvent.isSuccess();
+        String message = paymentCallbackEvent.getMessage();
+
+     //   orchestratorSagaService.findSagaTransactionByPaymentOrderCode(paymentOrderCode);
+
+        log.info("Received payment callback - Order Code: {}, Success: {}, Message: {}",
+                paymentOrderCode, isSuccess, message);
+
         // Publish event for saga orchestration
-        PaymentCallbackEvent event = new PaymentCallbackEvent(paymentOrderCode, success, message);
-        eventPublisher.publishEvent(event);
+        eventPublisher.publishEvent(paymentCallbackEvent);
     }
 } 
