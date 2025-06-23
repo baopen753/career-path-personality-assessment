@@ -37,8 +37,6 @@ public class SeminarServiceImpl implements SeminarService {
     public SeminarResponse createSeminar(Integer eventManagerId, SeminarRequest request) {
         log.info("Creating new seminar by event manager ID: {} with request: {}", eventManagerId, request);
         try {
-            // Validate user role through user-service
-            validateUserRole(eventManagerId, "EVENT_MANAGER");
             
             // Validate required fields
             if (request.getTitle() == null || request.getTitle().trim().isEmpty()) {
@@ -93,9 +91,7 @@ public class SeminarServiceImpl implements SeminarService {
     @Override
     public SeminarResponse updateSeminar(Integer eventManagerId, Integer seminarId, SeminarRequest request) {
         log.info("Updating seminar ID: {} by event manager ID: {}", seminarId, eventManagerId);
-        
-        // Validate user role through user-service
-        validateUserRole(eventManagerId, "EVENT_MANAGER");
+
         
         Seminar seminar = seminarRepository.findById(seminarId)
                 .orElseThrow(() -> new ResourceNotFoundException("Seminar not found with ID: " + seminarId));
@@ -125,9 +121,6 @@ public class SeminarServiceImpl implements SeminarService {
     @Override
     public void deleteSeminar(Integer eventManagerId, Integer seminarId) {
         log.info("Deleting seminar ID: {} by event manager ID: {}", seminarId, eventManagerId);
-        
-        // Validate user role through user-service
-        validateUserRole(eventManagerId, "EVENT_MANAGER");
         
         Seminar seminar = seminarRepository.findById(seminarId)
                 .orElseThrow(() -> new ResourceNotFoundException("Seminar not found with ID: " + seminarId));
@@ -174,10 +167,8 @@ public class SeminarServiceImpl implements SeminarService {
     @Override
     public SeminarResponse approveSeminar(Integer adminId, Integer seminarId, Seminar.StatusApprove status) {
         log.info("Admin ID: {} approving seminar ID: {} with status: {}", adminId, seminarId, status);
-        
-        // Validate user role through user-service
-        validateUserRole(adminId, "ADMIN");
-        
+
+
         Seminar seminar = seminarRepository.findById(seminarId)
                 .orElseThrow(() -> new ResourceNotFoundException("Seminar not found with ID: " + seminarId));
 
@@ -186,106 +177,25 @@ public class SeminarServiceImpl implements SeminarService {
         }
 
         seminar.setStatusApprove(status);
-        
+
         if (status == Seminar.StatusApprove.APPROVED) {
             seminar.setStatus(Seminar.Status.PENDING); // Event manager will manage the status after approval
         } else if (status == Seminar.StatusApprove.REJECTED) {
             seminar.setStatus(Seminar.Status.CANCELLED);
-        }        Seminar updatedSeminar = seminarRepository.save(seminar);
-
-        // Send notification email to event manager
-        try {
-            sendApprovalNotificationEmail(updatedSeminar, status);
-        } catch (Exception e) {
-            log.error("Failed to send approval notification email for seminar ID: {}. Error: {}", 
-                     updatedSeminar.getId(), e.getMessage());
-            // Log the full stack trace for debugging
-            if (log.isDebugEnabled()) {
-                log.debug("Full stack trace:", e);
-            }
         }
+        Seminar updatedSeminar = seminarRepository.save(seminar);
+
 
         log.info("Successfully updated seminar ID: {} status to: {}", seminarId, status);
         return mapToResponse(updatedSeminar);
     }
 
-    private void sendApprovalNotificationEmail(Seminar seminar, Seminar.StatusApprove status) {
-        try {
-            // Get event manager info from user-service
-            String eventManagerEmail = getEventManagerEmail(seminar.getCreateBy());
-            String eventManagerName = getEventManagerName(seminar.getCreateBy());
-            
-            // Format date and time
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-            String currentDate = LocalDateTime.now().format(formatter);
-            
-            // Call notification service using FeignClient
-            notificationFeignClient.sendSeminarStatusNotification(
-                eventManagerEmail,
-                eventManagerName,
-                seminar.getTitle(),
-                status.toString(),
-                status == Seminar.StatusApprove.REJECTED ? "Admin rejected" : null,
-                currentDate,
-                currentDate,
-                "Online",
-                seminar.getMeetingUrl() != null ? seminar.getMeetingUrl() : ""
-            );
-            
-            log.info("Successfully sent approval notification email for seminar ID: {}", seminar.getId());
-        } catch (Exception e) {
-            log.error("Failed to send approval notification email for seminar ID: {}. Error: {}", 
-                     seminar.getId(), e.getMessage());
-            // Log the full stack trace for debugging
-            if (log.isDebugEnabled()) {
-                log.debug("Full stack trace:", e);
-            }
-        }
-    }
 
-    private String getEventManagerEmail(Integer eventManagerId) {
-        try {
-            // Call user-service to get email
-            return userFeignClient.getUserEmail(eventManagerId);
-        } catch (Exception e) {
-            log.error("Failed to get event manager email for ID: {}", eventManagerId, e);
-            return "admin@example.com"; // fallback
-        }
-    }
-
-    private String getEventManagerName(Integer eventManagerId) {
-        try {
-            // Call user-service to get name
-            return userFeignClient.getUserName(eventManagerId);
-        } catch (Exception e) {
-            log.error("Failed to get event manager name for ID: {}", eventManagerId, e);
-            return "Event Manager"; // fallback
-        }
-    }
-
-    private void validateUserRole(Integer userId, String expectedRole) {
-        try {
-            String userRole = userFeignClient.getUserRole(userId);
-            if (!expectedRole.equals(userRole)) {
-                throw new UnauthorizedException("User with ID " + userId + " does not have required role: " + expectedRole);
-            }
-            log.info("User ID: {} has valid role: {}", userId, userRole);
-        } catch (Exception e) {
-            log.error("Failed to validate user role for ID: {}", userId, e);
-            // Check if it's a fallback response
-            if (e.getMessage() != null && e.getMessage().contains("Service call failed")) {
-                throw new UnauthorizedException("User service is temporarily unavailable. Please try again in a few seconds.");
-            }
-            throw new UnauthorizedException("Failed to validate user role. Please ensure user service is running.");
-        }
-    }
 
     @Override
     public SeminarResponse updateStatus(Integer eventManagerId, Integer seminarId, Seminar.Status status) {
         log.info("Event manager ID: {} updating seminar ID: {} status to: {}", eventManagerId, seminarId, status);
-        
-        // Validate user role through user-service
-        validateUserRole(eventManagerId, "EVENT_MANAGER");
+
         
         Seminar seminar = seminarRepository.findById(seminarId)
                 .orElseThrow(() -> new ResourceNotFoundException("Seminar not found with ID: " + seminarId));

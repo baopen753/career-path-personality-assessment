@@ -55,7 +55,7 @@ public class SeminarTicketController {
 
     @PostMapping("/compensate")
     public ResponseEntity<?> compensate(@Valid @RequestBody SeminarTicketRequest request) {
-        seminarTicketService.deleteBookedTicket(request.getSeminarId(), request.getUserProfileId());
+        seminarTicketService.deleteBookedTicket(request.getSeminarId(), request.getUserId());
         return ResponseEntity.noContent().build();
     }
 

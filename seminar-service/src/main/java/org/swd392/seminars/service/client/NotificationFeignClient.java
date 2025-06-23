@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "notification", url = "${notification.service.url}")
+@FeignClient(name = "notification")
 public interface NotificationFeignClient {
     
     @PostMapping("/api/notifications/ticket-confirmation")

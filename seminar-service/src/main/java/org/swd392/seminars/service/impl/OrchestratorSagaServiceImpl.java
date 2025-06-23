@@ -18,7 +18,6 @@ import org.swd392.seminars.service.OrchestratorSagaService;
 import org.swd392.seminars.service.SeminarTicketService;
 import org.swd392.seminars.service.client.PaymentFeignClient;
 
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -32,17 +31,17 @@ public class OrchestratorSagaServiceImpl implements OrchestratorSagaService {
 
     @Override
     @Transactional
-    public PaymentInitiationResponse startBookTicketSaga(Integer userProfileId, SeminarTicketRequest request) {
+    public PaymentInitiationResponse startBookTicketSaga(Integer userId, SeminarTicketRequest request) {
 
         // Check if saga already exists for this user and seminar
-        if (sagaTransactionRepository.existsByUserProfileIdAndSeminarId(userProfileId, request.getSeminarId())) {
-            log.warn("Saga already exists for user {} and seminar {}", userProfileId, request.getSeminarId());
+        if (sagaTransactionRepository.existsByUserProfileIdAndSeminarId(userId, request.getSeminarId())) {
+            log.warn("Saga already exists for user {} and seminar {}", userId, request.getSeminarId());
             throw new SagaTransactionException("Booking already in progress");
         }
 
         // Create a saga transaction
         SagaTransaction sagaTransaction = SagaTransaction.builder()
-                .userProfileId(userProfileId)
+                .userProfileId(userId)
                 .seminarId(request.getSeminarId())
                 .status(SagaTransaction.SagaStatus.PENDING)
                 .currentStep(SagaTransaction.SagaStep.BOOKING_INITIATED)
@@ -53,7 +52,7 @@ public class OrchestratorSagaServiceImpl implements OrchestratorSagaService {
 
         try {
             // Step 1: Book ticket
-            request.setUserProfileId(userProfileId);
+            request.setUserId(userId);
             SeminarTicketResponse seminarTicketResponse = seminarTicketService.bookTicket(request);
 
             // Update saga state

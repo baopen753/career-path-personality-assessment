@@ -30,7 +30,7 @@ public class SeminarTicketServiceImpl implements SeminarTicketService {
     @Override
     @Transactional
     public SeminarTicketResponse bookTicket(SeminarTicketRequest request) {
-        log.info("Starting to book ticket for seminar ID: {}, user ID: {}", request.getSeminarId(), request.getUserProfileId());
+        log.info("Starting to book ticket for seminar ID: {}, user ID: {}", request.getSeminarId(), request.getUserId());
 
         // Validate seminar exists
         Seminar seminar = seminarRepository.findById(request.getSeminarId())
