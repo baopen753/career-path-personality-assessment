@@ -41,17 +41,17 @@ public class SeminarTicketServiceImpl implements SeminarTicketService {
             throw new SeminarTicketException("Cannot book ticket for unapproved seminar");
         }
 
-        if (seminar.getStatus() != Seminar.Status.PENDING && seminar.getStatus() != Seminar.Status.ONGOING) {
-            throw new SeminarTicketException("Cannot book ticket for seminar with status: " + seminar.getStatus());
+        if (seminar.getStatus() != Seminar.Status.ONGOING) {
+            throw new SeminarTicketException("Cannot book ticket for seminar with status: " + seminar.getStatus() + ". Tickets can only be booked when seminar status is ONGOING");
         }
 
         // Validate user ID
-        if (request.getUserProfileId() == null) {
+        if (request.getUserId() == null) {
             throw new IllegalArgumentException("User ID cannot be null");
         }
 
         // Check if user already has an active ticket
-        if (hasActiveTicket(request.getSeminarId(), request.getUserProfileId())) {
+        if (hasActiveTicket(request.getSeminarId(), request.getUserId())) {
             throw new SeminarTicketException("User already has an active ticket for this seminar");
         }
 
@@ -73,7 +73,7 @@ public class SeminarTicketServiceImpl implements SeminarTicketService {
         // Create new ticket
         SeminarTicket ticket = new SeminarTicket();
         ticket.setSeminar(seminar);
-        ticket.setUserProfileId(request.getUserProfileId());
+        ticket.setUserId(request.getUserId());
         ticket.setDescription(request.getDescription());
         ticket.setStartingTime(startingTime.atStartOfDay()); // Convert LocalDate to LocalDateTime
         ticket.setBookingTime(LocalDateTime.now());
@@ -87,13 +87,13 @@ public class SeminarTicketServiceImpl implements SeminarTicketService {
 
     @Override
     @Transactional
-    public void cancelTicket(Integer userProfileId, Integer ticketId) {
-        log.info("Cancelling ticket ID: {} for user ID: {}", ticketId, userProfileId);
+    public void cancelTicket(Integer userId, Integer ticketId) {
+        log.info("Cancelling ticket ID: {} for user ID: {}", ticketId, userId);
         
         SeminarTicket ticket = seminarTicketRepository.findById(ticketId)
                 .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with ID: " + ticketId));
 
-        if (!ticket.getUserProfileId().equals(userProfileId)) {
+        if (!ticket.getUserId().equals(userId)) {
             throw new SeminarTicketException("Not authorized to cancel this ticket");
         }
 
@@ -116,8 +116,8 @@ public class SeminarTicketServiceImpl implements SeminarTicketService {
     }
 
     @Override
-    public List<SeminarTicketResponse> getTicketsByUser(Integer userProfileId) {
-        return seminarTicketRepository.findByUserProfileId(userProfileId).stream()
+    public List<SeminarTicketResponse> getTicketsByUser(Integer userId) {
+        return seminarTicketRepository.findByUserId(userId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -130,8 +130,8 @@ public class SeminarTicketServiceImpl implements SeminarTicketService {
     }
 
     @Override
-    public boolean hasActiveTicket(Integer seminarId, Integer userProfileId) {
-        return seminarTicketRepository.existsBySeminarIdAndUserProfileId(seminarId, userProfileId);
+    public boolean hasActiveTicket(Integer seminarId, Integer userId) {
+        return seminarTicketRepository.existsBySeminarIdAndUserId(seminarId, userId);
     }
 
     @Override
@@ -141,9 +141,9 @@ public class SeminarTicketServiceImpl implements SeminarTicketService {
 
     @Override
     @Transactional
-    public void deleteBookedTicket(Integer seminarId, Integer userProfileId) {
-        SeminarTicket seminarTicket = seminarTicketRepository.findBySeminarIdAndUserProfileId(seminarId,userProfileId)
-                        .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with ID: " + seminarId + " and UserProfileId: " + userProfileId));
+    public void deleteBookedTicket(Integer seminarId, Integer userId) {
+        SeminarTicket seminarTicket = seminarTicketRepository.findBySeminarIdAndUserId(seminarId,userId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with ID: " + seminarId + " and UserProfileId: " + userId));
         seminarTicketRepository.delete(seminarTicket);
     }
 
@@ -151,7 +151,7 @@ public class SeminarTicketServiceImpl implements SeminarTicketService {
         SeminarTicketResponse response = new SeminarTicketResponse();
         response.setId(ticket.getId());
         response.setSeminarId(ticket.getSeminar().getId());
-        response.setUserProfileId(ticket.getUserProfileId());
+        response.setUserId(ticket.getUserId());
         response.setDescription(ticket.getDescription());
         response.setStartingTime(ticket.getStartingTime());
         response.setBookingTime(ticket.getBookingTime());

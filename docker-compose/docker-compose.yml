@@ -118,6 +118,23 @@ services:
     extends:
       file: docker-compose/common-config.yml
       service: microservice-eureka-config
+   notification:
+    image: "swd392/notification-service:s1"
+    container_name: notification-ms
+    ports:
+      - "8086:8083"
+    healthcheck:
+      test: "curl --fail --silent localhost:8083/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    environment:
+      SPRING_APPLICATION_NAME: "notification"
+    extends:
+      file: docker-compose/common-config.yml
+      service: microservice-eureka-config
+
 
 networks:
   swd392:

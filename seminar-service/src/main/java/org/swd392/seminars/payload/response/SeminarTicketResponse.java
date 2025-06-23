@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 public class SeminarTicketResponse {
     private Integer id;
     private Integer seminarId;
-    private Integer userProfileId;
+    private Integer userId;
     private String description;
 
     @JsonFormat(pattern = "yyyy-MM-dd")

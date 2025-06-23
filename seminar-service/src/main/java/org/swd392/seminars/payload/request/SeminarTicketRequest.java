@@ -19,5 +19,5 @@ public class SeminarTicketRequest {
     @Nullable
     private Integer price;
 
-    private Integer userProfileId;
+    private Integer userId;
 }

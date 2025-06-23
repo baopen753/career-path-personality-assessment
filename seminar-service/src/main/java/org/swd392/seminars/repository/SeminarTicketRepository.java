@@ -9,11 +9,11 @@ import java.util.Optional;
 
 public interface SeminarTicketRepository extends JpaRepository<SeminarTicket, Integer> {
     List<SeminarTicket> findBySeminarId(Integer seminarId);
-    List<SeminarTicket> findByUserProfileId(Integer userProfileId);
-    boolean existsBySeminarIdAndUserProfileId(Integer seminarId, Integer userProfileId);
+    List<SeminarTicket> findByUserId(Integer userId);
+    boolean existsBySeminarIdAndUserId(Integer seminarId, Integer userId);
     long countBySeminarIdAndStatusTrue(Integer seminarId);
 
-    @Query("SELECT st FROM SeminarTicket st WHERE st.seminar.id = :seminarId AND st.userProfileId = :userProfileId")
-    Optional<SeminarTicket> findBySeminarIdAndUserProfileId(Integer seminarId, Integer userProfileId);
+    @Query("SELECT st FROM SeminarTicket st WHERE st.seminar.id = :seminarId AND st.userId = :userId")
+    Optional<SeminarTicket> findBySeminarIdAndUserId(Integer seminarId, Integer userId);
 
 }

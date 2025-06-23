@@ -79,3 +79,6 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
 
+notification:
+  service:
+    url: http://localhost:8083/notification
