@@ -18,6 +18,8 @@ import org.swd392.seminars.service.OrchestratorSagaService;
 import org.swd392.seminars.service.SeminarTicketService;
 import org.swd392.seminars.service.client.PaymentFeignClient;
 
+import java.util.Optional;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -69,7 +71,7 @@ public class OrchestratorSagaServiceImpl implements OrchestratorSagaService {
             // Extract payment details
             String paymentOrderCode = String.valueOf(paymentResponse.getBody() != null ? paymentResponse.getBody().getOrderCode() : null);
             String checkoutUrl = paymentResponse.getBody() != null ? paymentResponse.getBody().getCheckoutUrl() : null;
-            
+
             // Update saga with payment reference
             sagaTransaction.setPaymentOrderCode(paymentOrderCode);
             sagaTransaction.setCurrentStep(SagaTransaction.SagaStep.PAYMENT_PENDING_EXTERNAL);
@@ -84,7 +86,7 @@ public class OrchestratorSagaServiceImpl implements OrchestratorSagaService {
                     .sagaId(sagaTransaction.getId())
                     .orderCode(paymentOrderCode)
                     .checkoutUrl(checkoutUrl)
-                    .status("PAYMENT_PENDING")
+                    .status(SagaTransaction.SagaStatus.PAYMENT_PENDING.getDescription())
                     .message("Payment initiated successfully. Please complete payment using the provided URL.")
                     .build();
 
@@ -96,6 +98,12 @@ public class OrchestratorSagaServiceImpl implements OrchestratorSagaService {
         }
     }
 
+    @Override
+    public SagaTransaction findSagaTransactionByPaymentOrderCode(String paymentOrderCode) {
+        return sagaTransactionRepository.findByPaymentOrderCode(paymentOrderCode)
+                .orElseThrow(() -> new SagaTransactionException("Saga transaction not found for payment order code: " + paymentOrderCode));
+    }
+
     // Handle PayOS callback
     @EventListener
     @Transactional
@@ -105,7 +113,7 @@ public class OrchestratorSagaServiceImpl implements OrchestratorSagaService {
 
         SagaTransaction sagaTransaction = sagaTransactionRepository
                 .findByPaymentOrderCode(event.getPaymentOrderCode())
-                .orElseThrow(() -> new RuntimeException("Saga transaction not found for payment order code: " + event.getPaymentOrderCode()));
+                .orElseThrow(() -> new SagaTransactionException("Saga transaction not found for payment order code: " + event.getPaymentOrderCode()));
 
         if (event.isSuccess()) {
             // Payment successful
@@ -151,4 +159,6 @@ public class OrchestratorSagaServiceImpl implements OrchestratorSagaService {
             // You might want to implement a retry mechanism or alert system here
         }
     }
+
+
 }

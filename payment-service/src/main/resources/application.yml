@@ -50,3 +50,6 @@ info:
     name: ${spring.application.name}
     description: "This is quiz service in Career Path Personality Assessment System"
 
+
+webhook:
+  base-uri: ${WEBHOOK_BASE_URI:https://dde5-2402-800-63a8-b04a-9caf-2e3a-4963-56e5.ngrok-free.app}

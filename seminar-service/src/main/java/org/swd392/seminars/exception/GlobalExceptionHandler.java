@@ -38,6 +38,12 @@ public class GlobalExceptionHandler {
         return createErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
     }
 
+    @ExceptionHandler(SagaTransactionException.class)
+    public ResponseEntity<Object> handleSagaTransactionException(
+            SagaTransactionException ex, WebRequest request) {
+        return createErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
+    }
+
     private ResponseEntity<Object> createErrorResponse(
             HttpStatus status, String message, WebRequest request) {
         Map<String, Object> body = new LinkedHashMap<>();

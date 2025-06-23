@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PaymentPendingEvent {
     private Long sagaId;
-    private String paymentReference;
+    private String paymentOrderCode;
 } 
