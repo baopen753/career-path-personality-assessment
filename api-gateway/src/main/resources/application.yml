@@ -53,3 +53,5 @@ logging:
     org:
       swd392:
         apigateway: DEBUG # Set the logging level for the API Gateway server to DEBUG for detailed logs
+    org.springframework.cloud.gateway: debug
+    reactor.netty.http.server: DEBUG

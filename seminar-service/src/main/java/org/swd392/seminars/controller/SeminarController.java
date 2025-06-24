@@ -39,7 +39,7 @@ public class SeminarController {
         @ApiResponse(responseCode = "403", description = "Forbidden - Insufficient permissions")
     })
     @PostMapping("/create-seminar")
-    @PreAuthorize("hasRole('EVENT_MANAGER')")
+    //@PreAuthorize("hasRole('EVENT_MANAGER')")
     public ResponseEntity<SeminarResponse> createSeminar(
             @RequestHeader("X-User-Id") Integer eventManagerId,
             @Valid @RequestBody SeminarRequest request) {

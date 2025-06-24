@@ -18,6 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.swd392.users.exception.AuthorizationException;
 import org.swd392.users.filter.JwtAuthenticationFilter;
 
 import java.util.Arrays;
@@ -30,30 +31,28 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    private final String[] PUBLIC_ENDPOINTS = {
+            "/api/payments/**",
+            "/api/otp/**",
+            "/authentication/register",
+            "/authentication/login",
+            "/authentication/logout",
+            "/v3/api-docs/**",
+            "/api-docs/**",
+            "/swagger-ui.html",
+            "/swagger-ui/**",
+            "/swagger-resources/**",
+            "/webjars/**",
+            "/api/users/**",
+    };
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .securityContext(securityContext -> securityContext.requireExplicitSave(false))
                 .csrf(CsrfConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/api/payments/**",
-                                "/api/otp/**",
-                                "/authentication/register",
-                                "/authentication/login",
-                                "/authentication/logout",
-                                "/v3/api-docs/**",
-                                "/api-docs/**",
-                                "/swagger-ui.html",
-                                "/swagger-ui/**",
-                                "/swagger-resources/**",
-                                "/webjars/**",
-                                "/api/users/**",
-                                "/api/users/*/email",
-                                "/api/users/*/name",
-                                "/api/users/*/role",
-                                "/api/users/*/info"
-                        ).permitAll()
+                        .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/profiles/profile/**").authenticated()
                         .anyRequest().authenticated()
                 )
@@ -61,7 +60,8 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 );
 
-        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        http.exceptionHandling(ehc -> ehc.accessDeniedHandler(new AuthorizationException()));
+        http.addFilterAfter(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
