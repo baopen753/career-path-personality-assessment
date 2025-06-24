@@ -38,6 +38,11 @@ public class GatewayConfig {
                         .filters(f -> f.rewritePath("/swd391/seminar/(?<segment>.*)", "/seminar/${segment}")
                                 .addResponseHeader("X-Response-Time", LocalDateTime.now().toString()))
                         .uri("lb://seminar"))
+                .route(p -> p
+                        .path("/swd391/payment/**")
+                        .filters(f -> f.rewritePath("/swd391/payment/(?<segment>.*)", "/payment/${segment}")
+                                .addResponseHeader("X-Response-Time", LocalDateTime.now().toString()))
+                        .uri("lb://payment"))
                 .build();
     }
 }
