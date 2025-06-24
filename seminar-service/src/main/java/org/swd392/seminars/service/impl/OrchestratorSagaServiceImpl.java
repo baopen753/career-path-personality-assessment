@@ -34,7 +34,7 @@ public class OrchestratorSagaServiceImpl implements OrchestratorSagaService {
     public PaymentInitiationResponse startBookTicketSaga(Integer userId, SeminarTicketRequest request) {
 
         // Check if saga already exists for this user and seminar
-        if (sagaTransactionRepository.existsByUserProfileIdAndSeminarId(userId, request.getSeminarId())) {
+        if (sagaTransactionRepository.existsByUserIdAndSeminarId(userId, request.getSeminarId())) {
             log.warn("Saga already exists for user {} and seminar {}", userId, request.getSeminarId());
             throw new SagaTransactionException("Booking already in progress");
         }

@@ -7,7 +7,7 @@ import org.swd392.seminars.payload.response.PaymentInitiationResponse;
 
 public interface OrchestratorSagaService {
 
-    PaymentInitiationResponse startBookTicketSaga(Integer userProfileId, SeminarTicketRequest request);
+    PaymentInitiationResponse startBookTicketSaga(Integer userId, SeminarTicketRequest request);
 
     SagaTransaction findSagaTransactionByPaymentOrderCode(String paymentOrderCode);
 

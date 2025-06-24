@@ -23,9 +23,9 @@ public class OrchestratorSagaController {
     private final SagaTransactionRepository sagaTransactionRepository;
 
     @PostMapping
-    public ResponseEntity<PaymentInitiationResponse> placeOrderSaga(@RequestHeader("X-User-Id") Integer userProfileId,
+    public ResponseEntity<PaymentInitiationResponse> placeOrderSaga(@RequestHeader("X-User-Id") Integer userId,
                                                                     @Valid @RequestBody SeminarTicketRequest request) {
-        PaymentInitiationResponse response = orchestratorSagaService.startBookTicketSaga(userProfileId, request);
+        PaymentInitiationResponse response = orchestratorSagaService.startBookTicketSaga(userId, request);
         return ResponseEntity.ok(response);
     }
 

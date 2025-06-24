@@ -143,7 +143,7 @@ public class SeminarTicketServiceImpl implements SeminarTicketService {
     @Transactional
     public void deleteBookedTicket(Integer seminarId, Integer userId) {
         SeminarTicket seminarTicket = seminarTicketRepository.findBySeminarIdAndUserId(seminarId,userId)
-                        .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with ID: " + seminarId + " and UserProfileId: " + userId));
+                        .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with ID: " + seminarId + " and user_id: " + userId));
         seminarTicketRepository.delete(seminarTicket);
     }
 

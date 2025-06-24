@@ -15,7 +15,7 @@ public interface SagaTransactionRepository extends JpaRepository<SagaTransaction
     
     Optional<SagaTransaction> findByPaymentOrderCode(String paymentOrderCode);
     
-    boolean existsByUserProfileIdAndSeminarId(Integer userProfileId, Integer seminarId);
+    boolean existsByUserIdAndSeminarId(Integer userId, Integer seminarId);
     
     List<SagaTransaction> findByCurrentStep(SagaTransaction.SagaStep currentStep);
     
