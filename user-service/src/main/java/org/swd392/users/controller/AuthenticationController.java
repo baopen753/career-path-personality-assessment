@@ -1,5 +1,6 @@
 package org.swd392.users.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -7,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import org.swd392.users.dto.*;
 import org.swd392.users.service.impl.IUserService;
 
-import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/authentication")

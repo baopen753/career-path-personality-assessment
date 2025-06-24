@@ -1,5 +1,6 @@
 package org.swd392.users.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -11,7 +12,6 @@ import org.swd392.users.dto.ResponseDTO;
 import org.swd392.users.service.UserService;
 import org.swd392.users.service.impl.OtpService;
 
-import javax.validation.Valid;
 
 @Slf4j
 @RestController
