@@ -18,7 +18,7 @@ public class SagaTransaction {
     private Long id;
     
     @Column(nullable = false)
-    private Integer userProfileId;
+    private Integer userId;
     
     @Column(nullable = false)
     private Integer seminarId;

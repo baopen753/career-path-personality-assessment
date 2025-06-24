@@ -41,7 +41,7 @@ public class OrchestratorSagaServiceImpl implements OrchestratorSagaService {
 
         // Create a saga transaction
         SagaTransaction sagaTransaction = SagaTransaction.builder()
-                .userProfileId(userId)
+                .userId(userId)
                 .seminarId(request.getSeminarId())
                 .status(SagaTransaction.SagaStatus.PENDING)
                 .currentStep(SagaTransaction.SagaStep.BOOKING_INITIATED)
@@ -144,7 +144,7 @@ public class OrchestratorSagaServiceImpl implements OrchestratorSagaService {
             log.info("Starting compensation for saga id: {}", sagaTransaction.getId());
 
             // Cancel the booking
-            seminarTicketService.deleteBookedTicket(sagaTransaction.getSeminarId(), sagaTransaction.getUserProfileId());
+            seminarTicketService.deleteBookedTicket(sagaTransaction.getSeminarId(), sagaTransaction.getUserId());
 
             // Update saga state
             sagaTransaction.setCurrentStep(SagaTransaction.SagaStep.COMPENSATION_REQUIRED);
@@ -158,6 +158,4 @@ public class OrchestratorSagaServiceImpl implements OrchestratorSagaService {
             // You might want to implement a retry mechanism or alert system here
         }
     }
-
-
 }
