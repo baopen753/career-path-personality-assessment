@@ -24,6 +24,20 @@ spring:
     discovery:
       enabled: true
 
+# config connection with rabbitMQ broker
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+# config exchange for producer
+rabbitmq:
+  exchange:
+    name: seminar.ticket-booked.direct.exchange
+  routing:
+    key: seminar.ticket-booked
+
   # OpenAPI/Swagger Configuration
 springdoc:
   api-docs:
@@ -76,3 +90,5 @@ info:
   app:
     name: ${spring.application.name}
     description: "This is quiz service in Career Path Personality Assessment System"
+
+

@@ -14,7 +14,6 @@ import org.swd392.seminars.service.OrchestratorSagaService;
 public class SagaCallbackController {
 
     private final ApplicationEventPublisher eventPublisher;
-    private final OrchestratorSagaService orchestratorSagaService;
 
     @PostMapping("/payment-callback")
     public void handlePaymentCallback(@RequestBody PaymentCallbackEvent paymentCallbackEvent) {
