@@ -2,7 +2,6 @@ server:
   port: 8083
   servlet:
     context-path: /notification
- 
 
 spring:
   application:
@@ -33,6 +32,25 @@ spring:
           starttls:
             enable: true
         debug: true
+
+  # config connection with rabbitMQ broker
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+# config exchange for producer
+rabbitmq:
+  exchange:
+    name: seminar.ticket-booked.direct.exchange
+  routing:
+    key: seminar.ticket-booked
+  queue:
+    name: seminar.ticket-booked.notification.queue
+
+
+
 
   # OpenAPI/Swagger Configuration
 springdoc:
