@@ -44,6 +44,7 @@ public class SecurityConfig {
             "/swagger-resources/**",
             "/webjars/**",
             "/api/users/**",
+            "api/profiles/internal/**"
     };
 
     @Bean

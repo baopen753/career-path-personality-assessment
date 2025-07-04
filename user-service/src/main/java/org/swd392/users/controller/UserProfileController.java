@@ -7,8 +7,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.swd392.users.dto.ApiResponse;
+import org.swd392.users.dto.UserInfoDto;
 import org.swd392.users.dto.UserProfileDto;
+import org.swd392.users.entity.User;
 import org.swd392.users.entity.UserProfile;
+import org.swd392.users.exception.UserNotFoundException;
 import org.swd392.users.service.UserProfileService;
 import org.swd392.users.service.impl.IUserService;
 
@@ -63,6 +66,7 @@ public class UserProfileController {
                             .build());
         }
 
+
         UserProfile userProfile = userProfileOpt.get();
         UserProfileDto userProfileDto = UserProfileDto.builder()
                 .userId(userProfile.getUser().getId())
@@ -80,6 +84,31 @@ public class UserProfileController {
                 .code(200)
                 .message("User retrieved successfully")
                 .result(userProfileDto)
+                .build());
+    }
+
+    @GetMapping("/internal/{id}")
+    public ResponseEntity<ApiResponse<UserInfoDto>> getUserDetails(@PathVariable Long id) {
+
+        Optional<UserProfile> userProfileOpt = userProfileService.getProfileByUserId(id);
+        if (userProfileOpt.isEmpty()) {
+            return null;
+        }
+
+        User userInDb = userService.getUserById(id).orElseThrow(
+                () -> new UserNotFoundException("User not found with id: " + id)
+        );
+
+        UserInfoDto userInfoDto = UserInfoDto.builder()
+                .userId(userInDb.getId())
+                .fullName(userProfileOpt.get().getFullName())
+                .email(userInDb.getEmail())
+                .build();
+
+        return ResponseEntity.ok(ApiResponse.<UserInfoDto>builder()
+                .code(200)
+                .message("User retrieved successfully")
+                .result(userInfoDto)
                 .build());
     }
 }
