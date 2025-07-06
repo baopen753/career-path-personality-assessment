@@ -18,4 +18,6 @@ public class TicketBookedEvent {
     private String paymentOrderCode;
     private String status;
     private LocalDateTime createdAt;
+    private Long amount; // Amount in VND
+    private String paymentMethod; // Payment method used
 }
