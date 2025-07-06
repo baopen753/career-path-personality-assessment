@@ -18,6 +18,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+
     @PreAuthorize("hasAnyRole('SYSTEM_ADMIN','ADMIN')")
     @GetMapping
     public ResponseEntity<List<UserDTO>> getAllUsers() {
@@ -27,7 +28,6 @@ public class UserController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(dtos);
     }
-
 
     @PreAuthorize("(hasAnyRole('SYSTEM_ADMIN','ADMIN') or (hasAnyRole('STUDENT','EVENT_MANAGER','PARENT') and #id == authentication.principal.id))")
     @GetMapping("/{id}")
@@ -46,7 +46,6 @@ public class UserController {
         return ResponseEntity.ok(UserMapper.toDTO(savedUser));
     }
 
-
     @PreAuthorize("(hasAnyRole('SYSTEM_ADMIN','ADMIN') or (hasAnyRole('STUDENT','EVENT_MANAGER','PARENT') and #id == authentication.principal.id))")
     @PutMapping("/{id}")
     public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody UserDTO userDTO) {
@@ -56,7 +55,6 @@ public class UserController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-
 
     @PreAuthorize("hasAnyRole('SYSTEM_ADMIN','ADMIN')")
     @DeleteMapping("/{id}")

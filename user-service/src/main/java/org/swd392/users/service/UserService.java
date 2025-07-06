@@ -30,13 +30,13 @@ public class UserService implements IUserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final NotificationFeignClient notificationFeignClient;
-    private final RestTemplate restTemplate;
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
     public User createUser(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 

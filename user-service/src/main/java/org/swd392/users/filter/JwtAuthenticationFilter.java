@@ -17,6 +17,7 @@ import org.swd392.users.service.JwtService;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -28,6 +29,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private UserRepository userRepository;
 
+    private static final List<String> EXCLUDED_URLS = List.of(
+            "/v3/api-docs",
+            "/v3/api-docs/",
+            "/v3/api-docs/swagger-config",
+            "/swagger-ui.html",
+            "/swagger-ui/",
+            "/swagger-ui/index.html",
+            "/swagger-resources",
+            "/swagger-resources/",
+            "/webjars/"
+    );
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -62,5 +74,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+        return EXCLUDED_URLS.stream().anyMatch(path::equalsIgnoreCase)
+                || EXCLUDED_URLS.stream().anyMatch(path::startsWith);
+
     }
 }
