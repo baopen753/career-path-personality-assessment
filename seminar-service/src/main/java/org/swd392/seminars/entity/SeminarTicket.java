@@ -31,6 +31,9 @@ public class SeminarTicket {
     @Column(name = "starting_time", nullable = false)
     private LocalDateTime startingTime;
 
+    @Column(name = "ending_time", nullable = false)
+    private LocalDateTime endingTime;
+
     @Column(name = "booking_time", nullable = false)
     private LocalDateTime bookingTime = LocalDateTime.now();
 

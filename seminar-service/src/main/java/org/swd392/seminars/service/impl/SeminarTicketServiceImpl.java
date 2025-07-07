@@ -61,12 +61,19 @@ public class SeminarTicketServiceImpl implements SeminarTicketService {
             throw new SeminarTicketException("Seminar is fully booked");
         }
 
-        // Validate starting time
-        LocalDate startingTime = request.getStartingTime();
+        // Validate starting time và ending time
+        LocalDateTime startingTime = request.getStartingTime();
+        LocalDateTime endingTime = request.getEndingTime();
         if (startingTime == null) {
             throw new IllegalArgumentException("Starting time cannot be null");
         }
-        if (startingTime.isBefore(LocalDate.now())) {
+        if (endingTime == null) {
+            throw new IllegalArgumentException("Ending time cannot be null");
+        }
+        if (startingTime.isAfter(endingTime)) {
+            throw new SeminarTicketException("Starting time must be before or equal to ending time");
+        }
+        if (startingTime.isBefore(LocalDateTime.now())) {
             throw new SeminarTicketException("Starting time cannot be in the past");
         }
 
@@ -75,7 +82,8 @@ public class SeminarTicketServiceImpl implements SeminarTicketService {
         ticket.setSeminar(seminar);
         ticket.setUserId(request.getUserId());
         ticket.setDescription(request.getDescription());
-        ticket.setStartingTime(startingTime.atStartOfDay()); // Convert LocalDate to LocalDateTime
+        ticket.setStartingTime(startingTime);
+        ticket.setEndingTime(endingTime);
         ticket.setBookingTime(LocalDateTime.now());
         ticket.setStatus(true);
 
@@ -154,6 +162,7 @@ public class SeminarTicketServiceImpl implements SeminarTicketService {
         response.setUserId(ticket.getUserId());
         response.setDescription(ticket.getDescription());
         response.setStartingTime(ticket.getStartingTime());
+        response.setEndingTime(ticket.getEndingTime());
         response.setBookingTime(ticket.getBookingTime());
         response.setStatus(ticket.isStatus());
         return response;

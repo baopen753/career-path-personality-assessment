@@ -5,6 +5,7 @@ import jakarta.annotation.Nullable;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 public class SeminarTicketRequest {
@@ -12,9 +13,13 @@ public class SeminarTicketRequest {
 
     private String description;
 
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Nullable
-    private LocalDate startingTime;
+    private LocalDateTime startingTime;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Nullable
+    private LocalDateTime endingTime;
 
     @Nullable
     private Integer price;
