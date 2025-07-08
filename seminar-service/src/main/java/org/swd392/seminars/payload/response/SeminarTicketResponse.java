@@ -11,8 +11,11 @@ public class SeminarTicketResponse {
     private Integer userId;
     private String description;
 
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime startingTime;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime endingTime;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime bookingTime;

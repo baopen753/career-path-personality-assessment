@@ -48,6 +48,8 @@
             <ul>
                 <li><strong>Ticket ID:</strong> ${ticketId}</li>
                 <li><strong>Seminar:</strong> ${seminarName}</li>
+                <li><strong>Start Time:</strong> ${startingTime}</li>
+                <li><strong>End Time:</strong> ${endingTime}</li>
                 <li><strong>Date:</strong> ${seminarDate}</li>
                 <li><strong>Location:</strong> ${seminarLocation}</li>
                 <li><strong>Attendee Type:</strong> ${userRole}</li>
