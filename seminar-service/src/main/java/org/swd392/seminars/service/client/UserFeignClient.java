@@ -6,8 +6,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.swd392.seminars.dto.ApiResponse;
 import org.swd392.seminars.dto.UserInfoDto;
+import org.swd392.seminars.event.UserFeignFallbackEvent;
 
-@FeignClient(name = "user") // The name of the User service - get from application properties: application.name
+@FeignClient(name = "user", fallback = UserFeignFallbackEvent.class) // The name of the User service - get from application properties: application.name
 public interface UserFeignClient {
 
     @GetMapping("user/api/profiles/internal/{id}")

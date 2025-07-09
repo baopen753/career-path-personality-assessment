@@ -23,10 +23,10 @@ class SeminarServiceApplicationTests {
     private TicketBookedEventProducer eventProducer;
 
     @Test
-    void testSendBookedTicketMessage_shouldNotThrowException () {
+    void testSendBookedTicketMessage_shouldNotThrowException() {
         TicketBookedEvent event = TicketBookedEvent.builder()
-                .userId(7)
-                .email("baopen@gmail.com")
+                .userId(11)
+                .email("tranquocbao070503@gmail.com")
                 .fullName("Tran Bao")
                 .paymentOrderCode("1751594894132")
                 .status(SagaTransaction.SagaStatus.COMPLETED.name())
@@ -35,5 +35,4 @@ class SeminarServiceApplicationTests {
 
         eventProducer.sendMessage(event);
     }
-
 }

@@ -22,7 +22,7 @@ public class SeminarTicketRequest {
     private LocalDateTime endingTime;
 
     @Nullable
-    private Integer price;
+    private Long price;
 
     private Integer userId;
-}
+    }

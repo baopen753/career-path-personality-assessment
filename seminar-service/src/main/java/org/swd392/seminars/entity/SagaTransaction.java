@@ -26,9 +26,15 @@ public class SagaTransaction {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private SagaStatus status;
-    
+
     @Column
     private String paymentOrderCode;
+
+    @Column
+    private Long amount;
+
+    @Column
+    private String paymentMethod;
     
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

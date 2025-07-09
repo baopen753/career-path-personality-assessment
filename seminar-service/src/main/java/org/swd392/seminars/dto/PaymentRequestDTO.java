@@ -4,24 +4,24 @@ import lombok.Builder;
 
 @Builder
 public class PaymentRequestDTO {
-    private Integer amount;
+    private Long amount;
     private String description;
     private Long sagaId;
 
     public PaymentRequestDTO() {
     }
 
-    public PaymentRequestDTO(Integer amount, String description, Long sagaId) {
+    public PaymentRequestDTO(Long amount, String description, Long sagaId) {
         this.amount = amount;
         this.description = description;
         this.sagaId = sagaId;
     }
 
-    public Integer getAmount() {
+    public Long getAmount() {
         return amount;
     }
 
-    public void setAmount(Integer amount) {
+    public void setAmount(Long amount) {
         this.amount = amount;
     }
 

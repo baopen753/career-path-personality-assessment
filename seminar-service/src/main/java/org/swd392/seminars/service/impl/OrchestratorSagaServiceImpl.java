@@ -5,15 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 import org.swd392.seminars.dto.PaymentRequestDTO;
 import org.swd392.seminars.dto.UserInfoDto;
 import org.swd392.seminars.entity.SagaTransaction;
 import org.swd392.seminars.event.PaymentCallbackEvent;
 import org.swd392.seminars.event.TicketBookedEvent;
 import org.swd392.seminars.event.producer.EventProducer;
-import org.swd392.seminars.event.producer.impl.TicketBookedEventProducer;
 import org.swd392.seminars.exception.SagaTransactionException;
 import org.swd392.seminars.payload.request.SeminarTicketRequest;
 import org.swd392.seminars.payload.response.PaymentInitiationResponse;
@@ -37,19 +34,21 @@ public class OrchestratorSagaServiceImpl implements OrchestratorSagaService {
 
     @Override
     @Transactional
-    public PaymentInitiationResponse startBookTicketSaga(Integer userId, SeminarTicketRequest request) {
+    public PaymentInitiationResponse startBookTicketSaga(Integer userId, SeminarTicketRequest ticketRequest) {
 
         // Check if saga already exists for this user and seminar
-        if (sagaTransactionRepository.existsByUserIdAndSeminarId(userId, request.getSeminarId())) {
-            log.warn("Saga already exists for user {} and seminar {}", userId, request.getSeminarId());
+        if (sagaTransactionRepository.existsByUserIdAndSeminarId(userId, ticketRequest.getSeminarId())) {
+            log.warn("Saga already exists for user {} and seminar {}", userId, ticketRequest.getSeminarId());
             throw new SagaTransactionException("Booking already in progress");
         }
 
         // Create a saga transaction
         SagaTransaction sagaTransaction = SagaTransaction.builder()
                 .userId(userId)
-                .seminarId(request.getSeminarId())
+                .seminarId(ticketRequest.getSeminarId())
                 .status(SagaTransaction.SagaStatus.PENDING)
+                .amount(ticketRequest.getPrice())
+                .paymentMethod("Pay-OS")
                 .currentStep(SagaTransaction.SagaStep.BOOKING_INITIATED)
                 .build();
 
@@ -58,8 +57,8 @@ public class OrchestratorSagaServiceImpl implements OrchestratorSagaService {
 
         try {
             // Step 1: Book ticket
-            request.setUserId(userId);
-            SeminarTicketResponse seminarTicketResponse = seminarTicketService.bookTicket(request);
+            ticketRequest.setUserId(userId);
+            SeminarTicketResponse seminarTicketResponse = seminarTicketService.bookTicket(ticketRequest);
 
             // Update saga state
             sagaTransaction.setCurrentStep(SagaTransaction.SagaStep.BOOKING_COMPLETED);
@@ -68,7 +67,7 @@ public class OrchestratorSagaServiceImpl implements OrchestratorSagaService {
             log.info("Booking completed for saga id: {}", sagaTransaction.getId());
 
             // Step 2: Initiate payment with PayOS
-            PaymentRequestDTO paymentRequest = convertToPaymentRequestDto(request, sagaTransaction.getId());
+            PaymentRequestDTO paymentRequest = convertToPaymentRequestDto(ticketRequest, sagaTransaction.getId());
 
             // Call payment service
             var paymentResponse = paymentFeignClient.createPayment(paymentRequest);
@@ -153,6 +152,8 @@ public class OrchestratorSagaServiceImpl implements OrchestratorSagaService {
                 .fullName(userInfo.getFullName())
                 .status(sagaTransaction.getStatus().name())
                 .createdAt(sagaTransaction.getCreatedAt())
+                .amount(sagaTransaction.getAmount())
+                .paymentMethod(sagaTransaction.getPaymentMethod())
                 .build();
         return event;
     }

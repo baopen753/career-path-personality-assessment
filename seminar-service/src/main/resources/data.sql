@@ -13,6 +13,6 @@ VALUES
 
 -- Insert Seminar Tickets
 INSERT INTO seminar_tickets (seminar_id, user_id, description, starting_time, ending_time, booking_time, status)
-VALUES (1, 2, 'Student ticket for Web Development Workshop', '2024-06-20 09:00:00', '2024-06-20 11:00:00', '2024-06-13 10:00:00', true),
-       (2, 3, 'Parent ticket for Data Science Seminar', '2024-06-21 14:00:00', '2024-06-21 16:00:00', '2024-06-13 11:00:00', true),
-       (3, 6, 'Student ticket for AI Workshop', '2024-06-22 10:00:00', '2024-06-22 12:00:00', '2024-06-13 12:00:00', true);
+VALUES (1, 2, 'Student ticket for Web Development Workshop', '2025-07-20 09:00:00', '2025-07-20 11:00:00', '2024-06-13 10:00:00', true),
+       (2, 3, 'Parent ticket for Data Science Seminar', '2025-11-10 14:00:00', '2025-11-10 16:00:00', '2024-06-13 11:00:00', true),
+       (3, 6, 'Student ticket for AI Workshop', '2025-09-22 10:00:00', '2025-09-22 12:00:00', '2024-06-13 12:00:00', true);
