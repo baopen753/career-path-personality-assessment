@@ -90,25 +90,29 @@ public class UserProfileController {
     @GetMapping("/internal/{id}")
     public ResponseEntity<ApiResponse<UserInfoDto>> getUserDetails(@PathVariable Long id) {
 
-        Optional<UserProfile> userProfileOpt = userProfileService.getProfileByUserId(id);
-        if (userProfileOpt.isEmpty()) {
-            return null;
-        }
-
         User userInDb = userService.getUserById(id).orElseThrow(
                 () -> new UserNotFoundException("User not found with id: " + id)
         );
 
-        UserInfoDto userInfoDto = UserInfoDto.builder()
+
+        UserInfoDto.UserInfoDtoBuilder userInfoDtoBuilder = UserInfoDto.builder();
+
+        userInfoDtoBuilder
                 .userId(userInDb.getId())
-                .fullName(userProfileOpt.get().getFullName())
                 .email(userInDb.getEmail())
                 .build();
+
+        Optional<UserProfile> userProfileOpt = userProfileService.getProfileByUserId(id);
+        userProfileOpt.ifPresent(
+                userProfile -> userInfoDtoBuilder
+                        .fullName(userProfile.getFullName())
+                        .build()
+        );
 
         return ResponseEntity.ok(ApiResponse.<UserInfoDto>builder()
                 .code(200)
                 .message("User retrieved successfully")
-                .result(userInfoDto)
+                .result(userInfoDtoBuilder.build())
                 .build());
     }
 }

@@ -1,5 +1,6 @@
 package org.swd392.users.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
 @Getter
@@ -8,8 +9,11 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 @ToString
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserInfoDto {
     private Long userId;
+
     private String fullName;
+
     private String email;
 }

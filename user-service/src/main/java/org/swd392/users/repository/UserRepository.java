@@ -8,10 +8,11 @@ import org.swd392.users.entity.User;
 import java.util.Optional;
 
 @Repository
-public interface UserRepository  extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByEmail(String email);
-    @Query("SELECT u FROM User u WHERE u.email = ?1")
+
     Optional<User> findUserByEmail(String email);
 
+    Optional<User> findById(Long id);
 
 }
