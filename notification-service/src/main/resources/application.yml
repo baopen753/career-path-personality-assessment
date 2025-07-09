@@ -7,19 +7,6 @@ spring:
   application:
     name: notification
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:notificationDb}
-    driverClassName: org.postgresql.Driver
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:12345}
-  jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    hibernate:
-      ddl-auto: create
-    show-sql: true
-    defer-datasource-initialization: true
-  sql:
-    init:
-      mode: always
   mail:
     host: smtp.gmail.com
     port: 587
