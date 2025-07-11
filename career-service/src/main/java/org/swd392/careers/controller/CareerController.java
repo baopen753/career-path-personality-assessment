@@ -5,13 +5,14 @@ import org.swd392.careers.entity.Career;
 import org.swd392.careers.service.CareerService;
 import org.swd392.careers.dto.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/careers")
+@RequestMapping("/careers")
 @CrossOrigin
 public class CareerController {
     @Autowired
@@ -68,6 +69,36 @@ public class CareerController {
         careerService.deleteCareer(id);
         return ResponseEntity.ok(ApiResponse.<Void>builder()
                 .message("Career deleted successfully")
+                .build());
+    }
+
+    @GetMapping(value = "/personality/{personalityType}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ApiResponse<List<Career>>> getCareersByPersonality(
+            @PathVariable("personalityType") String personalityType) {
+        List<Career> careers = careerService.getCareersByPersonality(personalityType);
+        return ResponseEntity.ok(ApiResponse.<List<Career>>builder()
+                .message("Careers retrieved successfully")
+                .result(careers)
+                .build());
+    }
+
+    @GetMapping(value = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ApiResponse<List<Career>>> searchCareers(
+            @RequestParam("personalityTypes") List<String> personalityTypes) {
+        List<Career> careers = careerService.searchCareersByPersonalityTypes(personalityTypes);
+        return ResponseEntity.ok(ApiResponse.<List<Career>>builder()
+                .message("Careers retrieved successfully")
+                .result(careers)
+                .build());
+    }
+
+    @GetMapping(value = "/search", params = "careerNames")
+    public ResponseEntity<ApiResponse<List<Career>>> searchCareersByName(
+            @RequestParam("careerNames") List<String> careerNames) {
+        List<Career> careers = careerService.searchCareersByNames(careerNames);
+        return ResponseEntity.ok(ApiResponse.<List<Career>>builder()
+                .message("Careers retrieved successfully")
+                .result(careers)
                 .build());
     }
 }

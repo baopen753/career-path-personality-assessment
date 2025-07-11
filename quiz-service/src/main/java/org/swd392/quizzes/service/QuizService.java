@@ -64,9 +64,10 @@ public class QuizService {
 
         Quiz quiz = Quiz.builder()
                 .title(quizRequestDTO.getTitle())
+                .categoryId(quizRequestDTO.getCategoryId())  // Set the ID
                 .category(category)
                 .description(quizRequestDTO.getDescription())
-                .questionQuality(quizRequestDTO.getQuestionQuality())
+                .questionQuantity(quizRequestDTO.getQuestionQuantity())
                 .build();
 
         Quiz savedQuiz = quizRepository.save(quiz);
@@ -83,7 +84,7 @@ public class QuizService {
         existingQuiz.setTitle(quizRequestDTO.getTitle());
         existingQuiz.setCategory(category);
         existingQuiz.setDescription(quizRequestDTO.getDescription());
-        existingQuiz.setQuestionQuality(quizRequestDTO.getQuestionQuality());
+        existingQuiz.setQuestionQuantity(quizRequestDTO.getQuestionQuantity());
 
         Quiz updatedQuiz = quizRepository.save(existingQuiz);
         return convertToDTO(updatedQuiz);
@@ -103,7 +104,7 @@ public class QuizService {
                 .categoryId(quiz.getCategory().getId())
                 .categoryName(quiz.getCategory().getName())
                 .description(quiz.getDescription())
-                .questionQuality(quiz.getQuestionQuality())
+                .questionQuantity(quiz.getQuestionQuantity())
                 .build();
     }
 }

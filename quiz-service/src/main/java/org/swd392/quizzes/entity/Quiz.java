@@ -31,8 +31,8 @@ public class Quiz {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "question_quality")
-    private Integer questionQuality;
+    @Column(name = "question_quantity")
+    private Integer questionQuantity;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", insertable = false, updatable = false)

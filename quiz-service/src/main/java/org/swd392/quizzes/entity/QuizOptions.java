@@ -21,7 +21,7 @@ public class QuizOptions {
     @Column(name = "target_trait")
     private String targetTrait;
 
-    @Enumerated(EnumType.ORDINAL)
+    @Convert(converter = ScoreValueConverter.class)
     @Column(name = "score_value")
     private ScoreValue scoreValue;
 
@@ -33,7 +33,7 @@ public class QuizOptions {
     private QuizQuestion question;
 
     public enum ScoreValue {
-        NEGATIVE(-1), NEUTRAL(0), POSITIVE(1);
+        NEGATIVE_ONE(-1), ZERO(0), POSITIVE_ONE(1), DISC_TWO(2);
 
         private final int value;
 
@@ -43,6 +43,13 @@ public class QuizOptions {
 
         public int getValue() {
             return value;
+        }
+
+        public static ScoreValue fromValue(int value) {
+            for (ScoreValue v : values()) {
+                if (v.value == value) return v;
+            }
+            throw new IllegalArgumentException("Unknown value: " + value);
         }
     }
 }
