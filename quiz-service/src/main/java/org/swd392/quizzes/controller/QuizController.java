@@ -1,57 +1,31 @@
 package org.swd392.quizzes.controller;
 
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.core.env.Environment;
-//import org.springframework.web.bind.annotation.GetMapping;
-//import org.springframework.web.bind.annotation.RequestMapping;
-//import org.springframework.web.bind.annotation.RestController;
-//import org.springframework.web.client.RestTemplate;
-//
-//@RestController
-//@RequestMapping("/quiz")
-//public class QuizController {
-//
-//    @Autowired
-//    private RestTemplate restTemplate;
-//
-//    @Autowired
-//    private Environment env;
-//
-//    @GetMapping("")
-//    public String home() {
-//        return "Hello QuizService " + env.getProperty("local.server.port");
-//    }
-//
-//    @GetMapping("/all")
-//    public String getQUiz() {
-//        //String messageFromAuth = restTemplate.getForObject( "http://auth-service/<uuid>" , String.class);
-//        String messageFromAuth = restTemplate.getForObject( "http://gateway-service/auth-service/auth" , String.class);
-//        return "GetQuiz" + messageFromAuth;
-//    }
-//
-//
-//}
 import org.swd392.quizzes.dto.QuizDTO;
 import org.swd392.quizzes.dto.QuizRequestDTO;
 import org.swd392.quizzes.service.QuizService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/quiz")
+@RequestMapping("/quiz")
 @RequiredArgsConstructor
 @Tag(name = "Quiz Management", description = "API for managing quizzes")
 public class QuizController {
 
     private final QuizService quizService;
+
+    @GetMapping("/test")
+    public String test(){
+        return "test";
+    }
 
     @GetMapping
     @Operation(summary = "Get all quizzes", description = "Retrieve all available quizzes")

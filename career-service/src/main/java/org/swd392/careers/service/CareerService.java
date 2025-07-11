@@ -3,7 +3,6 @@ package org.swd392.careers.service;
 import org.swd392.careers.entity.Career;
 import org.swd392.careers.repository.CareerRepository;
 import org.swd392.careers.dto.CareerDTO;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,9 +14,10 @@ public class CareerService {
     @Autowired
     private CareerRepository careerRepository;
 
-    public Career createCareer(CareerDTO careerDTO) {
+    public Career createCareer(CareerDTO dto) {
         Career career = new Career();
-        BeanUtils.copyProperties(careerDTO, career);
+        career.setName(dto.getName());
+        career.setDescription(dto.getDescription());
         return careerRepository.save(career);
     }
 
@@ -29,17 +29,32 @@ public class CareerService {
         return careerRepository.findById(id);
     }
 
-    public Career updateCareer(String id, CareerDTO careerDTO) {
-        Optional<Career> existingCareer = careerRepository.findById(id);
-        if (existingCareer.isPresent()) {
-            Career career = existingCareer.get();
-            BeanUtils.copyProperties(careerDTO, career);
-            return careerRepository.save(career);
-        }
-        return null;
+    public Career updateCareer(String id, CareerDTO dto) {
+        return careerRepository.findById(id)
+                .map(career -> {
+                    career.setName(dto.getName());
+                    career.setDescription(dto.getDescription());
+                    return careerRepository.save(career);
+                })
+                .orElse(null);
     }
 
     public void deleteCareer(String id) {
         careerRepository.deleteById(id);
+    }
+
+    // New methods to support quiz-service integration
+    public List<Career> getCareersByPersonality(String personalityType) {
+        // This could be enhanced with actual personality matching logic
+        return careerRepository.findByNameContainingIgnoreCase(personalityType);
+    }
+
+    public List<Career> searchCareersByPersonalityTypes(List<String> personalityTypes) {
+        // You could implement more sophisticated matching logic here
+        return careerRepository.findByNameInIgnoreCase(personalityTypes);
+    }
+
+    public List<Career> searchCareersByNames(List<String> careerNames) {
+        return careerRepository.findByNameInIgnoreCase(careerNames);
     }
 }

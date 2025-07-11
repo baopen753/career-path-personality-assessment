@@ -11,11 +11,17 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/universities")
+@RequestMapping("/universities")
 @CrossOrigin
 public class UniversityController {
     @Autowired
     private UniversityService universityService;
+
+    //Delete this
+    @GetMapping("/test")
+    public String test() {
+        return "Hello University";
+    }
 
     @PostMapping
     public ResponseEntity<ApiResponse<University>> createUniversity(@RequestBody UniversityDTO dto) {
@@ -68,6 +74,26 @@ public class UniversityController {
         universityService.deleteUniversity(id);
         return ResponseEntity.ok(ApiResponse.<Void>builder()
                 .message("University deleted successfully")
+                .build());
+    }
+
+    @GetMapping("/by-programs")
+    public ResponseEntity<ApiResponse<List<University>>> getUniversitiesByPrograms(
+            @RequestParam("programs") List<String> programs) {
+        List<University> universities = universityService.findByMajorIn(programs);
+        return ResponseEntity.ok(ApiResponse.<List<University>>builder()
+                .message("Universities retrieved successfully")
+                .result(universities)
+                .build());
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<List<University>>> searchUniversities(
+            @RequestParam("major") String major) {
+        List<University> universities = universityService.findByMajor(major);
+        return ResponseEntity.ok(ApiResponse.<List<University>>builder()
+                .message("Universities retrieved successfully")
+                .result(universities)
                 .build());
     }
 }

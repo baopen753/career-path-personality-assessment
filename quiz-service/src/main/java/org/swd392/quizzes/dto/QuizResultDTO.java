@@ -1,4 +1,5 @@
 package org.swd392.quizzes.dto;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,6 +16,6 @@ public class QuizResultDTO {
     private Integer attemptOrder;
     private String resultJson;
     private Long quizId;
-    private Long userId;
+    private String userId; // Changed from Long to String to match auth-service UUID
     private Long personalityId;
 }
