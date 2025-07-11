@@ -50,12 +50,13 @@ public class QuizResultService {
                 userId, submission.getQuizId());
 
         try {
-            // Set user ID in submission (extracted from JWT token)
-            submission.setUserId(userId);
+            // Convert String userId to Long for database storage
+            Long userIdLong = Long.valueOf(userId);
+            submission.setUserId(userIdLong);
 
             // 1. Calculate personality using existing logic
             PersonalityResultDTO personalityResult = personalityCalculationService.calculatePersonality(submission);
-            log.info("Calculated personality type: {} for user: {}", personalityResult.getPersonalityCode(), userId);
+            log.info("Calculated personality type: {} for user: {}", personalityResult.getPersonalityCode(), userIdLong);
 
             // 2. Enrich with career and university recommendations from microservices
             PersonalityResultDTO enrichedResult = microserviceIntegrationService.enrichPersonalityResult(personalityResult);
@@ -65,11 +66,13 @@ public class QuizResultService {
             QuizResult quizResult = saveQuizResult(submission, enrichedResult);
             log.info("Saved quiz result with ID: {}", quizResult.getId());
 
-            // Note: No persona-service integration needed since profile management is handled by auth-service
-            log.info("Quiz submission completed successfully for user: {}", userId);
+            log.info("Quiz submission completed successfully for user: {}", userIdLong);
 
             return enrichedResult;
 
+        } catch (NumberFormatException e) {
+            log.error("Invalid user ID format: {}", userId, e);
+            throw new RuntimeException("Invalid user ID format: " + userId);
         } catch (Exception e) {
             log.error("Failed to process quiz submission with microservices for user: {}", userId, e);
             throw new RuntimeException("Failed to submit quiz: " + e.getMessage());
@@ -137,7 +140,7 @@ public class QuizResultService {
     /**
      * Get next attempt order for user and quiz
      */
-    private Integer getNextAttemptOrder(String userId, Long quizId) {
+    private Integer getNextAttemptOrder(Long userId, Long quizId) {
         return getQuizAttemptCount(userId, quizId) + 1;
     }
 
@@ -145,7 +148,7 @@ public class QuizResultService {
      * Get all quiz results for a specific user
      */
     @Transactional(readOnly = true)
-    public List<QuizResultDTO> getResultsByUserId(String userId) {
+    public List<QuizResultDTO> getResultsByUserId(Long userId) {
         log.debug("Fetching quiz results for user: {}", userId);
 
         List<QuizResult> results = quizResultRepository.findByUserIdOrderByTimeSubmitDesc(userId);
@@ -169,8 +172,8 @@ public class QuizResultService {
                 throw new RuntimeException("Unable to get user information from auth service");
             }
 
-            // Use the authenticated user's ID
-            String authenticatedUserId = currentUser.getId();
+            // Use the authenticated user's ID (now Long)
+            Long authenticatedUserId = currentUser.getId();
             log.info("User {} requesting their own quiz results", authenticatedUserId);
 
             // Get quiz results for the authenticated user only
@@ -208,7 +211,7 @@ public class QuizResultService {
      * Get quiz results for specific quiz and user
      */
     @Transactional(readOnly = true)
-    public List<QuizResultDTO> getResultsByQuizAndUser(Long quizId, String userId) {
+    public List<QuizResultDTO> getResultsByQuizAndUser(Long quizId, Long userId) {
         log.debug("Fetching quiz results for quiz: {} and user: {}", quizId, userId);
 
         List<QuizResult> results = quizResultRepository.findByQuizIdAndUserId(quizId, userId);
@@ -221,7 +224,7 @@ public class QuizResultService {
      * Get quiz attempt count for a user and quiz
      */
     @Transactional(readOnly = true)
-    public Integer getQuizAttemptCount(String userId, Long quizId) {
+    public Integer getQuizAttemptCount(Long userId, Long quizId) {
         return quizResultRepository.countByQuizIdAndUserId(quizId, userId);
     }
 
@@ -229,7 +232,7 @@ public class QuizResultService {
      * Check if user can attempt quiz again
      */
     @Transactional(readOnly = true)
-    public boolean canUserAttemptQuiz(String userId, Long quizId) {
+    public boolean canUserAttemptQuiz(Long userId, Long quizId) {
         Integer attemptCount = getQuizAttemptCount(userId, quizId);
 
         // TODO: Integrate with user premium service
@@ -242,7 +245,7 @@ public class QuizResultService {
      * Get latest quiz result for user and quiz
      */
     @Transactional(readOnly = true)
-    public Optional<QuizResultDTO> getLatestResultByQuizAndUser(Long quizId, String userId) {
+    public Optional<QuizResultDTO> getLatestResultByQuizAndUser(Long quizId, Long userId) {
         List<QuizResult> results = quizResultRepository.findByQuizIdAndUserId(quizId, userId);
 
         return results.stream()
@@ -377,7 +380,7 @@ public class QuizResultService {
             if (email.equals(currentUser.getEmail())) {
                 // Case 1: User is requesting their own quiz results
                 log.info("User requesting their own quiz results");
-                String userId = currentUser.getId();
+                Long userId = currentUser.getId();
                 List<QuizResult> quizResults = quizResultRepository.findByUserIdWithPersonalityDetails(userId);
                 return buildUserQuizResultsDTO(currentUser, quizResults);
 
@@ -386,9 +389,7 @@ public class QuizResultService {
                 log.info("Parent user requesting student quiz results for email: {}", email);
 
                 // Get the target student's quiz results by searching through database
-                // Since we can't directly get user by email without their token,
-                // we'll search through quiz results and match email patterns
-                String targetUserId = findUserIdByEmail(email, authorizationHeader);
+                Long targetUserId = findUserIdByEmail(email, authorizationHeader);
 
                 // Return empty results if no user found
                 if (targetUserId == null) {
@@ -429,7 +430,7 @@ public class QuizResultService {
      * Helper method to find userId by email from existing quiz results
      * This is a workaround since we can't directly query users by email without their token
      */
-    private String findUserIdByEmail(String email, String authorizationHeader) {
+    private Long findUserIdByEmail(String email, String authorizationHeader) {
         log.debug("Searching for user ID by email: {} with auth header", email);
 
         try {
@@ -437,7 +438,7 @@ public class QuizResultService {
             ApiResponse<UserResponse> userResponse = authServiceClient.getUserByEmail(email, authorizationHeader);
 
             if (userResponse != null && userResponse.getResult() != null) {
-                String userId = userResponse.getResult().getId();
+                Long userId = userResponse.getResult().getId();
                 log.debug("Found user ID {} from auth service", userId);
                 return userId;
             }

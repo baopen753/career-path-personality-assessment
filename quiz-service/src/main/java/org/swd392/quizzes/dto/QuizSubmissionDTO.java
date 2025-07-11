@@ -15,13 +15,13 @@ public class QuizSubmissionDTO {
     @NotNull(message = "Quiz ID is required")
     private Long quizId;
 
-    private String userId; // Changed from Long to String to match auth-service UUID
+    private Long userId; // Changed from String to Long to match user-service
 
     @NotEmpty(message = "Answers are required")
     private Map<Long, Long> answers; // questionId -> optionId
 
     // Manual setter method for userId (needed for microservices integration)
-    public void setUserId(String userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
 }

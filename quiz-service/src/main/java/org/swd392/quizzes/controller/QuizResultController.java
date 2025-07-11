@@ -30,15 +30,16 @@ public class QuizResultController {
     @PostMapping("/submit")
     public ResponseEntity<PersonalityResultDTO> submitQuiz(
             @Valid @RequestBody QuizSubmissionDTO submission,
-            @RequestHeader("Authorization") String authorizationHeader) {
+            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestHeader(value = "X-User-Id", required = false) String userIdHeader) {
 
-        // Extract user ID from JWT token via auth service
-        String userId = authenticationService.extractUserIdFromToken(authorizationHeader);
+        // Extract user ID using the more efficient method (headers first, then token validation)
+        String userId = authenticationService.extractUserIdFromHeaders(authorizationHeader, userIdHeader);
 
-        log.info("Received quiz submission request for authenticated user: {} and quiz: {}",
+        log.info("Received quiz submission request for user: {} and quiz: {}",
                 userId, submission.getQuizId());
 
-        // Submit quiz with microservices integration (career and university services only)
+        // Submit quiz with microservices integration
         PersonalityResultDTO result = quizResultService.submitQuizResultWithMicroservices(
             submission, userId);
 
@@ -85,7 +86,7 @@ public ResponseEntity<UserQuizResultsDTO> getMyResults(
     @GetMapping("/quiz/{quizId}/user/{userId}")
     public ResponseEntity<List<QuizResultDTO>> getResultsByQuizAndUser(
             @PathVariable Long quizId,
-            @PathVariable String userId) {
+            @PathVariable Long userId) {
         log.info("Fetching quiz results for quiz: {} and user: {}", quizId, userId);
 
         List<QuizResultDTO> results = quizResultService.getResultsByQuizAndUser(quizId, userId);
@@ -96,7 +97,7 @@ public ResponseEntity<UserQuizResultsDTO> getMyResults(
     @GetMapping("/quiz/{quizId}/user/{userId}/latest")
     public ResponseEntity<QuizResultDTO> getLatestResult(
             @PathVariable Long quizId,
-            @PathVariable String userId) {
+            @PathVariable Long userId) {
         log.info("Fetching latest quiz result for quiz: {} and user: {}", quizId, userId);
 
         Optional<QuizResultDTO> result = quizResultService.getLatestResultByQuizAndUser(quizId, userId);
@@ -112,7 +113,7 @@ public ResponseEntity<UserQuizResultsDTO> getMyResults(
     @GetMapping("/quiz/{quizId}/user/{userId}/attempts")
     public ResponseEntity<Integer> getAttemptCount(
             @PathVariable Long quizId,
-            @PathVariable String userId) {
+            @PathVariable Long userId) {
         log.info("Fetching attempt count for quiz: {} and user: {}", quizId, userId);
 
         Integer attemptCount = quizResultService.getQuizAttemptCount(userId, quizId);
@@ -123,7 +124,7 @@ public ResponseEntity<UserQuizResultsDTO> getMyResults(
     @GetMapping("/quiz/{quizId}/user/{userId}/can-attempt")
     public ResponseEntity<Boolean> canUserAttemptQuiz(
             @PathVariable Long quizId,
-            @PathVariable String userId) {
+            @PathVariable Long userId) {
         log.info("Checking if user: {} can attempt quiz: {}", userId, quizId);
 
         boolean canAttempt = quizResultService.canUserAttemptQuiz(userId, quizId);

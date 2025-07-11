@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
-@FeignClient(name = "career-service", fallback = CareerServiceClientFallback.class)
+@FeignClient(name = "career", fallback = CareerServiceClientFallback.class)
 public interface CareerServiceClient {
     @GetMapping(value = "/careers/search", params = "careerNames", produces = MediaType.APPLICATION_JSON_VALUE)
     ApiResponse<List<CareerRecommendationResponse>> searchCareersByName(@RequestParam("careerNames") List<String> careerNames);

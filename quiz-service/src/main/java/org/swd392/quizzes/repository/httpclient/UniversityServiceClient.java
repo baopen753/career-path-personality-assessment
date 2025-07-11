@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
-@FeignClient(name = "university-service", fallback = UniversityServiceClientFallback.class)
+@FeignClient(name = "university", fallback = UniversityServiceClientFallback.class)
 public interface UniversityServiceClient {
     @GetMapping("/universities/by-programs")
     ApiResponse<List<UniversityRecommendationResponse>> getUniversitiesByPrograms(@RequestParam("programs") List<String> programs);

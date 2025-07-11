@@ -53,4 +53,28 @@ public class AuthenticationController {
                 .build());
     }
 
+    @PostMapping("/introspect")
+    public ResponseEntity<ApiResponse<TokenValidationResponseDto>> introspectToken(@Valid @RequestBody IntrospectRequestDto request) {
+        TokenValidationResponseDto response = userService.introspectToken(request.getToken());
+        return ResponseEntity.ok(ApiResponse.<TokenValidationResponseDto>builder()
+                .code(200)
+                .message("Token validation completed")
+                .result(response)
+                .build());
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<UserResponseDto>> getCurrentUser(@RequestHeader("Authorization") String authHeader) {
+        String token = null;
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            token = authHeader.substring(7);
+        }
+
+        UserResponseDto response = userService.getCurrentUser(token);
+        return ResponseEntity.ok(ApiResponse.<UserResponseDto>builder()
+                .code(200)
+                .message("User information retrieved successfully")
+                .result(response)
+                .build());
+    }
 }

@@ -12,16 +12,16 @@ import java.util.List;
 @Repository
 public interface QuizResultRepository extends JpaRepository<QuizResult, Long> {
 
-    List<QuizResult> findByUserIdOrderByTimeSubmitDesc(String userId);
+    List<QuizResult> findByUserIdOrderByTimeSubmitDesc(Long userId);
 
-    List<QuizResult> findByQuizIdAndUserId(Long quizId, String userId);
+    List<QuizResult> findByQuizIdAndUserId(Long quizId, Long userId);
 
-    Integer countByQuizIdAndUserId(Long quizId, String userId);
+    Integer countByQuizIdAndUserId(Long quizId, Long userId);
 
     List<QuizResult> findByQuizId(Long quizId);
 
     @Query("SELECT qr FROM QuizResult qr WHERE qr.userId = :userId AND qr.timeSubmit BETWEEN :startDate AND :endDate")
-    List<QuizResult> findByUserIdAndDateRange(@Param("userId") String userId,
+    List<QuizResult> findByUserIdAndDateRange(@Param("userId") Long userId,
                                               @Param("startDate") LocalDateTime startDate,
                                               @Param("endDate") LocalDateTime endDate);
 
@@ -29,15 +29,15 @@ public interface QuizResultRepository extends JpaRepository<QuizResult, Long> {
     List<Object[]> findMostCommonPersonalityTypes();
 
     @Query("SELECT qr FROM QuizResult qr LEFT JOIN FETCH qr.personalityStandard WHERE qr.userId = :userId")
-    List<QuizResult> findByUserIdWithPersonalityStandard(@Param("userId") String userId);
+    List<QuizResult> findByUserIdWithPersonalityStandard(@Param("userId") Long userId);
 
     @Query("SELECT COUNT(qr) FROM QuizResult qr WHERE qr.quizId = :quizId")
     Long countByQuizId(@Param("quizId") Long quizId);
 
-    boolean existsByQuizIdAndUserId(Long quizId, String userId);
+    boolean existsByQuizIdAndUserId(Long quizId, Long userId);
 
     @Query("SELECT qr FROM QuizResult qr LEFT JOIN FETCH qr.personalityStandard WHERE qr.userId = :userId ORDER BY qr.timeSubmit DESC")
-    List<QuizResult> findByUserIdWithPersonalityDetails(@Param("userId") String userId);
+    List<QuizResult> findByUserIdWithPersonalityDetails(@Param("userId") Long userId);
 
     @Query(value = """
             SELECT DISTINCT qr.user_id 

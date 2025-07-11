@@ -9,7 +9,7 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserResponse {
-    String id;
+    Long id; // Changed from String to Long to match user-service
     String email;
     boolean noPassword;
     UserRole role; // Using our custom enum

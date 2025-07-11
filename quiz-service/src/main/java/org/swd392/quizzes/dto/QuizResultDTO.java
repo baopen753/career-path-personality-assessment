@@ -16,6 +16,6 @@ public class QuizResultDTO {
     private Integer attemptOrder;
     private String resultJson;
     private Long quizId;
-    private String userId; // Changed from Long to String to match auth-service UUID
+    private Long userId; // Changed from String to Long to match user-service
     private Long personalityId;
 }

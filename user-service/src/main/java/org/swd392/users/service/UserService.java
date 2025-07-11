@@ -14,7 +14,6 @@ import org.swd392.users.repository.RoleRepository;
 import org.swd392.users.repository.UserRepository;
 import org.swd392.users.service.impl.IUserService;
 import org.swd392.users.service.client.NotificationFeignClient;
-import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -170,5 +169,68 @@ public class UserService implements IUserService {
         if (token != null) {
             jwtService.invalidateToken(token);
         }
+    }
+
+    // New methods for quiz-service integration
+    @Override
+    public TokenValidationResponseDto introspectToken(String token) {
+        try {
+            if (jwtService.isValidToken(token)) {
+                Long userId = jwtService.extractUserId(token);
+                String email = jwtService.extractEmail(token);
+                String role = jwtService.extractRole(token);
+
+                return TokenValidationResponseDto.builder()
+                        .valid(true)
+                        .id(userId)
+                        .email(email)
+                        .role(role)
+                        .build();
+            } else {
+                return TokenValidationResponseDto.builder()
+                        .valid(false)
+                        .build();
+            }
+        } catch (Exception e) {
+            return TokenValidationResponseDto.builder()
+                    .valid(false)
+                    .build();
+        }
+    }
+
+    @Override
+    public UserResponseDto getCurrentUser(String token) {
+        try {
+            if (!jwtService.isValidToken(token)) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
+            }
+
+            Long userId = jwtService.extractUserId(token);
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+            return UserResponseDto.builder()
+                    .id(user.getId())
+                    .email(user.getEmail())
+                    .noPassword(user.getPassword() == null || user.getPassword().isEmpty())
+                    .role(user.getRole().getRoleName())
+                    .build();
+
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Failed to get current user: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public UserResponseDto getUserByEmail(String email) {
+        User user = userRepository.findUserByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with email: " + email));
+
+        return UserResponseDto.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .noPassword(user.getPassword() == null || user.getPassword().isEmpty())
+                .role(user.getRole().getRoleName())
+                .build();
     }
 }

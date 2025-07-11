@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.annotations.Type;
 import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
@@ -15,7 +14,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class    QuizResult {
+public class QuizResult {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -37,7 +36,7 @@ public class    QuizResult {
     private Long quizId;
 
     @Column(name = "user_id", nullable = false)
-    private String userId; // Changed from Long to String to match auth-service UUID
+    private Long userId; // Changed from String to Long to match user-service
 
     @Column(name = "personality_id")
     private Long personalityId;

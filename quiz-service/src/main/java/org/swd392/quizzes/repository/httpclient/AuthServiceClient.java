@@ -8,15 +8,15 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-@FeignClient(name = "auth-service", fallback = AuthServiceClientFallback.class)
+@FeignClient(name = "user", fallback = AuthServiceClientFallback.class)
 public interface AuthServiceClient {
 
-    @GetMapping(value = "/users/me", produces = MediaType.APPLICATION_JSON_VALUE)
-    ApiResponse<UserResponse> getCurrentUser(@RequestHeader("Authorization") String authorizationHeader);
-
-    @PostMapping(value = "/auth/introspect", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/authentication/introspect", produces = MediaType.APPLICATION_JSON_VALUE)
     ApiResponse<TokenValidationResponse> introspectToken(@RequestBody IntrospectRequest request);
 
-    @GetMapping(value = "/users/by-email/{email}", produces = MediaType.APPLICATION_JSON_VALUE)
-    ApiResponse<UserResponse> getUserByEmail(@PathVariable("email") String email, @RequestHeader("Authorization") String authorizationHeader);
+    @GetMapping(value = "/api/users/me", produces = MediaType.APPLICATION_JSON_VALUE)
+    ApiResponse<UserResponse> getCurrentUser(@RequestHeader("Authorization") String authorizationHeader);
+
+    @GetMapping(value = "/api/users/by-email", produces = MediaType.APPLICATION_JSON_VALUE)
+    ApiResponse<UserResponse> getUserByEmail(@RequestParam("email") String email, @RequestHeader("Authorization") String authorizationHeader);
 }

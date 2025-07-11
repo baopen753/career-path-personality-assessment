@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class UserQuizResultsDTO {
-    private String userId;
+    private Long userId; // Changed from String to Long to match user-service
     private String email;
     private int totalQuizzesTaken;
     private LocalDateTime firstQuizDate;

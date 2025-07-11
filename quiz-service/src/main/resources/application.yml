@@ -49,8 +49,7 @@ management:
         include: "*"  # Expose all actuator endpoints over HTTP
   endpoint:
     shutdown:
-      access: unrestricted  # Allow unrestricted access to the shutdown endpoint
-                            # NOTE: only use this shutdown endpoint config in dev env
+      enabled: true
   info:
     env:
       enabled: true         # show info env in /actuator/info
@@ -74,3 +73,27 @@ info:
   app:
     name: ${spring.application.name}
     description: "This is quiz service in Career Path Personality Assessment System"
+    version: 1.0.0
+
+# CRITICAL MISSING: Circuit breaker configuration for Feign clients
+feign:
+  circuitbreaker:
+    enabled: true
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 10000
+
+# Circuit breaker configuration
+resilience4j:
+  circuitbreaker:
+    instances:
+      user:  # Changed from "user-service" to "user" to match Feign client
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        slowCallRateThreshold: 50
+        slowCallDurationThreshold: 2000
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10000

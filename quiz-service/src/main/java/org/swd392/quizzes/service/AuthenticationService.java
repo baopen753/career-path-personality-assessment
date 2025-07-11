@@ -17,7 +17,7 @@ public class AuthenticationService {
     private final AuthServiceClient authServiceClient;
 
     /**
-     * Validate JWT token and get user ID
+     * Validate JWT token and get user ID (returns as String for compatibility)
      */
     public String extractUserIdFromToken(String authorizationHeader) {
         try {
@@ -45,7 +45,8 @@ public class AuthenticationService {
             }
 
             log.info("Token validated successfully for user: {}", user.getId());
-            return user.getId();
+            // Convert Long to String for backward compatibility
+            return user.getId().toString();
         } catch (Exception e) {
             log.error("Token validation failed", e);
             throw new RuntimeException("Authentication failed: " + e.getMessage());
@@ -53,27 +54,7 @@ public class AuthenticationService {
     }
 
     /**
-     * Get current user information from JWT token
-     */
-    public UserResponse getCurrentUser(String authorizationHeader) {
-        try {
-            log.info("Fetching current user info from auth service");
-            ApiResponse<UserResponse> apiResponse = authServiceClient.getCurrentUser(authorizationHeader);
-
-            UserResponse response = apiResponse.getResult();
-            if (response == null) {
-                throw new RuntimeException("Auth service returned null user info");
-            }
-
-            return response;
-        } catch (Exception e) {
-            log.error("Failed to get current user from auth service", e);
-            throw new RuntimeException("Authentication failed: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Extract token from Authorization header by removing "Bearer " prefix
+     * Extract Bearer token from Authorization header
      */
     private String extractTokenFromHeader(String authorizationHeader) {
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
@@ -81,5 +62,39 @@ public class AuthenticationService {
         }
         return authorizationHeader.substring(7); // Remove "Bearer " prefix
     }
-}
 
+    /**
+     * Get current user information
+     */
+    public UserResponse getCurrentUser(String authorizationHeader) {
+        try {
+            ApiResponse<UserResponse> response = authServiceClient.getCurrentUser(authorizationHeader);
+            return response.getResult();
+        } catch (Exception e) {
+            log.error("Failed to get current user", e);
+            throw new RuntimeException("Failed to get user information: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Alternative method: Extract user ID directly from X-User-Id header (set by API Gateway)
+     * This is more efficient as it doesn't require calling user-service
+     */
+    public String extractUserIdFromHeaders(String authorizationHeader, String userIdHeader) {
+        try {
+            // First try to get from X-User-Id header (set by API Gateway)
+            if (userIdHeader != null && !userIdHeader.trim().isEmpty()) {
+                log.info("Using user ID from X-User-Id header: {}", userIdHeader);
+                return userIdHeader;
+            }
+
+            // Fallback to token validation via user-service
+            log.info("X-User-Id header not found, validating token with user-service");
+            return extractUserIdFromToken(authorizationHeader);
+
+        } catch (Exception e) {
+            log.error("Failed to extract user ID from headers or token", e);
+            throw new RuntimeException("Authentication failed: " + e.getMessage());
+        }
+    }
+}

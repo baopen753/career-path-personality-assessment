@@ -1,4 +1,4 @@
-package org.swd392.quizzes.dto.external;
+package org.swd392.users.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TokenValidationResponse {
+public class TokenValidationResponseDto {
     private boolean valid;
-    private Long id;      // Changed from String to Long
+    private Long id;
     private String email;
-    private String role;  // Added missing role field
+    private String role;
 }
