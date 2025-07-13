@@ -28,7 +28,6 @@ public class UserProfileController {
     @Autowired
     private IUserService userService;
 
-
     @PreAuthorize("(hasAnyRole('SYSTEM_ADMIN','ADMIN') or (hasAnyRole('STUDENT','EVENT_MANAGER','PARENT') and #userId == authentication.principal.id))")
     @PostMapping("/{userId}")
     public ResponseEntity<UserProfile> createOrUpdateProfile(@PathVariable Long userId, @RequestBody UserProfileDto profileDetails) {
@@ -40,6 +39,7 @@ public class UserProfileController {
         }
     }
 
+
     @PreAuthorize("hasAnyRole('SYSTEM_ADMIN','ADMIN')")
     @DeleteMapping("/{userId}")
     public ResponseEntity<Void> deleteProfile(@PathVariable Long userId) {
@@ -49,6 +49,7 @@ public class UserProfileController {
         }
         return ResponseEntity.notFound().build();
     }
+
 
     @PreAuthorize("(hasAnyRole('SYSTEM_ADMIN','ADMIN') or (hasAnyRole('STUDENT','EVENT_MANAGER','PARENT') and #id == authentication.principal.id))")
     @GetMapping("/profile/{id}")
@@ -75,7 +76,6 @@ public class UserProfileController {
                 .phoneNumber(userProfile.getPhoneNumber())
                 .address(userProfile.getAddress())
                 .school(userProfile.getSchool())
-                .packageType(userProfile.getPackageType().getPackageId())
                 .gender(userProfile.getGender())
                 .build();
 
@@ -85,6 +85,7 @@ public class UserProfileController {
                 .result(userProfileDto)
                 .build());
     }
+
 
     @GetMapping("/internal/{id}")
     public ResponseEntity<ApiResponse<UserInfoDto>> getUserDetails(@PathVariable Long id) {

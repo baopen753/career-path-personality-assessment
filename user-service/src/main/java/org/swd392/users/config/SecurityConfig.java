@@ -55,6 +55,7 @@ public class SecurityConfig {
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/profiles/internal/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/profiles/profile/**").authenticated()
+                        .requestMatchers(HttpMethod.POST,"/api/package/upgrade/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

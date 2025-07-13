@@ -48,12 +48,6 @@ public class UserProfileService {
         profile.setImageUrl(profileDetails.getImageUrl());
         profile.setSchool(profileDetails.getSchool());
 
-        Package aPackage = packageRepository.findPackageByPackageId(profileDetails.getPackageType()).orElseThrow(
-                () -> new PackageNotFoundException("Not found package with id: " + profileDetails.getPackageType())
-        );
-
-        profile.setPackageType(aPackage);
-
         // Lưu vào DB
         return profileRepository.save(profile);
     }

@@ -34,10 +34,6 @@ public class UserProfile {
     private String school;
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "package_id")
-    private Package packageType;
-
     @Enumerated(EnumType.STRING)
     private Gender gender;
 

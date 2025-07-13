@@ -16,9 +16,7 @@ public class UserProfileMapper {
                 userProfile.getAddress(),
                 userProfile.getImageUrl(),
                 userProfile.getSchool(),
-                userProfile.getPackageType().getPackageId(),
                 userProfile.getGender()
         );
     }
-
 }

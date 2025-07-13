@@ -21,8 +21,6 @@ public class UserProfileDto {
     private String address;
     private String imageUrl;
     private String school;
-    private Integer packageType;
     private Gender gender;
-
 
 }
