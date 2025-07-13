@@ -18,27 +18,25 @@ public class SeminarStatusUpdateTask {
 
     private final SeminarRepository seminarRepository;
 
-    @Scheduled(fixedDelay = 60000) // Check every minute
+    @Scheduled(fixedDelay = 60000) // Chạy mỗi phút
     @Transactional
     public void updateExpiredSeminars() {
-        log.debug("Checking for seminars that have ended...");
-        
+        log.debug("[SeminarStatusUpdateTask] Checking for seminars that have ended...");
         LocalDateTime now = LocalDateTime.now();
-        
-        // Find all seminars that are ONGOING and have passed their ending time
         List<Seminar> expiredSeminars = seminarRepository.findByStatusAndEndingTimeBefore(
             Seminar.Status.ONGOING, now);
-        
+        log.info("[SeminarStatusUpdateTask] Found {} seminars to update (status=ONGOING, ending_time < now)", expiredSeminars.size());
         for (Seminar seminar : expiredSeminars) {
-            log.info("Updating seminar ID: {} status from ONGOING to COMPLETED (ended at: {})", 
-                seminar.getId(), seminar.getEndingTime());
-            
+            log.info("[SeminarStatusUpdateTask] Seminar ID: {}, Title: '{}', Status before: {}, Ending time: {}", 
+                seminar.getId(), seminar.getTitle(), seminar.getStatus(), seminar.getEndingTime());
             seminar.setStatus(Seminar.Status.COMPLETED);
             seminarRepository.save(seminar);
+            log.info("[SeminarStatusUpdateTask] Seminar ID: {} updated to status: COMPLETED", seminar.getId());
         }
-        
-        if (!expiredSeminars.isEmpty()) {
-            log.info("Updated {} seminars to COMPLETED status", expiredSeminars.size());
+        if (expiredSeminars.isEmpty()) {
+            log.info("[SeminarStatusUpdateTask] No seminars need to be updated at this time.");
+        } else {
+            log.info("[SeminarStatusUpdateTask] Updated {} seminars to COMPLETED status", expiredSeminars.size());
         }
     }
 } 

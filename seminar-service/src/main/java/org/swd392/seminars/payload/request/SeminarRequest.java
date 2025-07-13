@@ -1,5 +1,6 @@
 package org.swd392.seminars.payload.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import org.swd392.seminars.validation.ValidSeminarTime;
@@ -41,9 +42,11 @@ public class SeminarRequest {
     
     @NotNull(message = "Starting time is required")
     @Future(message = "Starting time must be in the future")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime startingTime;
     
     @NotNull(message = "Ending time is required")
     @Future(message = "Ending time must be in the future")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime endingTime;
 }
