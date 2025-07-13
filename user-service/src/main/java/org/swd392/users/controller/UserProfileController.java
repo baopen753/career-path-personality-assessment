@@ -66,7 +66,6 @@ public class UserProfileController {
                             .build());
         }
 
-
         UserProfile userProfile = userProfileOpt.get();
         UserProfileDto userProfileDto = UserProfileDto.builder()
                 .userId(userProfile.getUser().getId())
@@ -76,7 +75,7 @@ public class UserProfileController {
                 .phoneNumber(userProfile.getPhoneNumber())
                 .address(userProfile.getAddress())
                 .school(userProfile.getSchool())
-                .accountType(userProfile.getAccountType())
+                .packageType(userProfile.getPackageType().getPackageId())
                 .gender(userProfile.getGender())
                 .build();
 
@@ -93,7 +92,6 @@ public class UserProfileController {
         User userInDb = userService.getUserById(id).orElseThrow(
                 () -> new UserNotFoundException("User not found with id: " + id)
         );
-
 
         UserInfoDto.UserInfoDtoBuilder userInfoDtoBuilder = UserInfoDto.builder();
 

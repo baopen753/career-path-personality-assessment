@@ -2,8 +2,11 @@ package org.swd392.users.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.swd392.users.entity.Package;
 import org.swd392.users.entity.User;
 import org.swd392.users.entity.UserProfile;
+import org.swd392.users.exception.PackageNotFoundException;
+import org.swd392.users.repository.PackageRepository;
 import org.swd392.users.repository.UserProfileRepository;
 import org.swd392.users.repository.UserRepository;
 import org.swd392.users.dto.UserProfileDto;
@@ -19,6 +22,9 @@ public class UserProfileService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PackageRepository packageRepository;
 
     public Optional<UserProfile> getProfileByUserId(Long userId) {
         return profileRepository.findByUserId(userId);
@@ -41,7 +47,12 @@ public class UserProfileService {
         profile.setAddress(profileDetails.getAddress());
         profile.setImageUrl(profileDetails.getImageUrl());
         profile.setSchool(profileDetails.getSchool());
-        profile.setAccountType(profileDetails.getAccountType());
+
+        Package aPackage = packageRepository.findPackageByPackageId(profileDetails.getPackageType()).orElseThrow(
+                () -> new PackageNotFoundException("Not found package with id: " + profileDetails.getPackageType())
+        );
+
+        profile.setPackageType(aPackage);
 
         // Lưu vào DB
         return profileRepository.save(profile);

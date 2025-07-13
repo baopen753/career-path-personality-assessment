@@ -25,6 +25,8 @@ public class User {
     @JoinColumn(name = "role_id")
     private Role role;
 
+
+
     private boolean status;
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
