@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -36,6 +37,12 @@ public class Seminar {
 
     @Column(name = "form_url")
     private String formUrl;
+
+    @Column(name = "starting_time", nullable = false)
+    private LocalDateTime startingTime;
+
+    @Column(name = "ending_time", nullable = false)
+    private LocalDateTime endingTime;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

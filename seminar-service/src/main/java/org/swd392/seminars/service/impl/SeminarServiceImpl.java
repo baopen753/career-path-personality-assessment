@@ -38,21 +38,9 @@ public class SeminarServiceImpl implements SeminarService {
         log.info("Creating new seminar by event manager ID: {} with request: {}", eventManagerId, request);
         try {
             
-            // Validate required fields
-            if (request.getTitle() == null || request.getTitle().trim().isEmpty()) {
-                throw new SeminarTicketException("Title is required");
-            }
-            if (request.getDescription() == null || request.getDescription().trim().isEmpty()) {
-                throw new SeminarTicketException("Description is required");
-            }
-            if (request.getDuration() == null || request.getDuration() <= 0) {
-                throw new SeminarTicketException("Duration must be greater than 0");
-            }
-            if (request.getPrice() == null || request.getPrice() < 0) {
-                throw new SeminarTicketException("Price cannot be negative");
-            }
-            if (request.getSlot() == null || request.getSlot() <= 0) {
-                throw new SeminarTicketException("Slot must be greater than 0");
+            // Validate that starting time is not in the past (Bean Validation @Future handles this, but we double-check for better error messages)
+            if (request.getStartingTime().isBefore(LocalDateTime.now())) {
+                throw new SeminarTicketException("Starting time cannot be in the past");
             }
 
             // Create and save seminar
@@ -67,6 +55,8 @@ public class SeminarServiceImpl implements SeminarService {
                 seminar.setCreateBy(eventManagerId);
                 seminar.setPrice(request.getPrice());
                 seminar.setImageUrl(request.getImageUrl());
+                seminar.setStartingTime(request.getStartingTime());
+                seminar.setEndingTime(request.getEndingTime());
                 seminar.setStatus(Seminar.Status.PENDING);
                 seminar.setStatusApprove(Seminar.StatusApprove.PENDING);
 
@@ -104,6 +94,11 @@ public class SeminarServiceImpl implements SeminarService {
             throw new SeminarTicketException("Can only update pending seminars");
         }
 
+        // Validate that starting time is not in the past for updates
+        if (request.getStartingTime().isBefore(LocalDateTime.now())) {
+            throw new SeminarTicketException("Starting time cannot be in the past");
+        }
+
         seminar.setTitle(request.getTitle());
         seminar.setDescription(request.getDescription());
         seminar.setDuration(request.getDuration());
@@ -112,6 +107,8 @@ public class SeminarServiceImpl implements SeminarService {
         seminar.setSlot(request.getSlot());
         seminar.setPrice(request.getPrice());
         seminar.setImageUrl(request.getImageUrl());
+        seminar.setStartingTime(request.getStartingTime());
+        seminar.setEndingTime(request.getEndingTime());
 
         Seminar updatedSeminar = seminarRepository.save(seminar);
         log.info("Successfully updated seminar ID: {}", seminarId);
@@ -256,6 +253,8 @@ public class SeminarServiceImpl implements SeminarService {
         response.setCreateBy(seminar.getCreateBy());
         response.setPrice(seminar.getPrice());
         response.setImageUrl(seminar.getImageUrl());
+        response.setStartingTime(seminar.getStartingTime());
+        response.setEndingTime(seminar.getEndingTime());
         return response;
     }
 } 

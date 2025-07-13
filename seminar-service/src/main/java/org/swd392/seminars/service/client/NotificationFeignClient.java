@@ -26,8 +26,8 @@ public interface NotificationFeignClient {
             @RequestParam String seminarName,
             @RequestParam String status,
             @RequestParam(required = false) String rejectionReason,
-            @RequestParam String seminarDate,
-            @RequestParam String seminarTime,
+            @RequestParam String startingTime,
+            @RequestParam String endingTime,
             @RequestParam String seminarLocation,
             @RequestParam String seminarLink);
 }

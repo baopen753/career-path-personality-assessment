@@ -2,6 +2,7 @@ package org.swd392.seminars.payload.response;
 
 import lombok.Data;
 import org.swd392.seminars.entity.Seminar;
+import java.time.LocalDateTime;
 
 @Data
 public class SeminarResponse {
@@ -11,6 +12,8 @@ public class SeminarResponse {
     private Seminar.Status status;
     private Seminar.StatusApprove statusApprove;
     private Integer duration;
+    private LocalDateTime startingTime;
+    private LocalDateTime endingTime;
     private String meetingUrl;
     private String formUrl;
     private Integer slot;

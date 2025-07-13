@@ -43,8 +43,8 @@
             <ul>
                 <li><strong>Name:</strong> ${seminarName}</li>
                 <li><strong>Status:</strong> ${status}</li>
-                <li><strong>Date:</strong> ${seminarDate}</li>
-                <li><strong>Time:</strong> ${seminarTime}</li>
+                <li><strong>Start Time:</strong> ${startingTime}</li>
+                <li><strong>End Time:</strong> ${endingTime}</li>
                 <li><strong>Location:</strong> ${seminarLocation}</li>
                 <#if seminarLink?has_content>
                 <li><strong>Meeting Link:</strong> <a href="${seminarLink}">${seminarLink}</a></li>
