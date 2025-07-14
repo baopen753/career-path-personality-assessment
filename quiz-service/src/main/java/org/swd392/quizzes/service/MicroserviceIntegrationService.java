@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class MicroserviceIntegrationService {
 
-    private final AuthServiceClient authServiceClient;
     private final CareerServiceClient careerServiceClient;
     private final UniversityServiceClient universityServiceClient;
     private final PersonalityStandardRepository personalityStandardRepository;
@@ -33,7 +32,7 @@ public class MicroserviceIntegrationService {
 
             // Get personality standard to access career_mapping_personality
             Optional<PersonalityStandard> standardOpt = personalityStandardRepository
-                .findByPersonalityCode(result.getPersonalityCode());
+                    .findByPersonalityCode(result.getPersonalityCode());
 
             if (standardOpt.isPresent()) {
                 PersonalityStandard standard = standardOpt.get();
@@ -42,9 +41,9 @@ public class MicroserviceIntegrationService {
                 if (careerMappings != null && !careerMappings.isEmpty()) {
                     // Split career mappings and clean the data
                     List<String> mappedCareers = Arrays.stream(careerMappings.split(","))
-                        .map(String::trim)
-                        .filter(s -> !s.isEmpty())
-                        .collect(Collectors.toList());
+                            .map(String::trim)
+                            .filter(s -> !s.isEmpty())
+                            .collect(Collectors.toList());
 
                     log.info("Searching for careers matching: {}", mappedCareers);
 
@@ -61,15 +60,15 @@ public class MicroserviceIntegrationService {
 
                     // Extract career names for matching with universities
                     List<String> careerNames = careers.stream()
-                        .map(CareerRecommendationResponse::getName)
-                        .collect(Collectors.toList());
+                            .map(CareerRecommendationResponse::getName)
+                            .collect(Collectors.toList());
 
                     log.info("Found {} matching careers, searching universities with majors: {}",
                             careers.size(), careerNames);
 
                     // Find universities that offer these careers as majors
                     ApiResponse<List<UniversityRecommendationResponse>> universitiesResponse = universityServiceClient
-                        .getUniversitiesByPrograms(careerNames);
+                            .getUniversitiesByPrograms(careerNames);
 
                     if (universitiesResponse == null || universitiesResponse.getResult() == null) {
                         log.warn("Failed to get university recommendations");
@@ -113,10 +112,10 @@ public class MicroserviceIntegrationService {
         }
 
         return careers.stream()
-            .map(career -> String.format("Career: %s\n- Description: %s",
-                career.getName(),
-                career.getDescription()))
-            .collect(Collectors.joining("\n\n"));
+                .map(career -> String.format("Career: %s\n- Description: %s",
+                        career.getName(),
+                        career.getDescription()))
+                .collect(Collectors.joining("\n\n"));
     }
 
     private String formatUniversityRecommendations(List<UniversityRecommendationResponse> universities) {
@@ -125,37 +124,17 @@ public class MicroserviceIntegrationService {
         }
 
         return universities.stream()
-            .map(uni -> String.format("University: %s\n- Location: %s\n- Major: %s\n- Contact: %s\n- Description: %s",
-                uni.getName(),
-                uni.getLocation(),
-                uni.getMajor(),
-                uni.getHotline(),
-                uni.getDescription()))
-            .collect(Collectors.joining("\n\n"));
+                .map(uni -> String.format("University: %s\n- Location: %s\n- Major: %s\n- Contact: %s\n- Description: %s",
+                        uni.getName(),
+                        uni.getLocation(),
+                        uni.getMajor(),
+                        uni.getHotline(),
+                        uni.getDescription()))
+                .collect(Collectors.joining("\n\n"));
     }
 
     private void setDefaultRecommendations(PersonalityResultDTO result) {
         result.setCareerRecommendations("Career recommendations are currently unavailable. Please consult with a career advisor.");
         result.setUniversityRecommendations("University recommendations are currently unavailable. Please check back later.");
-    }
-
-    /**
-     * Get user information from auth service via JWT token
-     */
-    public UserResponse getCurrentUserInfo(String authorizationHeader) {
-        try {
-            log.info("Fetching user info from auth service");
-            ApiResponse<UserResponse> apiResponse = authServiceClient.getCurrentUser(authorizationHeader);
-
-            UserResponse response = apiResponse.getResult();
-            if (response == null) {
-                throw new RuntimeException("Auth service returned null user info");
-            }
-
-            return response;
-        } catch (Exception e) {
-            log.error("Failed to get user info from auth service", e);
-            throw new RuntimeException("Failed to authenticate user: " + e.getMessage());
-        }
     }
 }

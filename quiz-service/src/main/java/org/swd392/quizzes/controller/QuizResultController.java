@@ -4,7 +4,6 @@ import org.swd392.quizzes.dto.PersonalityResultDTO;
 import org.swd392.quizzes.dto.QuizResultDTO;
 import org.swd392.quizzes.dto.QuizSubmissionDTO;
 import org.swd392.quizzes.dto.UserQuizResultsDTO;
-import org.swd392.quizzes.service.AuthenticationService;
 import org.swd392.quizzes.service.QuizResultService;
 import org.swd392.quizzes.service.QuizResultService.QuizStatisticsDTO;
 import jakarta.validation.Valid;
@@ -24,32 +23,26 @@ import java.util.Optional;
 public class QuizResultController {
 
     private final QuizResultService quizResultService;
-    private final AuthenticationService authenticationService;
 
 //Submit quiz and get personality result
-    @PostMapping("/submit")
-    public ResponseEntity<PersonalityResultDTO> submitQuiz(
-            @Valid @RequestBody QuizSubmissionDTO submission,
-            @RequestHeader("Authorization") String authorizationHeader,
-            @RequestHeader(value = "X-User-Id", required = false) String userIdHeader) {
+@PostMapping("/submit")
+public ResponseEntity<PersonalityResultDTO> submitQuiz(
+        @Valid @RequestBody QuizSubmissionDTO submission,
+        @RequestHeader("X-User-Id") String userId) {
 
-        // Extract user ID using the more efficient method (headers first, then token validation)
-        String userId = authenticationService.extractUserIdFromHeaders(authorizationHeader, userIdHeader);
+    log.info("Received quiz submission request for user: {} and quiz: {}",
+            userId, submission.getQuizId());
 
-        log.info("Received quiz submission request for user: {} and quiz: {}",
-                userId, submission.getQuizId());
-
-        // Submit quiz with microservices integration
-        PersonalityResultDTO result = quizResultService.submitQuizResultWithMicroservices(
+    PersonalityResultDTO result = quizResultService.submitQuizResultWithMicroservices(
             submission, userId);
 
-        return ResponseEntity.ok(result);
-    }
+    return ResponseEntity.ok(result);
+}
 
 //Get all quiz results for the authenticated user
 @GetMapping("/user/me")
 public ResponseEntity<UserQuizResultsDTO> getMyResults(
-        @RequestHeader("Authorization") String authorizationHeader) {
+        @RequestHeader("Authorization") Long authorizationHeader) {
     log.info("Fetching quiz results for authenticated user");
 
     try {
@@ -66,10 +59,11 @@ public ResponseEntity<UserQuizResultsDTO> getMyResults(
     @GetMapping("/user/by-email")
     public ResponseEntity<UserQuizResultsDTO> getUserResultsByEmail(
             @RequestParam String email,
-            @RequestHeader("Authorization") String authorizationHeader) {
-        log.info("Fetching quiz results for user with email: {}", email);
+            @RequestHeader("X-User-Id") String parentUserId,
+            @RequestHeader("X-User-Email") String parentEmail) {
+        log.info("Parent {} requesting quiz results for student {}", parentEmail, email);
 
-        UserQuizResultsDTO results = quizResultService.getUserResultByEmail(email, authorizationHeader);
+        UserQuizResultsDTO results = quizResultService.getUserResultByEmail(email, parentUserId, parentEmail);
         return ResponseEntity.ok(results);
     }
 

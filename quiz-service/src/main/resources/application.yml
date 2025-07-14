@@ -7,13 +7,13 @@ spring:
   application:
     name: quiz
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5434}/${DB_NAME:QuizDB}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:QuizDB}
     driverClassName: org.postgresql.Driver
-    username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:root}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:12345}
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
@@ -75,25 +75,3 @@ info:
     description: "This is quiz service in Career Path Personality Assessment System"
     version: 1.0.0
 
-# CRITICAL MISSING: Circuit breaker configuration for Feign clients
-feign:
-  circuitbreaker:
-    enabled: true
-  client:
-    config:
-      default:
-        connectTimeout: 5000
-        readTimeout: 10000
-
-# Circuit breaker configuration
-resilience4j:
-  circuitbreaker:
-    instances:
-      user:  # Changed from "user-service" to "user" to match Feign client
-        registerHealthIndicator: true
-        slidingWindowSize: 10
-        minimumNumberOfCalls: 5
-        slowCallRateThreshold: 50
-        slowCallDurationThreshold: 2000
-        failureRateThreshold: 50
-        waitDurationInOpenState: 10000

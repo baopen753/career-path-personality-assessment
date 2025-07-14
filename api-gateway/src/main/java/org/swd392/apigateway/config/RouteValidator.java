@@ -14,7 +14,8 @@ public class RouteValidator {
     public static final List<String> PUBLIC_ENDPOINTS = List.of(
             CONTEXT_PATH + "/user/authentication/register",
             CONTEXT_PATH + "/user/authentication/login",
-            CONTEXT_PATH + "/user/authentication/logout"
+            CONTEXT_PATH + "/user/authentication/logout",
+            CONTEXT_PATH + "/quiz/categories"
     );
 
     public Predicate<ServerHttpRequest> isPublic =

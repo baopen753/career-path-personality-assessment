@@ -160,27 +160,14 @@ public class QuizResultService {
     /**
      * Get comprehensive quiz results for the authenticated user only
      */
-    public UserQuizResultsDTO getMyQuizResults(String authorizationHeader) {
+    public UserQuizResultsDTO getMyQuizResults(Long userId) {
         try {
-            log.info("Fetching quiz results for authenticated user");
+            log.info("Fetching quiz results for authenticated user: {}", userId);
 
-            // Get current authenticated user information
-            ApiResponse<UserResponse> currentUserResponse = authServiceClient.getCurrentUser(authorizationHeader);
-            UserResponse currentUser = currentUserResponse.getResult();
+            List<QuizResult> results = quizResultRepository.findByUserIdWithPersonalityDetails(userId);
 
-            if (currentUser == null) {
-                throw new RuntimeException("Unable to get user information from auth service");
-            }
-
-            // Use the authenticated user's ID (now Long)
-            Long authenticatedUserId = currentUser.getId();
-            log.info("User {} requesting their own quiz results", authenticatedUserId);
-
-            // Get quiz results for the authenticated user only
-            List<QuizResult> results = quizResultRepository.findByUserIdWithPersonalityDetails(authenticatedUserId);
-
-            // Build response using the authenticated user's information
-            return buildUserQuizResultsDTO(currentUser, results);
+            // Build response (pass null or minimal user info if not needed)
+            return buildUserQuizResultsDTO(null, results);
 
         } catch (Exception e) {
             log.error("Failed to get user results for authenticated user", e);
@@ -362,67 +349,46 @@ public class QuizResultService {
      * Get all quiz results for a user by their email address
      * This method supports both student self-access and parent access to student results
      */
-    public UserQuizResultsDTO getUserResultByEmail(String email, String authorizationHeader) {
-        log.info("Fetching quiz results for user with email: {}", email);
+    public UserQuizResultsDTO getUserResultByEmail(String email, String parentUserId, String parentEmail) {
+        log.info("Parent {} requesting student {} quiz results", parentEmail, email);
 
         try {
-            // 1. Get current authenticated user information from auth-service
-            ApiResponse<UserResponse> currentUserResponse = authServiceClient.getCurrentUser(authorizationHeader);
-            UserResponse currentUser = currentUserResponse.getResult();
+            // 1. Get parent's full details to verify role
+            ApiResponse<UserResponse> parentResponse = authServiceClient.getUserByEmail(parentEmail, null);
+            UserResponse parent = parentResponse.getResult();
 
-            if (currentUser == null) {
-                throw new RuntimeException("Unable to get user information from auth service");
+            if (parent == null) {
+                throw new RuntimeException("Unable to verify parent's information");
             }
 
-            log.info("Request made by user: {} with role: {}", currentUser.getEmail(), currentUser.getRole());
+            // 2. Verify parent role
+            if (!"PARENT".equals(parent.getRole().toString())) {
+                throw new RuntimeException("Only parents can view student results");
+            }
 
-            // 2. Check access permissions
-            if (email.equals(currentUser.getEmail())) {
-                // Case 1: User is requesting their own quiz results
-                log.info("User requesting their own quiz results");
-                Long userId = currentUser.getId();
-                List<QuizResult> quizResults = quizResultRepository.findByUserIdWithPersonalityDetails(userId);
-                return buildUserQuizResultsDTO(currentUser, quizResults);
+            // 3. Get student's information
+            ApiResponse<UserResponse> studentResponse = authServiceClient.getUserByEmail(email, null);
+            UserResponse student = studentResponse.getResult();
 
-            } else if ("PARENT".equals(currentUser.getRole().toString())) {
-                // Case 2: Parent is requesting student's quiz results
-                log.info("Parent user requesting student quiz results for email: {}", email);
-
-                // Get the target student's quiz results by searching through database
-                Long targetUserId = findUserIdByEmail(email, authorizationHeader);
-
-                // Return empty results if no user found
-                if (targetUserId == null) {
-                    log.info("No quiz results found for student with email: {}", email);
-                    return UserQuizResultsDTO.builder()
-                            .email(email)
-                            .totalQuizzesTaken(0)
-                            .quizResults(new ArrayList<>())
-                            .build();
-                }
-
-                List<QuizResult> quizResults = quizResultRepository.findByUserIdWithPersonalityDetails(targetUserId);
-
-                // Create user response for the target student
-                UserResponse targetStudent = UserResponse.builder()
-                        .id(targetUserId)
+            if (student == null) {
+                log.info("No student found with email: {}", email);
+                return UserQuizResultsDTO.builder()
                         .email(email)
-                        .role(UserRole.STUDENT)
+                        .totalQuizzesTaken(0)
+                        .quizResults(new ArrayList<>())
                         .build();
-
-                UserQuizResultsDTO response = buildUserQuizResultsDTO(targetStudent, quizResults);
-                log.info("Parent successfully retrieved {} quiz results for student: {}",
-                        quizResults.size(), email);
-                return response;
-
-            } else {
-                // Case 3: Unauthorized access
-                throw new RuntimeException("Access denied. Only students can view their own results or parents can view student results. Current role: " + currentUser.getRole());
             }
+
+            // 4. Get student's quiz results
+            List<QuizResult> quizResults = quizResultRepository.findByUserIdWithPersonalityDetails(student.getId());
+
+            log.info("Successfully retrieved {} quiz results for student: {}", quizResults.size(), email);
+
+            return buildUserQuizResultsDTO(student, quizResults);
 
         } catch (Exception e) {
-            log.error("Failed to get quiz results for user with email: {}", email, e);
-            throw new RuntimeException("Failed to retrieve user quiz results: " + e.getMessage());
+            log.error("Failed to get quiz results for student with email: {}", email, e);
+            throw new RuntimeException("Failed to retrieve student quiz results: " + e.getMessage());
         }
     }
 

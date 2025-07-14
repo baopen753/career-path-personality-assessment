@@ -47,7 +47,7 @@ public class PersonalityCalculationService {
         List<QuizQuestion> questions = quizQuestionRepository.findByQuizIdOrderByOrderNumber(submission.getQuizId());
 
         // Calculate scores based on answers
-        Map<String, Integer> dimensionScores = calculateDimensionScores(questions, submission.getAnswers());
+        Map<String, Integer> dimensionScores = calculateDimensionScores(questions, submission.getAnswers(), quiz);
 
         // Determine personality type based on quiz category/type
         PersonalityResultDTO result;
@@ -91,10 +91,10 @@ public class PersonalityCalculationService {
 
         // Find the dominant trait
         String personalityCode = determineDISCType(
-            discScores.get("D"),
-            discScores.get("I"),
-            discScores.get("S"),
-            discScores.get("C")
+                discScores.get("D"),
+                discScores.get("I"),
+                discScores.get("S"),
+                discScores.get("C")
         );
 
         PersonalityResultDTO result = new PersonalityResultDTO();
@@ -110,7 +110,7 @@ public class PersonalityCalculationService {
     public PersonalityResultDTO calculateMBTIPersonality(Map<String, Integer> scores) {
         log.debug("Calculating MBTI personality with scores: {}", scores);
 
-        // MBTI dimensions
+        // MBTI dimensions - initialize with 0
         int extraversion = scores.getOrDefault("E", 0);
         int introversion = scores.getOrDefault("I", 0);
         int sensing = scores.getOrDefault("S", 0);
@@ -119,6 +119,9 @@ public class PersonalityCalculationService {
         int feeling = scores.getOrDefault("F", 0);
         int judging = scores.getOrDefault("J", 0);
         int perceiving = scores.getOrDefault("P", 0);
+
+        log.debug("MBTI raw scores - E: {}, I: {}, S: {}, N: {}, T: {}, F: {}, J: {}, P: {}",
+                extraversion, introversion, sensing, intuition, thinking, feeling, judging, perceiving);
 
         // Determine each dimension
         String personalityCode = determineMBTIType(
@@ -142,9 +145,29 @@ public class PersonalityCalculationService {
 
     /**
      * Calculate dimension scores based on user answers
+     * Fixed to handle both DISC and MBTI properly
      */
-    private Map<String, Integer> calculateDimensionScores(List<QuizQuestion> questions, Map<Long, Long> answers) {
+    private Map<String, Integer> calculateDimensionScores(List<QuizQuestion> questions, Map<Long, Long> answers, Quiz quiz) {
         Map<String, Integer> dimensionScores = new HashMap<>();
+        boolean isMBTI = isMBTIQuiz(quiz);
+        boolean isDISC = isDISCQuiz(quiz);
+
+        // Initialize scores for MBTI
+        if (isMBTI) {
+            dimensionScores.put("E", 0);
+            dimensionScores.put("I", 0);
+            dimensionScores.put("S", 0);
+            dimensionScores.put("N", 0);
+            dimensionScores.put("T", 0);
+            dimensionScores.put("F", 0);
+            dimensionScores.put("J", 0);
+            dimensionScores.put("P", 0);
+        } else if (isDISC) {
+            dimensionScores.put("D", 0);
+            dimensionScores.put("I", 0);
+            dimensionScores.put("S", 0);
+            dimensionScores.put("C", 0);
+        }
 
         for (QuizQuestion question : questions) {
             Long selectedOptionId = answers.get(question.getId());
@@ -157,15 +180,69 @@ public class PersonalityCalculationService {
 
             if (selectedOption != null && selectedOption.getQuestionId().equals(question.getId())) {
                 String targetTrait = selectedOption.getTargetTrait();
-                int scoreValue = getScoreValue(selectedOption.getScoreValue(), question.getDimension());
 
-                // Add score to the dimension
-                dimensionScores.merge(targetTrait, scoreValue, Integer::sum);
+                if (targetTrait != null && !targetTrait.isEmpty()) {
+                    int scoreValue;
+
+                    if (isMBTI) {
+                        // For MBTI: use the raw score values including negative
+                        scoreValue = getMBTIScoreValue(selectedOption.getScoreValue());
+                    } else {
+                        // For DISC: use the existing logic
+                        scoreValue = getDISCScoreValue(selectedOption.getScoreValue());
+                    }
+
+                    // Add score to the dimension
+                    dimensionScores.merge(targetTrait, scoreValue, Integer::sum);
+
+                    log.debug("Question {}: Selected option targets '{}' with score {}",
+                            question.getId(), targetTrait, scoreValue);
+                }
             }
         }
 
-        log.debug("Calculated dimension scores: {}", dimensionScores);
+        log.debug("Final calculated dimension scores: {}", dimensionScores);
         return dimensionScores;
+    }
+
+    /**
+     * Get MBTI score value (supports negative values)
+     */
+    private int getMBTIScoreValue(QuizOptions.ScoreValue scoreValue) {
+        if (scoreValue == null) return 0;
+
+        switch (scoreValue) {
+            case NEGATIVE_ONE:
+                return -1;
+            case ZERO:
+                return 0;
+            case POSITIVE_ONE:
+                return 1;
+            case DISC_TWO:
+                return 1; // Treat as positive for MBTI if accidentally used
+            default:
+                return 0;
+        }
+    }
+
+    /**
+     * Get DISC score value (only positive values)
+     */
+    private int getDISCScoreValue(QuizOptions.ScoreValue scoreValue) {
+        if (scoreValue == null) return 0;
+
+        switch (scoreValue) {
+            case DISC_TWO:
+                return 2;  // Strong agreement
+            case POSITIVE_ONE:
+                return 1;  // Moderate agreement
+            case ZERO:
+                return 0;  // Neutral
+            case NEGATIVE_ONE:
+                return 0;  // Disagreement (counts as 0 in DISC)
+            default:
+                return 0;
+        }
     }
 
     /**
@@ -186,23 +263,42 @@ public class PersonalityCalculationService {
 
     /**
      * Determine MBTI personality type based on scores
+     * Fixed to handle negative values properly
      */
     private String determineMBTIType(int e, int i, int s, int n, int t, int f, int j, int p) {
+        // Check if all scores are completely neutral - return ISFJ as default
+        if (e == 0 && i == 0 && s == 0 && n == 0 && t == 0 && f == 0 && j == 0 && p == 0) {
+            log.warn("All MBTI scores are neutral. Returning ISFJ as default result.");
+            return "ISFJ";
+        }
+
         StringBuilder personalityCode = new StringBuilder();
 
-        // Extraversion vs Introversion
-        personalityCode.append(e >= i ? "E" : "I");
+        // E vs I - if tied, default to I (Introversion)
+        personalityCode.append(Math.abs(e) > Math.abs(i) ? "E" :
+                Math.abs(i) > Math.abs(e) ? "I" : "I");
 
-        // Sensing vs Intuition
-        personalityCode.append(s >= n ? "S" : "N");
+        // S vs N - if tied, default to S (Sensing)
+        personalityCode.append(Math.abs(s) > Math.abs(n) ? "S" :
+                Math.abs(n) > Math.abs(s) ? "N" : "S");
 
-        // Thinking vs Feeling
-        personalityCode.append(t >= f ? "T" : "F");
+        // T vs F - if tied, default to F (Feeling)
+        personalityCode.append(Math.abs(t) > Math.abs(f) ? "T" :
+                Math.abs(f) > Math.abs(t) ? "F" : "F");
 
-        // Judging vs Perceiving
-        personalityCode.append(j >= p ? "J" : "P");
+        // J vs P - if tied, default to J (Judging)
+        personalityCode.append(Math.abs(j) > Math.abs(p) ? "J" :
+                Math.abs(p) > Math.abs(j) ? "P" : "J");
 
-        return personalityCode.toString();
+        String result = personalityCode.toString();
+        log.debug("MBTI calculation: E({})|I({}) -> {}, S({})|N({}) -> {}, T({})|F({}) -> {}, J({})|P({}) -> {} = Final: {}",
+                e, i, result.charAt(0),
+                s, n, result.charAt(1),
+                t, f, result.charAt(2),
+                j, p, result.charAt(3),
+                result);
+
+        return result;
     }
 
     /**
@@ -273,34 +369,14 @@ public class PersonalityCalculationService {
 
     /**
      * Convert score value enum to integer, with special handling for DISC
+     * @deprecated Use getMBTIScoreValue() or getDISCScoreValue() instead
      */
+    @Deprecated
     private int getScoreValue(QuizOptions.ScoreValue scoreValue, String dimension) {
         if (dimension != null && dimension.startsWith("DISC")) {
-            // For DISC questions, use a different scoring scale
-            switch (scoreValue) {
-                case DISC_TWO:
-                    return 2;  // Strong agreement
-                case POSITIVE_ONE:
-                    return 1;  // Moderate agreement
-                case ZERO:
-                    return 0;  // Neutral
-                case NEGATIVE_ONE:
-                    return 0;  // Disagreement (counts as 0 in DISC)
-                default:
-                    return 0;
-            }
+            return getDISCScoreValue(scoreValue);
         } else {
-            // Default MBTI scoring
-            switch (scoreValue) {
-                case NEGATIVE_ONE:
-                    return -1;
-                case ZERO:
-                    return 0;
-                case POSITIVE_ONE:
-                    return 1;
-                default:
-                    return 0;
-            }
+            return getMBTIScoreValue(scoreValue);
         }
     }
 
@@ -314,60 +390,5 @@ public class PersonalityCalculationService {
                         PersonalityStandard::getPersonalityCode,
                         Collectors.counting()
                 ));
-    }
-
-    /**
-     * Get recommended careers for a personality type
-     */
-    public List<String> getCareerRecommendations(String personalityCode) {
-        return personalityStandardRepository.findByPersonalityCode(personalityCode)
-                .map(standard -> Arrays.asList(standard.getCareerMappingPersonality().split(",")))
-                .orElse(new ArrayList<>());
-    }
-
-    /**
-     * Calculate personality compatibility (bonus feature)
-     */
-    public double calculateCompatibility(String personalityCode1, String personalityCode2) {
-        // This is a simplified compatibility calculation
-        // You can implement more sophisticated logic based on personality theory
-
-        if (personalityCode1.equals(personalityCode2)) {
-            return 1.0; // Perfect match
-        }
-
-        // For MBTI, calculate based on similar traits
-        if (personalityCode1.length() == 4 && personalityCode2.length() == 4) {
-            int commonTraits = 0;
-            for (int i = 0; i < 4; i++) {
-                if (personalityCode1.charAt(i) == personalityCode2.charAt(i)) {
-                    commonTraits++;
-                }
-            }
-            return commonTraits / 4.0;
-        }
-
-        // For DISC, implement specific compatibility rules
-        if (personalityCode1.length() == 1 && personalityCode2.length() == 1) {
-            return calculateDISCCompatibility(personalityCode1, personalityCode2);
-        }
-
-        return 0.5; // Default compatibility
-    }
-
-    /**
-     * Calculate DISC compatibility
-     */
-    private double calculateDISCCompatibility(String type1, String type2) {
-        // DISC compatibility matrix (simplified)
-        Map<String, Map<String, Double>> compatibilityMatrix = Map.of(
-                "D", Map.of("D", 0.7, "I", 0.8, "S", 0.6, "C", 0.5),
-                "I", Map.of("D", 0.8, "I", 0.9, "S", 0.7, "C", 0.6),
-                "S", Map.of("D", 0.6, "I", 0.7, "S", 0.8, "C", 0.9),
-                "C", Map.of("D", 0.5, "I", 0.6, "S", 0.9, "C", 0.8)
-        );
-
-        return compatibilityMatrix.getOrDefault(type1, Map.of())
-                .getOrDefault(type2, 0.5);
     }
 }

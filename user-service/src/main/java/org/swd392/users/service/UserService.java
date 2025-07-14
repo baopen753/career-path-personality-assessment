@@ -173,32 +173,6 @@ public class UserService implements IUserService {
 
     // New methods for quiz-service integration
     @Override
-    public TokenValidationResponseDto introspectToken(String token) {
-        try {
-            if (jwtService.isValidToken(token)) {
-                Long userId = jwtService.extractUserId(token);
-                String email = jwtService.extractEmail(token);
-                String role = jwtService.extractRole(token);
-
-                return TokenValidationResponseDto.builder()
-                        .valid(true)
-                        .id(userId)
-                        .email(email)
-                        .role(role)
-                        .build();
-            } else {
-                return TokenValidationResponseDto.builder()
-                        .valid(false)
-                        .build();
-            }
-        } catch (Exception e) {
-            return TokenValidationResponseDto.builder()
-                    .valid(false)
-                    .build();
-        }
-    }
-
-    @Override
     public UserResponseDto getCurrentUser(String token) {
         try {
             if (!jwtService.isValidToken(token)) {

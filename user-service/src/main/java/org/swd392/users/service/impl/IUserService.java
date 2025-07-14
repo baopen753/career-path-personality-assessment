@@ -13,7 +13,6 @@ public interface IUserService {
     void logout(String token);
 
     // Add missing methods for quiz-service integration
-    TokenValidationResponseDto introspectToken(String token);
     UserResponseDto getCurrentUser(String token);
     UserResponseDto getUserByEmail(String email);
 }

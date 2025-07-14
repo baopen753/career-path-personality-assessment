@@ -15,7 +15,7 @@ import org.swd392.users.service.impl.OtpService;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/otp")
+@RequestMapping("/otp")
 @RequiredArgsConstructor
 public class OtpController {
 

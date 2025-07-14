@@ -52,14 +52,4 @@ public class AuthenticationController {
                 .message("Logged out successfully")
                 .build());
     }
-
-    @PostMapping("/introspect")
-    public ResponseEntity<ApiResponse<TokenValidationResponseDto>> introspectToken(@Valid @RequestBody IntrospectRequestDto request) {
-        TokenValidationResponseDto response = userService.introspectToken(request.getToken());
-        return ResponseEntity.ok(ApiResponse.<TokenValidationResponseDto>builder()
-                .code(200)
-                .message("Token validation completed")
-                .result(response)
-                .build());
-    }
 }
