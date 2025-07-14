@@ -13,14 +13,4 @@ public interface QuizRepository extends JpaRepository<Quiz, Long> {
 
     List<Quiz> findByCategoryId(Long categoryId);
 
-    List<Quiz> findByTitleContaining(String title);
-
-    @Query("SELECT q FROM Quiz q LEFT JOIN FETCH q.questions WHERE q.id = :id")
-    Quiz findByIdWithQuestions(@Param("id") Long id);
-
-    @Query("SELECT q FROM Quiz q LEFT JOIN FETCH q.category WHERE q.id = :id")
-    Quiz findByIdWithCategory(@Param("id") Long id);
-
-    @Query("SELECT COUNT(q) FROM Quiz q WHERE q.categoryId = :categoryId")
-    Long countByCategoryId(@Param("categoryId") Long categoryId);
 }

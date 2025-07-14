@@ -7,8 +7,7 @@ import org.swd392.quizzes.dto.QuizResultDTO;
 import org.swd392.quizzes.dto.QuizSubmissionDTO;
 import org.swd392.quizzes.dto.UserQuizResultsDTO;
 import org.swd392.quizzes.dto.external.ApiResponse;
-import org.swd392.quizzes.dto.external.UserResponse;
-import org.swd392.quizzes.dto.external.UserRole;
+import org.swd392.quizzes.dto.external.UserResponseDto;
 import org.swd392.quizzes.entity.PersonalityStandard;
 import org.swd392.quizzes.entity.QuizResult;
 import org.swd392.quizzes.exception.InvalidQuizSubmissionException;
@@ -80,34 +79,6 @@ public class QuizResultService {
     }
 
     /**
-     * Original submit method (kept for backward compatibility)
-     */
-    public PersonalityResultDTO submitQuizResult(QuizSubmissionDTO submission) {
-        log.info("Processing quiz submission for user: {} and quiz: {}",
-                submission.getUserId(), submission.getQuizId());
-
-        try {
-            // Validate submission
-            validateSubmission(submission);
-
-            // Calculate personality
-            PersonalityResultDTO personalityResult = personalityCalculationService.calculatePersonality(submission);
-
-            // Save result
-            QuizResult quizResult = saveQuizResult(submission, personalityResult);
-
-            log.info("Quiz submission processed successfully. Result ID: {}, Personality: {}",
-                    quizResult.getId(), personalityResult.getPersonalityCode());
-
-            return personalityResult;
-
-        } catch (Exception e) {
-            log.error("Failed to process quiz submission", e);
-            throw new RuntimeException("Failed to submit quiz: " + e.getMessage());
-        }
-    }
-
-    /**
      * Save quiz result to database
      */
     private QuizResult saveQuizResult(QuizSubmissionDTO submission, PersonalityResultDTO personalityResult) {
@@ -145,19 +116,6 @@ public class QuizResultService {
     }
 
     /**
-     * Get all quiz results for a specific user
-     */
-    @Transactional(readOnly = true)
-    public List<QuizResultDTO> getResultsByUserId(Long userId) {
-        log.debug("Fetching quiz results for user: {}", userId);
-
-        List<QuizResult> results = quizResultRepository.findByUserIdOrderByTimeSubmitDesc(userId);
-        return results.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-    }
-
-    /**
      * Get comprehensive quiz results for the authenticated user only
      */
     public UserQuizResultsDTO getMyQuizResults(Long userId) {
@@ -173,13 +131,6 @@ public class QuizResultService {
             log.error("Failed to get user results for authenticated user", e);
             throw new RuntimeException("Failed to fetch user results", e);
         }
-    }
-
-    /**
-     * Helper method to check if user has admin role
-     */
-    private boolean isAdmin(UserRole role) {
-        return role == UserRole.ADMIN;
     }
 
     /**
@@ -292,18 +243,6 @@ public class QuizResultService {
     }
 
     /**
-     * Convert PersonalityResultDTO to JSON string
-     */
-    private String convertToJson(PersonalityResultDTO result) {
-        try {
-            return objectMapper.writeValueAsString(result);
-        } catch (JsonProcessingException e) {
-            log.error("Error converting PersonalityResultDTO to JSON", e);
-            throw new InvalidQuizSubmissionException("Failed to process quiz result");
-        }
-    }
-
-    /**
      * Convert QuizResult entity to DTO
      */
     private QuizResultDTO convertToDTO(QuizResult result) {
@@ -354,8 +293,8 @@ public class QuizResultService {
 
         try {
             // 1. Get parent's full details to verify role
-            ApiResponse<UserResponse> parentResponse = authServiceClient.getUserByEmail(parentEmail, null);
-            UserResponse parent = parentResponse.getResult();
+            ApiResponse<UserResponseDto> parentResponse = authServiceClient.getUserByEmail(parentEmail, null);
+            UserResponseDto parent = parentResponse.getResult();
 
             if (parent == null) {
                 throw new RuntimeException("Unable to verify parent's information");
@@ -367,8 +306,8 @@ public class QuizResultService {
             }
 
             // 3. Get student's information
-            ApiResponse<UserResponse> studentResponse = authServiceClient.getUserByEmail(email, null);
-            UserResponse student = studentResponse.getResult();
+            ApiResponse<UserResponseDto> studentResponse = authServiceClient.getUserByEmail(email, null);
+            UserResponseDto student = studentResponse.getResult();
 
             if (student == null) {
                 log.info("No student found with email: {}", email);
@@ -391,37 +330,10 @@ public class QuizResultService {
             throw new RuntimeException("Failed to retrieve student quiz results: " + e.getMessage());
         }
     }
-
-    /**
-     * Helper method to find userId by email from existing quiz results
-     * This is a workaround since we can't directly query users by email without their token
-     */
-    private Long findUserIdByEmail(String email, String authorizationHeader) {
-        log.debug("Searching for user ID by email: {} with auth header", email);
-
-        try {
-            // Get user directly from auth service using parent's token
-            ApiResponse<UserResponse> userResponse = authServiceClient.getUserByEmail(email, authorizationHeader);
-
-            if (userResponse != null && userResponse.getResult() != null) {
-                Long userId = userResponse.getResult().getId();
-                log.debug("Found user ID {} from auth service", userId);
-                return userId;
-            }
-
-            log.warn("User not found in auth service for email: {}", email);
-            return null;
-
-        } catch (Exception e) {
-            log.error("Error while searching for user ID by email: {}", email, e);
-            throw new RuntimeException("Failed to search for user results: " + e.getMessage());
-        }
-    }
-
     /**
      * Helper method to build UserQuizResultsDTO from user and quiz results
      */
-    private UserQuizResultsDTO buildUserQuizResultsDTO(UserResponse user, List<QuizResult> quizResults) {
+    private UserQuizResultsDTO buildUserQuizResultsDTO(UserResponseDto user, List<QuizResult> quizResults) {
         // Convert quiz results to summary DTOs
         List<UserQuizResultsDTO.QuizResultSummaryDTO> resultSummaries = quizResults.stream()
                 .map(this::convertToResultSummary)

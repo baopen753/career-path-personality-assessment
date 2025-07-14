@@ -17,18 +17,4 @@ public interface QuizQuestionRepository extends JpaRepository<QuizQuestion, Long
 
     @Query("SELECT DISTINCT qq FROM QuizQuestion qq LEFT JOIN FETCH qq.options o WHERE qq.quizId = :quizId ORDER BY qq.orderNumber, o.id")
     List<QuizQuestion> findByQuizIdWithOptions(@Param("quizId") Long quizId);
-
-    // Batch fetch multiple quizzes questions at once
-    @Query("SELECT DISTINCT qq FROM QuizQuestion qq LEFT JOIN FETCH qq.options o WHERE qq.quizId IN :quizIds ORDER BY qq.quizId, qq.orderNumber, o.id")
-    List<QuizQuestion> findByQuizIdsWithOptions(@Param("quizIds") List<Long> quizIds);
-
-    @Query("SELECT COUNT(qq) FROM QuizQuestion qq WHERE qq.quizId = :quizId")
-    Long countByQuizId(@Param("quizId") Long quizId);
-
-    @Query("SELECT COALESCE(MAX(qq.orderNumber), 0) FROM QuizQuestion qq WHERE qq.quizId = :quizId")
-    Integer findMaxOrderNumberByQuizId(@Param("quizId") Long quizId);
-
-    // Optimized query for getting questions by dimension with options pre-loaded
-    @Query("SELECT DISTINCT qq FROM QuizQuestion qq LEFT JOIN FETCH qq.options WHERE qq.dimension = :dimension ORDER BY qq.orderNumber")
-    List<QuizQuestion> findByDimensionWithOptions(@Param("dimension") String dimension);
 }

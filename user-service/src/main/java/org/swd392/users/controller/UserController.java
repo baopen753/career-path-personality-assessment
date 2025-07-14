@@ -109,23 +109,10 @@ public class UserController {
     }
 
     @GetMapping("/by-email")
-    public ResponseEntity<ApiResponse<UserResponseDto>> getUserByEmail(
-            @RequestParam String email,
-            @RequestHeader("Authorization") String authHeader) {
-        try {
-            UserResponseDto response = iUserService.getUserByEmail(email);
-            return ResponseEntity.ok(ApiResponse.<UserResponseDto>builder()
-                    .code(200)
-                    .message("User found successfully")
-                    .result(response)
-                    .build());
-        } catch (Exception e) {
-            return ResponseEntity.ok(ApiResponse.<UserResponseDto>builder()
-                    .code(404)
-                    .message("User not found with email: " + email)
-                    .result(null)
-                    .build());
-        }
+    public ApiResponse<UserResponseDto> getUserByEmail(@RequestParam("email") String email) {
+        return ApiResponse.<UserResponseDto>builder()
+                .result(userService.getUserByEmail(email))
+                .build();
     }
 
     @GetMapping("/me")

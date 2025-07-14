@@ -13,12 +13,5 @@ public interface QuizOptionsRepository extends JpaRepository<QuizOptions, Long> 
 
     List<QuizOptions> findByQuestionId(Long questionId);
 
-    List<QuizOptions> findByTargetTrait(String targetTrait);
-
-    @Query("SELECT qo FROM QuizOptions qo WHERE qo.questionId IN :questionIds")
-    List<QuizOptions> findByQuestionIds(@Param("questionIds") List<Long> questionIds);
-
-    @Query("SELECT COUNT(qo) FROM QuizOptions qo WHERE qo.questionId = :questionId")
-    Long countByQuestionId(@Param("questionId") Long questionId);
 }
 
