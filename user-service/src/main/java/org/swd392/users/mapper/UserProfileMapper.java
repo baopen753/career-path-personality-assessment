@@ -16,24 +16,7 @@ public class UserProfileMapper {
                 userProfile.getAddress(),
                 userProfile.getImageUrl(),
                 userProfile.getSchool(),
-                userProfile.getAccountType(),
                 userProfile.getGender()
         );
-    }
-
-    // Chuyển từ UserProfileDTO sang UserProfile entity
-    public static UserProfile toEntity(UserProfileDto dto) {
-        UserProfile userProfile = new UserProfile();
-        userProfile.setId(dto.getProfileId());
-        userProfile.setFullName(dto.getFullName());
-        userProfile.setBirthDay(dto.getBirthDay());
-        userProfile.setPhoneNumber(dto.getPhoneNumber());
-        userProfile.setAddress(dto.getAddress());
-        userProfile.setImageUrl(dto.getImageUrl());
-        userProfile.setSchool(dto.getSchool());
-        userProfile.setAccountType(dto.getAccountType());
-        userProfile.setGender(dto.getGender());
-        // Lưu ý: user cần được set riêng khi gọi hàm toEntity
-        return userProfile;
     }
 }

@@ -4,10 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
+
 @Entity
 @Table(name = "users")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-
 public class User {
 
     @Id
@@ -26,9 +26,13 @@ public class User {
     private Role role;
 
     private boolean status;
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonManagedReference
     private UserProfile userProfile;
+
+    @Column(name = "current_package")
+    private String currentPackage;
 
     public User() {
     }
@@ -90,4 +94,11 @@ public class User {
         this.userProfile = userProfile;
     }
 
+    public String getCurrentPackage() {
+        return currentPackage;
+    }
+
+    public void setCurrentPackage(String currentPackage) {
+        this.currentPackage = currentPackage;
+    }
 }

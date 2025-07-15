@@ -1,11 +1,10 @@
-package org.swd392.seminars.controller;
+package org.swd392.seminars.controller.callback;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.*;
 import org.swd392.seminars.event.PaymentCallbackEvent;
-import org.swd392.seminars.service.OrchestratorSagaService;
 
 @Slf4j
 @RestController
@@ -21,8 +20,6 @@ public class SagaCallbackController {
         String paymentOrderCode = paymentCallbackEvent.getPaymentOrderCode();
         boolean isSuccess = paymentCallbackEvent.isSuccess();
         String message = paymentCallbackEvent.getMessage();
-
-     //   orchestratorSagaService.findSagaTransactionByPaymentOrderCode(paymentOrderCode);
 
         log.info("Received payment callback - Order Code: {}, Success: {}, Message: {}",
                 paymentOrderCode, isSuccess, message);

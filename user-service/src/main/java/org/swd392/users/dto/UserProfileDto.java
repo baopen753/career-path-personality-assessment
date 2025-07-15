@@ -1,7 +1,6 @@
 package org.swd392.users.dto;
 
 import lombok.*;
-import org.swd392.users.entity.AccountType;
 import org.swd392.users.entity.Gender;
 
 import java.time.LocalDate;
@@ -22,8 +21,6 @@ public class UserProfileDto {
     private String address;
     private String imageUrl;
     private String school;
-    private AccountType accountType;
     private Gender gender;
-
 
 }
