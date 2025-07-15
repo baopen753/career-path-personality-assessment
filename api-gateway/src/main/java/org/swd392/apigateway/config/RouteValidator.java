@@ -15,7 +15,11 @@ public class RouteValidator {
             CONTEXT_PATH + "/user/authentication/register",
             CONTEXT_PATH + "/user/authentication/login",
             CONTEXT_PATH + "/user/authentication/logout",
+            CONTEXT_PATH + "/user/otp/send",
+            CONTEXT_PATH + "/user/otp/verify",
+            CONTEXT_PATH + "/user/otp/reset-password",
             CONTEXT_PATH + "/quiz/categories"
+
     );
 
     public Predicate<ServerHttpRequest> isPublic =
