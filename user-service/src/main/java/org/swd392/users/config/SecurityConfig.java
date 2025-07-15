@@ -33,7 +33,7 @@ public class SecurityConfig {
 
     private final String[] PUBLIC_ENDPOINTS = {
             "/api/payments/**",
-            "/api/otp/**",
+            "/otp/**",
             "/authentication/register",
             "/authentication/login",
             "/authentication/logout",
