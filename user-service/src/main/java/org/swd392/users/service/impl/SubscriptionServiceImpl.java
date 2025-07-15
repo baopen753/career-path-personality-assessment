@@ -28,7 +28,6 @@ import java.time.LocalDateTime;
 @Service
 public class SubscriptionServiceImpl implements ISubscriptionService {
 
-
     private final IUserService userService;
     private final SubscriptionRepository subscriptionRepository;
     private final PaymentFeignClient paymentFeignClient;
@@ -60,7 +59,6 @@ public class SubscriptionServiceImpl implements ISubscriptionService {
                 .description("Subscription amount: " + packageInDb.getPrice().intValue())
                 .build();
 
-
         try {
             var response = paymentFeignClient.createPayment(paymentRequest);
 
@@ -68,6 +66,9 @@ public class SubscriptionServiceImpl implements ISubscriptionService {
             newSubscription.setUser(userInDb);
             newSubscription.setPackageType(packageInDb);
             newSubscription.setPaymentOrderCode(String.valueOf(response.getBody().getOrderCode()));
+
+            // Payment successful
+            subscriptionRepository.save(newSubscription);
 
             // Extract payment details
             String paymentOrderCode = String.valueOf(response.getBody() != null ? response.getBody().getOrderCode() : null);
@@ -90,9 +91,7 @@ public class SubscriptionServiceImpl implements ISubscriptionService {
             }
             throw new ServiceUnavailableException("Error occurred while creating payment: " + e.getMessage());
         }
-
     }
-
 
     @Transactional
     @EventListener    // succeed message only sent after transaction commits
@@ -105,11 +104,18 @@ public class SubscriptionServiceImpl implements ISubscriptionService {
                 .orElseThrow(() -> new SubscriptionNotFoundException("Subscription not found for payment order code: " + event.getPaymentOrderCode()));
 
         if (event.isSuccess()) {
+
+            // if checkout successfully, then set payment code for the subscription
+            subscription.setPaymentOrderCode(event.getPaymentOrderCode());
+
             // Payment successful
             subscriptionRepository.save(subscription);
+            log.error("Payment succeed for order code: {}", event.getPaymentOrderCode());
 
         } else {
+
             // Payment failed - trigger compensation
+            subscriptionRepository.delete(subscription);
             log.error("Payment failed for order code: {}", event.getPaymentOrderCode());
         }
     }
