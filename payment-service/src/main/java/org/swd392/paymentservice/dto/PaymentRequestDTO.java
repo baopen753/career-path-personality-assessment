@@ -1,16 +1,12 @@
 package org.swd392.paymentservice.dto;
 
+
 public class PaymentRequestDTO {
     private Integer amount;
     private String description;
+    private String paymentFlow;
+    private Integer referenceId;
 
-    public PaymentRequestDTO() {
-    }
-
-    public PaymentRequestDTO(Integer amount, String description) {
-        this.amount = amount;
-        this.description = description;
-    }
 
     public Integer getAmount() {
         return amount;

@@ -11,4 +11,5 @@ public interface SeminarFeignClient {
 
     @PostMapping("/seminar/api/saga/payment-callback")
     void handlePaymentCallback(@RequestBody PaymentCallbackEvent paymentCallbackEvent);
+
 } 
