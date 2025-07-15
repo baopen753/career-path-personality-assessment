@@ -1,4 +1,4 @@
-package org.swd392.seminars.controller;
+package org.swd392.seminars.controller.callback;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
