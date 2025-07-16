@@ -48,14 +48,13 @@
         <h1>🎓 Welcome to Career Path System!</h1>
     </div>
     <div class="content">
-        <p>Dear ${userName},</p>
+        <p>Dear ${username},</p>
         
         <p>Congratulations! Your account has been successfully created on our Career Path System.</p>
         
         <div class="account-details">
             <h3>Account Details:</h3>
             <ul>
-                <li><strong>Name:</strong> ${userName}</li>
                 <li><strong>Username:</strong> ${username}</li>
                 <li><strong>Account Type:</strong> ${accountType}</li>
                 <li><strong>Registration Date:</strong> ${registrationDate}</li>

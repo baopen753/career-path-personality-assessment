@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MessageBrokerConfig {
 
-    @Value("${rabbitmq.exchange.name}")
+    @Value("${rabbitmq.exchange}")
     private String exchange;
 
     @Bean

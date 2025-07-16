@@ -13,10 +13,10 @@ import java.time.LocalDateTime;
 @SpringBootTest
 class SeminarServiceApplicationTests {
 
-    @Value("${rabbitmq.exchange.name}")
+    @Value("${rabbitmq.exchange}")
     private String exchange;
 
-    @Value("${rabbitmq.routing.key}")
+    @Value("${rabbitmq.routing-key}")
     private String routingKey;
 
     @Autowired
