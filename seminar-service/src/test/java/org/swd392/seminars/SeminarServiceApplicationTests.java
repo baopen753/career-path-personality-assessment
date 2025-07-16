@@ -26,7 +26,7 @@ class SeminarServiceApplicationTests {
     void testSendBookedTicketMessage_shouldNotThrowException() {
         TicketBookedEvent event = TicketBookedEvent.builder()
                 .userId(11)
-                .email("tranquocbao070503@gmail.com")
+                .email("yourmail@gmail.com")
                 .fullName("Tran Bao")
                 .paymentOrderCode("1751594894132")
                 .status(SagaTransaction.SagaStatus.COMPLETED.name())

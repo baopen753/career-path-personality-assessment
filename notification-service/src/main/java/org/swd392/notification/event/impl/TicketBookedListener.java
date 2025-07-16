@@ -26,7 +26,7 @@ public class TicketBookedListener implements EventListener<TicketBookedEvent> {
         this.freemarkerConfig = freemarkerConfig;
     }
 
-    @RabbitListener(queues = "${rabbitmq.queue.name}")
+    @RabbitListener(queues = "${rabbitmq.seminar.queue}")
     @Override
     public void consume(TicketBookedEvent event) {
         log.info("TicketBookedEvent received: {}", event);

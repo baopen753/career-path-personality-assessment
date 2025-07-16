@@ -15,31 +15,60 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MessageBrokerConfig {
 
-    @Value("${rabbitmq.exchange.name}")
-    private String exchange;
+    @Value("${rabbitmq.seminar.exchange}")
+    private String seminarExchange;
 
-    @Value("${rabbitmq.routing.key}")
-    private String routingKey;
+    @Value("${rabbitmq.seminar.queue}")
+    private String seminarQueue;
 
-    @Value("${rabbitmq.queue.name}")
-    private String queue;
+    @Value("${rabbitmq.seminar.routing-key}")
+    private String seminarRoutingKey;
+
+    @Value("${rabbitmq.user.exchange}")
+    private String userExchange;
+
+    @Value("${rabbitmq.user.queue}")
+    private String userQueue;
+
+    @Value("${rabbitmq.user.routing-key}")
+    private String userRoutingKey;
+
 
     @Bean
-    public Queue queue() {
-        return new Queue(queue);
+    public DirectExchange seminarDirectExchange() {
+        return new DirectExchange(seminarExchange);
     }
 
     @Bean
-    public DirectExchange directExchange() {
-        return new DirectExchange(exchange);
+    public Queue seminarQueue() {
+        return new Queue(seminarQueue);
     }
 
     @Bean
-    public Binding binding() {
-        return BindingBuilder.bind(queue())
-                .to(directExchange())
-                .with(routingKey);
+    public Binding seminarBinding() {
+        return BindingBuilder.bind(seminarQueue())
+                .to(seminarDirectExchange())
+                .with(seminarRoutingKey);
     }
+
+
+    @Bean
+    public DirectExchange userDirectExchange() {
+        return new DirectExchange(userExchange);
+    }
+
+    @Bean
+    public Queue userQueue() {
+        return new Queue(userQueue);
+    }
+
+    @Bean
+    public Binding userBinding() {
+        return BindingBuilder.bind(userQueue())
+                .to(userDirectExchange())
+                .with(userRoutingKey);
+    }
+
 
     @Bean
     public MessageConverter messageConverter() {

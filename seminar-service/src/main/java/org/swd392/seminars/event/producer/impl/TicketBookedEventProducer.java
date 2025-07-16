@@ -11,10 +11,10 @@ import org.swd392.seminars.event.producer.EventProducer;
 @Service
 public class TicketBookedEventProducer implements EventProducer<TicketBookedEvent> {
 
-    @Value("${rabbitmq.exchange.name}")
+    @Value("${rabbitmq.exchange}")
     private String exchange;
 
-    @Value("${rabbitmq.routing.key}")
+    @Value("${rabbitmq.routing-key}")
     private String routingKey;
 
     private final RabbitTemplate rabbitTemplate;

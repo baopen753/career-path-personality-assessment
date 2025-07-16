@@ -29,13 +29,14 @@ spring:
 
 # config exchange for producer
 rabbitmq:
-  exchange:
-    name: seminar.ticket-booked.direct.exchange
-  routing:
-    key: seminar.ticket-booked
-  queue:
-    name: seminar.ticket-booked.notification.queue
-
+  seminar:
+    exchange: seminar.ticket-booked.direct.exchange
+    routing-key: seminar.ticket-booked
+    queue: seminar.ticket-booked.notification.queue
+  user:
+    exchange: user.registered.direct.exchange
+    routing-key: user.registered
+    queue: user.registered.notification.queue
 
 
 
