@@ -7,58 +7,39 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
-import org.swd392.notification.event.EventListener;
-import org.swd392.notification.event.TicketBookedEvent;
+import org.swd392.notification.event.AccountRegisteredEvent;
 import freemarker.template.Template;
 import jakarta.mail.internet.MimeMessage;
-import java.time.format.DateTimeFormatter;
+
 import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
 @Service
-public class TicketBookedListener implements EventListener<TicketBookedEvent> {
+public class AccountRegisteredListener {
     private final JavaMailSender mailSender;
     private final FreeMarkerConfigurer freemarkerConfig;
 
-    public TicketBookedListener(JavaMailSender mailSender, FreeMarkerConfigurer freemarkerConfig) {
+    public AccountRegisteredListener(JavaMailSender mailSender, FreeMarkerConfigurer freemarkerConfig) {
         this.mailSender = mailSender;
         this.freemarkerConfig = freemarkerConfig;
     }
 
-    @RabbitListener(queues = "${rabbitmq.queue.name}")
-    @Override
-    public void consume(TicketBookedEvent event) {
-        log.info("TicketBookedEvent received: {}", event);
-
+    
+    public void handleAccountRegistered(AccountRegisteredEvent event) {
+        log.info("Received AccountRegisteredEvent: {}", event);
         try {
-            // Create email context
             Map<String, Object> model = new HashMap<>();
-            model.put("email", event.getEmail());
-            model.put("fullName", event.getFullName());
-            model.put("paymentOrderCode", event.getPaymentOrderCode());
-            model.put("status", event.getStatus());
-            model.put("createdAt", event.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
-            
-            // Add amount and payment method if available
-            if (event.getAmount() != null) {
-                model.put("amount", event.getAmount());
-            }
-            if (event.getPaymentMethod() != null) {
-                model.put("paymentMethod", event.getPaymentMethod());
-            }
+            model.put("userName", event.getUserName());
+            model.put("username", event.getUsername());
+            model.put("accountType", event.getAccountType());
+            model.put("registrationDate", event.getRegistrationDate());
+            model.put("loginLink", event.getLoginLink());
 
-            log.info("Preparing to send ticket booking confirmation email to: {}", event.getEmail());
-            log.debug("Email template data: {}", model);
-
-            // Send email
-            sendEmail(event.getEmail(), "Ticket Booking Confirmation", "ticket-booking-confirmation.ftl", model);
-
-            log.info("Successfully sent ticket booking confirmation email to: {}", event.getEmail());
-
+            sendEmail(event.getUserEmail(), "Welcome to Career Path System", "account-registration.ftl", model);
+            log.info("Successfully sent registration confirmation email to: {}", event.getUserEmail());
         } catch (Exception e) {
-            log.error("Error sending ticket booking confirmation email to: {}. Error: {}", event.getEmail(), e.getMessage());
-            log.debug("Full stack trace:", e);
+            log.error("Failed to send registration confirmation email to: {}. Error: {}", event.getUserEmail(), e.getMessage());
         }
     }
 
@@ -82,4 +63,4 @@ public class TicketBookedListener implements EventListener<TicketBookedEvent> {
             throw new RuntimeException("Failed to send email", e);
         }
     }
-}
+} 
