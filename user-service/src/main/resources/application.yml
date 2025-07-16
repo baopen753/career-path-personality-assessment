@@ -36,6 +36,20 @@ spring:
           starttls:
             enable: true
 
+
+  # config connection with rabbitMQ broker
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+  # config exchange for producer
+rabbitmq:
+  exchange: user.registered.direct.exchange
+  routing-key: user.registered
+
+
 # config actuator endpoints
 management:
   endpoints:
@@ -81,3 +95,5 @@ springdoc:
 notification:
   service:
     url: http://localhost:8083/notification
+
+
