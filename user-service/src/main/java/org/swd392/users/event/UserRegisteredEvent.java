@@ -16,4 +16,5 @@ public class UserRegisteredEvent {
     private String email;
     private String accountType;
     private LocalDateTime registrationDate;
+    private String loginLink;
 }

@@ -32,6 +32,7 @@ public class UserService implements IUserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final EventProducer<UserRegisteredEvent> eventProducer;
+    private final String LOGIN_URL = "http://localhost:8072/swd391/user/authentication/login";
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -104,7 +105,8 @@ public class UserService implements IUserService {
         UserRegisteredEvent event = null;
         event.setEmail(newUser.getEmail());
         event.setAccountType(newUser.getRole().getRoleName());
-        event.setRegistrationDate(LocalDate.now());
+        event.setRegistrationDate(LocalDateTime.now());
+        event.setLoginLink(LOGIN_URL);
 
         // send confirmation email after registration
         eventProducer.sendMessage(event);
