@@ -81,7 +81,6 @@ public class UserService implements IUserService {
         return userRepository.findById(id);
     }
 
-    @Transactional
     public RegisterResponseDto register(RegisterRequestDto request) {
         if (!request.getPassword().equals(request.getConfirmPassword())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Passwords do not match");
@@ -102,11 +101,12 @@ public class UserService implements IUserService {
 
         User savedUser = userRepository.save(newUser);
 
-        UserRegisteredEvent event = null;
-        event.setEmail(newUser.getEmail());
-        event.setAccountType(newUser.getRole().getRoleName());
-        event.setRegistrationDate(LocalDateTime.now());
-        event.setLoginLink(LOGIN_URL);
+        UserRegisteredEvent event = UserRegisteredEvent.builder()
+                .email(newUser.getEmail())
+                .accountType(newUser.getRole().getRoleName())
+                .registrationDate(LocalDateTime.now())
+                .loginLink(LOGIN_URL)
+                .build();
 
         // send confirmation email after registration
         eventProducer.sendMessage(event);

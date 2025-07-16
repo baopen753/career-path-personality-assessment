@@ -38,13 +38,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/swagger-ui/index.html",
             "/swagger-resources",
             "/swagger-resources/",
-            "/webjars/"
+            "/webjars/",
+            "/authentication/register",
+            "/authentication/login",
+            "/authentication/logout"
     );
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+
+        if (shouldNotFilter(request)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         final String authenticationHeader = request.getHeader("Authorization");
 
         if (authenticationHeader == null || !authenticationHeader.startsWith("Bearer ")) {

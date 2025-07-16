@@ -14,6 +14,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -43,7 +44,8 @@ public class SecurityConfig {
             "/swagger-ui/**",
             "/swagger-resources/**",
             "/webjars/**",
-            "/api/users/**"
+            "/api/users/**",
+            "/error"
     };
 
     @Bean
@@ -62,7 +64,7 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 );
 
-        http.exceptionHandling(ehc -> ehc.accessDeniedHandler(new AuthorizationException()));
+        http.exceptionHandling(ehc -> ehc.accessDeniedHandler(new AccessDeniedHandlerImpl()));
         http.addFilterAfter(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
