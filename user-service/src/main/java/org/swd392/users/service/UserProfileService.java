@@ -49,8 +49,6 @@ public class UserProfileService {
         profile.setGender(profileDetails.getGender());
         profile.setPhoneNumber(profileDetails.getPhoneNumber());
         profile.setAddress(profileDetails.getAddress());
-        profile.setDistrictCode(profileDetails.getDistrictCode());
-        profile.setProvinceCode(profileDetails.getProvinceCode());
         profile.setImageUrl(profileDetails.getImageUrl());
         profile.setSchool(profileDetails.getSchool());
 
@@ -69,8 +67,6 @@ public class UserProfileService {
         profile.setGender(profileDetails.getGender());
         profile.setPhoneNumber(profileDetails.getPhoneNumber());
         profile.setAddress(profileDetails.getAddress());
-        profile.setDistrictCode(profileDetails.getDistrictCode());
-        profile.setProvinceCode(profileDetails.getProvinceCode());
         profile.setImageUrl(profileDetails.getImageUrl());
         profile.setSchool(profileDetails.getSchool());
 

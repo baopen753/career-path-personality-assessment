@@ -14,8 +14,6 @@ public class UserProfileMapper {
                 userProfile.getBirthDay(),
                 userProfile.getPhoneNumber(),
                 userProfile.getAddress(),
-                userProfile.getDistrictCode(),
-                userProfile.getProvinceCode(),
                 userProfile.getImageUrl(),
                 userProfile.getSchool(),
                 userProfile.getGender()

@@ -118,8 +118,6 @@ public class UserProfileController {
                 .birthDay(userProfile.getBirthDay())
                 .phoneNumber(userProfile.getPhoneNumber())
                 .address(userProfile.getAddress())
-                .districtCode(userProfile.getDistrictCode())
-                .provinceCode(userProfile.getProvinceCode())
                 .school(userProfile.getSchool())
                 .gender(userProfile.getGender())
                 .build();
