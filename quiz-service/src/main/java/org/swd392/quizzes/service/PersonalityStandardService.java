@@ -41,15 +41,6 @@ public class PersonalityStandardService {
         return convertToDTO(standard);
     }
 
-    public PersonalityStandardDTO createPersonalityStandard(PersonalityStandardDTO dto) {
-        if (repository.existsByPersonalityCode(dto.getPersonalityCode())) {
-            throw new IllegalArgumentException("Personality code already exists: " + dto.getPersonalityCode());
-        }
-        PersonalityStandard entity = convertToEntity(dto);
-        PersonalityStandard saved = repository.save(entity);
-        return convertToDTO(saved);
-    }
-
     public PersonalityStandardDTO updatePersonalityStandard(Long id, PersonalityStandardDTO dto) {
         PersonalityStandard existing = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Personality standard not found with ID: " + id));
@@ -82,17 +73,5 @@ public class PersonalityStandardService {
                 entity.getDescription(),
                 entity.getCareerMappingPersonality()
         );
-    }
-
-    private PersonalityStandard convertToEntity(PersonalityStandardDTO dto) {
-        return PersonalityStandard.builder()
-                .id(dto.getId())
-                .standard(dto.getStandard())
-                .personalityCode(dto.getPersonalityCode())
-                .nickname(dto.getNickname())
-                .keyTraits(dto.getKeyTraits())
-                .description(dto.getDescription())
-                .careerMappingPersonality(dto.getCareerMappingPersonality())
-                .build();
     }
 }

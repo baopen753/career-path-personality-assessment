@@ -27,6 +27,8 @@ public class UserProfile {
     private LocalDate birthDay;
     private String phoneNumber;
     private String address;
+    private int districtCode;
+    private int provinceCode;
     @Column(name = "image_url", columnDefinition = "TEXT")
     private String imageUrl;
 

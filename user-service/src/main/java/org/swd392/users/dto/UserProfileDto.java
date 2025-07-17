@@ -19,6 +19,8 @@ public class UserProfileDto {
     private LocalDate birthDay;
     private String phoneNumber;
     private String address;
+    private int districtCode;
+    private int provinceCode;
     private String imageUrl;
     private String school;
     private Gender gender;

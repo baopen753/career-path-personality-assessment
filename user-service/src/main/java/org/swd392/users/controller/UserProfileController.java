@@ -18,7 +18,6 @@ import org.swd392.users.service.impl.IUserService;
 import java.util.Optional;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/api/profiles")
 public class UserProfileController {
 
@@ -30,12 +29,56 @@ public class UserProfileController {
 
     @PreAuthorize("(hasAnyRole('SYSTEM_ADMIN','ADMIN') or (hasAnyRole('STUDENT','EVENT_MANAGER','PARENT') and #userId == authentication.principal.id))")
     @PostMapping("/{userId}")
-    public ResponseEntity<UserProfile> createOrUpdateProfile(@PathVariable Long userId, @RequestBody UserProfileDto profileDetails) {
+    public ResponseEntity<ApiResponse<UserProfile>> createProfile(@PathVariable Long userId, @RequestBody UserProfileDto profileDetails) {
         try {
+            // Check if profile already exists
+            Optional<UserProfile> existingProfile = userProfileService.getProfileByUserId(userId);
+            if (existingProfile.isPresent()) {
+                return ResponseEntity.badRequest()
+                        .body(ApiResponse.<UserProfile>builder()
+                                .code(400)
+                                .message("Profile already exists for this user. Use PUT to update.")
+                                .build());
+            }
+
             UserProfile profile = userProfileService.createOrUpdateProfile(userId, profileDetails);
-            return ResponseEntity.ok(profile);
+            return ResponseEntity.ok(ApiResponse.<UserProfile>builder()
+                    .code(201)
+                    .message("Profile created successfully")
+                    .result(profile)
+                    .build());
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.<UserProfile>builder()
+                            .code(400)
+                            .message("Failed to create profile: " + e.getMessage())
+                            .build());
+        }
+    }
+
+    @PreAuthorize("(hasAnyRole('SYSTEM_ADMIN','ADMIN') or (hasAnyRole('STUDENT','EVENT_MANAGER','PARENT') and #userId == authentication.principal.id))")
+    @PutMapping("/{userId}")
+    public ResponseEntity<ApiResponse<UserProfile>> updateProfile(@PathVariable Long userId, @RequestBody UserProfileDto profileDetails) {
+        try {
+            // Check if profile exists
+            Optional<UserProfile> existingProfile = userProfileService.getProfileByUserId(userId);
+            if (existingProfile.isEmpty()) {
+                return ResponseEntity.notFound()
+                        .build();
+            }
+
+            UserProfile profile = userProfileService.updateUserProfile(userId, profileDetails);
+            return ResponseEntity.ok(ApiResponse.<UserProfile>builder()
+                    .code(200)
+                    .message("Profile updated successfully")
+                    .result(profile)
+                    .build());
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.<UserProfile>builder()
+                            .code(400)
+                            .message("Failed to update profile: " + e.getMessage())
+                            .build());
         }
     }
 
@@ -75,6 +118,8 @@ public class UserProfileController {
                 .birthDay(userProfile.getBirthDay())
                 .phoneNumber(userProfile.getPhoneNumber())
                 .address(userProfile.getAddress())
+                .districtCode(userProfile.getDistrictCode())
+                .provinceCode(userProfile.getProvinceCode())
                 .school(userProfile.getSchool())
                 .gender(userProfile.getGender())
                 .build();

@@ -20,7 +20,6 @@ import java.util.Map;
 public class TicketBookedListener implements EventListener<TicketBookedEvent> {
     private final JavaMailSender mailSender;
     private final FreeMarkerConfigurer freemarkerConfig;
-
     public TicketBookedListener(JavaMailSender mailSender, FreeMarkerConfigurer freemarkerConfig) {
         this.mailSender = mailSender;
         this.freemarkerConfig = freemarkerConfig;
@@ -69,7 +68,6 @@ public class TicketBookedListener implements EventListener<TicketBookedEvent> {
 
             Template template = freemarkerConfig.getConfiguration().getTemplate(templateName);
             String htmlContent = FreeMarkerTemplateUtils.processTemplateIntoString(template, model);
-
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(htmlContent, true);

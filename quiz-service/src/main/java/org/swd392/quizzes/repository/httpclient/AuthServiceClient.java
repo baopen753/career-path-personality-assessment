@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.*;
 
 @FeignClient(name = "user", fallback = AuthServiceClientFallback.class)
 public interface AuthServiceClient {
-    @GetMapping(value = "/api/users/by-email", produces = MediaType.APPLICATION_JSON_VALUE)
-    ApiResponse<UserResponseDto> getUserByEmail(@RequestParam("email") String email, @RequestHeader("Authorization") String authorizationHeader);
+    @GetMapping(value = "/user/api/users/by-email", produces = MediaType.APPLICATION_JSON_VALUE)
+    ApiResponse<UserResponseDto> getUserByEmail(@RequestParam("email") String email);
+
+    @GetMapping(value = "/user/api/users/userid/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    ApiResponse<UserResponseDto> getUser(@PathVariable("id") Long id);
 }

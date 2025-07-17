@@ -367,28 +367,4 @@ public class PersonalityCalculationService {
                 quiz.getTitle().toUpperCase().contains("MYERS");
     }
 
-    /**
-     * Convert score value enum to integer, with special handling for DISC
-     * @deprecated Use getMBTIScoreValue() or getDISCScoreValue() instead
-     */
-    @Deprecated
-    private int getScoreValue(QuizOptions.ScoreValue scoreValue, String dimension) {
-        if (dimension != null && dimension.startsWith("DISC")) {
-            return getDISCScoreValue(scoreValue);
-        } else {
-            return getMBTIScoreValue(scoreValue);
-        }
-    }
-
-    /**
-     * Get personality type distribution for analytics
-     */
-    public Map<String, Long> getPersonalityTypeDistribution() {
-        List<PersonalityStandard> allStandards = personalityStandardRepository.findAll();
-        return allStandards.stream()
-                .collect(Collectors.groupingBy(
-                        PersonalityStandard::getPersonalityCode,
-                        Collectors.counting()
-                ));
-    }
 }

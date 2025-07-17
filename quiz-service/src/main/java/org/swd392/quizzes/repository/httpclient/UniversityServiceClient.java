@@ -9,12 +9,12 @@ import java.util.List;
 
 @FeignClient(name = "university", fallback = UniversityServiceClientFallback.class)
 public interface UniversityServiceClient {
-    @GetMapping("/universities/by-programs")
+    @GetMapping("/university/universities/by-programs")
     ApiResponse<List<UniversityRecommendationResponse>> getUniversitiesByPrograms(@RequestParam("programs") List<String> programs);
 
-    @GetMapping("/universities/search")
+    @GetMapping("/university/universities/search")
     ApiResponse<List<UniversityRecommendationResponse>> searchUniversities(@RequestParam("major") String major);
 
-    @GetMapping("/universities")
+    @GetMapping("/university/universities")
     ApiResponse<List<UniversityRecommendationResponse>> getAllUniversities();
 }

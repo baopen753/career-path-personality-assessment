@@ -30,6 +30,54 @@ public class UserProfileService {
         return profileRepository.findByUserId(userId);
     }
 
+    public UserProfile createProfile(Long userId, UserProfileDto profileDetails) {
+        // Check if profile already exists
+        Optional<UserProfile> existingProfile = profileRepository.findByUserId(userId);
+        if (existingProfile.isPresent()) {
+            throw new RuntimeException("Profile already exists for user ID: " + userId);
+        }
+
+        // Get user from DB
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+
+        // Create new UserProfile
+        UserProfile profile = new UserProfile();
+        profile.setUser(user);
+        profile.setFullName(profileDetails.getFullName());
+        profile.setBirthDay(profileDetails.getBirthDay());
+        profile.setGender(profileDetails.getGender());
+        profile.setPhoneNumber(profileDetails.getPhoneNumber());
+        profile.setAddress(profileDetails.getAddress());
+        profile.setDistrictCode(profileDetails.getDistrictCode());
+        profile.setProvinceCode(profileDetails.getProvinceCode());
+        profile.setImageUrl(profileDetails.getImageUrl());
+        profile.setSchool(profileDetails.getSchool());
+
+        // Save to DB
+        return profileRepository.save(profile);
+    }
+
+    public UserProfile updateUserProfile(Long userId, UserProfileDto profileDetails) {
+        // Find existing profile
+        UserProfile profile = profileRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Profile not found for user ID: " + userId));
+
+        // Update profile data
+        profile.setFullName(profileDetails.getFullName());
+        profile.setBirthDay(profileDetails.getBirthDay());
+        profile.setGender(profileDetails.getGender());
+        profile.setPhoneNumber(profileDetails.getPhoneNumber());
+        profile.setAddress(profileDetails.getAddress());
+        profile.setDistrictCode(profileDetails.getDistrictCode());
+        profile.setProvinceCode(profileDetails.getProvinceCode());
+        profile.setImageUrl(profileDetails.getImageUrl());
+        profile.setSchool(profileDetails.getSchool());
+
+        // Save to DB
+        return profileRepository.save(profile);
+    }
+
     public UserProfile createOrUpdateProfile(Long userId, UserProfileDto profileDetails) {
         // Lấy người dùng từ DB
         User user = userRepository.findById(userId)
@@ -50,11 +98,6 @@ public class UserProfileService {
 
         // Lưu vào DB
         return profileRepository.save(profile);
-    }
-
-    public UserProfile updateUserProfile(Long userId, UserProfileDto profileDetails) {
-        // Tương tự như createOrUpdateProfile
-        return createOrUpdateProfile(userId, profileDetails);
     }
 
     public boolean deleteProfile(Long userId) {
