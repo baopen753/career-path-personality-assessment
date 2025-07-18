@@ -123,7 +123,7 @@ public class UserService implements IUserService {
         UserRegisteredEvent event = UserRegisteredEvent.builder()
                 .email(newUser.getEmail())
                 .accountType(newUser.getRole().getRoleName())
-                .registrationDate(LocalDateTime.now())
+                .registrationDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")))
                 .loginLink(LOGIN_URL)
                 .build();
 

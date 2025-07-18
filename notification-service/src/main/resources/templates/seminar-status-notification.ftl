@@ -25,8 +25,23 @@
             border: 1px solid #ddd;
             border-radius: 0 0 5px 5px;
         }
-        .approved { color: #4CAF50; font-weight: bold; }
-        .rejected { color: #f44336; font-weight: bold; }
+        .seminar-details {
+            background-color: white;
+            border: 2px solid #4CAF50;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .status-approved {
+            color: #4CAF50;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .status-rejected {
+            color: #f44336;
+            font-weight: bold;
+            font-size: 18px;
+        }
     </style>
 </head>
 <body>
@@ -34,33 +49,22 @@
         <h1>Seminar Status Update</h1>
     </div>
     <div class="content">
-        <p>Dear ${eventManagerName},</p>
-        
-        <p>Your seminar "<strong>${seminarName}</strong>" has been <span class="${status?lower_case}">${status}</span>.</p>
-        
+        <p>Dear ${managerFullName},</p>
+        <#if statusApprove == "APPROVED">
+            <p>Your seminar <strong>"${seminarTitle}"</strong> has been <span class="status-approved">APPROVED</span> by the admin.</p>
+        <#else>
+            <p>Your seminar <strong>"${seminarTitle}"</strong> has been <span class="status-rejected">REJECTED</span> by the admin.</p>
+        </#if>
         <div class="seminar-details">
             <h3>Seminar Details:</h3>
             <ul>
-                <li><strong>Name:</strong> ${seminarName}</li>
-                <li><strong>Status:</strong> ${status}</li>
-                <li><strong>Start Time:</strong> ${startingTime}</li>
-                <li><strong>End Time:</strong> ${endingTime}</li>
-                <li><strong>Location:</strong> ${seminarLocation}</li>
-                <#if seminarLink?has_content>
-                <li><strong>Meeting Link:</strong> <a href="${seminarLink}">${seminarLink}</a></li>
-                </#if>
+                <li><strong>Seminar Title:</strong> ${seminarTitle}</li>
+                <li><strong>Status:</strong> <span class="status-approved"><#if statusApprove == "APPROVED">${statusApprove}<#else><span class="status-rejected">${statusApprove}</span></#if></span></li>
+                <li><strong>Approval Time:</strong> ${approvedAt}</li>
             </ul>
         </div>
-        
-        <#if rejectionReason?has_content>
-        <div class="rejection-reason">
-            <h3>Rejection Reason:</h3>
-            <p>${rejectionReason}</p>
-        </div>
-        </#if>
-        
-        <p>Best regards,<br>
-        Career Path Team</p>
+        <p>Thank you for your contribution to the Career Path System.</p>
+        <p>Best regards,<br>Career Path System Team</p>
     </div>
 </body>
 </html>

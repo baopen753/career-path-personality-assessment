@@ -33,6 +33,15 @@ public class MessageBrokerConfig {
     @Value("${rabbitmq.user.routing-key}")
     private String userRoutingKey;
 
+    @Value("${rabbitmq.seminar-approved.exchange}")
+    private String seminarApprovedExchange;
+
+    @Value("${rabbitmq.seminar-approved.queue}")
+    private String seminarApprovedQueue;
+
+    @Value("${rabbitmq.seminar-approved.routing-key}")
+    private String seminarApprovedRoutingKey;
+
 
     @Bean
     public DirectExchange seminarDirectExchange() {
@@ -67,6 +76,23 @@ public class MessageBrokerConfig {
         return BindingBuilder.bind(userQueue())
                 .to(userDirectExchange())
                 .with(userRoutingKey);
+    }
+
+    @Bean
+    public DirectExchange seminarApprovedDirectExchange() {
+        return new DirectExchange(seminarApprovedExchange);
+    }
+
+    @Bean
+    public Queue seminarApprovedQueue() {
+        return new Queue(seminarApprovedQueue);
+    }
+
+    @Bean
+    public Binding seminarApprovedBinding() {
+        return BindingBuilder.bind(seminarApprovedQueue())
+                .to(seminarApprovedDirectExchange())
+                .with(seminarApprovedRoutingKey);
     }
 
 
