@@ -53,17 +53,6 @@ public class CategoryService {
     }
 
     /**
-     * Get category by name
-     */
-    @Transactional(readOnly = true)
-    public Optional<CategoryDTO> getCategoryByName(String name) {
-        log.debug("Fetching category with name: {}", name);
-
-        Optional<Category> categoryOpt = categoryRepository.findByName(name);
-        return categoryOpt.map(this::convertToDTO);
-    }
-
-    /**
      * Create a new category
      */
     public CategoryDTO createCategory(CategoryDTO categoryDTO) {
@@ -173,84 +162,6 @@ public class CategoryService {
     }
 
     /**
-     * Get categories with quiz count
-     */
-    @Transactional(readOnly = true)
-    public List<CategoryWithQuizCountDTO> getCategoriesWithQuizCount() {
-        log.debug("Fetching categories with quiz count");
-
-        List<Category> categories = categoryRepository.findAll();
-        return categories.stream()
-                .map(category -> {
-                    List<Quiz> quizzes = quizRepository.findByCategoryId(category.getId());
-
-                    CategoryWithQuizCountDTO dto = new CategoryWithQuizCountDTO();
-                    dto.setId(category.getId());
-                    dto.setName(category.getName());
-                    dto.setDescription(category.getDescription());
-                    dto.setQuizCount(quizzes.size());
-
-                    return dto;
-                })
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Get category statistics for admin dashboard
-     */
-    @Transactional(readOnly = true)
-    public CategoryStatisticsDTO getCategoryStatistics() {
-        log.debug("Generating category statistics");
-
-        List<Category> allCategories = categoryRepository.findAll();
-        CategoryStatisticsDTO stats = new CategoryStatisticsDTO();
-
-        stats.setTotalCategories(allCategories.size());
-
-        // Calculate categories with and without quizzes
-        int categoriesWithQuizzes = 0;
-        int totalQuizzes = 0;
-
-        for (Category category : allCategories) {
-            List<Quiz> quizzes = quizRepository.findByCategoryId(category.getId());
-            if (!quizzes.isEmpty()) {
-                categoriesWithQuizzes++;
-                totalQuizzes += quizzes.size();
-            }
-        }
-
-        stats.setCategoriesWithQuizzes(categoriesWithQuizzes);
-        stats.setCategoriesWithoutQuizzes(allCategories.size() - categoriesWithQuizzes);
-        stats.setTotalQuizzes(totalQuizzes);
-        stats.setAverageQuizzesPerCategory(allCategories.isEmpty() ? 0.0 : (double) totalQuizzes / allCategories.size());
-
-        return stats;
-    }
-
-    /**
-     * Search categories by name (case-insensitive partial match)
-     */
-    @Transactional(readOnly = true)
-    public List<CategoryDTO> searchCategoriesByName(String searchTerm) {
-        log.debug("Searching categories with term: {}", searchTerm);
-
-        if (searchTerm == null || searchTerm.trim().isEmpty()) {
-            return getAllCategories();
-        }
-
-        // Since we don't have a custom search method in repository, we'll filter in memory
-        // In a real application, you might want to add a custom repository method
-        List<Category> allCategories = categoryRepository.findAll();
-
-        return allCategories.stream()
-                .filter(category -> category.getName().toLowerCase().contains(searchTerm.toLowerCase()) ||
-                        (category.getDescription() != null &&
-                                category.getDescription().toLowerCase().contains(searchTerm.toLowerCase())))
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-    }
-
-    /**
      * Validate category DTO
      */
     private void validateCategoryDTO(CategoryDTO categoryDTO) {
@@ -291,50 +202,5 @@ public class CategoryService {
         category.setName(dto.getName().trim());
         category.setDescription(dto.getDescription() != null ? dto.getDescription().trim() : null);
         return category;
-    }
-
-    // Inner classes for response DTOs
-    public static class CategoryWithQuizCountDTO {
-        private Long id;
-        private String name;
-        private String description;
-        private Integer quizCount;
-
-        // Getters and setters
-        public Long getId() { return id; }
-        public void setId(Long id) { this.id = id; }
-
-        public String getName() { return name; }
-        public void setName(String name) { this.name = name; }
-
-        public String getDescription() { return description; }
-        public void setDescription(String description) { this.description = description; }
-
-        public Integer getQuizCount() { return quizCount; }
-        public void setQuizCount(Integer quizCount) { this.quizCount = quizCount; }
-    }
-
-    public static class CategoryStatisticsDTO {
-        private Integer totalCategories;
-        private Integer categoriesWithQuizzes;
-        private Integer categoriesWithoutQuizzes;
-        private Integer totalQuizzes;
-        private Double averageQuizzesPerCategory;
-
-        // Getters and setters
-        public Integer getTotalCategories() { return totalCategories; }
-        public void setTotalCategories(Integer totalCategories) { this.totalCategories = totalCategories; }
-
-        public Integer getCategoriesWithQuizzes() { return categoriesWithQuizzes; }
-        public void setCategoriesWithQuizzes(Integer categoriesWithQuizzes) { this.categoriesWithQuizzes = categoriesWithQuizzes; }
-
-        public Integer getCategoriesWithoutQuizzes() { return categoriesWithoutQuizzes; }
-        public void setCategoriesWithoutQuizzes(Integer categoriesWithoutQuizzes) { this.categoriesWithoutQuizzes = categoriesWithoutQuizzes; }
-
-        public Integer getTotalQuizzes() { return totalQuizzes; }
-        public void setTotalQuizzes(Integer totalQuizzes) { this.totalQuizzes = totalQuizzes; }
-
-        public Double getAverageQuizzesPerCategory() { return averageQuizzesPerCategory; }
-        public void setAverageQuizzesPerCategory(Double averageQuizzesPerCategory) { this.averageQuizzesPerCategory = averageQuizzesPerCategory; }
     }
 }

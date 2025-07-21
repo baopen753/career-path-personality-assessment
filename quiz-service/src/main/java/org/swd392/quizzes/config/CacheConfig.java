@@ -16,7 +16,8 @@ public class CacheConfig {
         cacheManager.setCacheNames(java.util.Arrays.asList(
             "quiz-questions",
             "quiz-categories",
-            "quiz-data"
+            "quiz-data",
+                "quiz-options"
         ));
         return cacheManager;
     }

@@ -12,6 +12,7 @@ import org.swd392.users.entity.Role;
 import org.swd392.users.entity.User;
 import org.swd392.users.event.UserRegisteredEvent;
 import org.swd392.users.event.producer.EventProducer;
+import org.swd392.users.entity.UserProfile;
 import org.swd392.users.repository.RoleRepository;
 import org.swd392.users.repository.UserRepository;
 import org.swd392.users.service.impl.IUserService;
@@ -81,6 +82,20 @@ public class UserService implements IUserService {
         return userRepository.findById(id);
     }
 
+    //hàm cho quiz service gọi để lấy thông tin user
+    public UserResponseDto getUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with id: " + id));
+
+        return UserResponseDto.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .noPassword(user.getPassword() == null || user.getPassword().isEmpty())
+                .role(user.getRole().getRoleName())
+                .build();
+    }
+
+    @Transactional
     public RegisterResponseDto register(RegisterRequestDto request) {
         if (!request.getPassword().equals(request.getConfirmPassword())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Passwords do not match");
@@ -98,13 +113,17 @@ public class UserService implements IUserService {
         newUser.setPassword(passwordEncoder.encode(request.getPassword()));
         newUser.setStatus(true);
         newUser.setRole(defaultRole);
+        //tạo 1 profile mới empty cho user khi register
+        UserProfile newProfile = new UserProfile();
+        newProfile.setUser(newUser);
+        newUser.setUserProfile(newProfile);
 
         User savedUser = userRepository.save(newUser);
 
         UserRegisteredEvent event = UserRegisteredEvent.builder()
                 .email(newUser.getEmail())
                 .accountType(newUser.getRole().getRoleName())
-                .registrationDate(LocalDateTime.now())
+                .registrationDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")))
                 .loginLink(LOGIN_URL)
                 .build();
 

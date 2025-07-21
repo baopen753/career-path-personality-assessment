@@ -15,6 +15,6 @@ import java.time.LocalDateTime;
 public class UserRegisteredEvent {
     private String email;
     private String accountType;
-    private LocalDateTime registrationDate;
+    private String registrationDate;
     private String loginLink;
 }

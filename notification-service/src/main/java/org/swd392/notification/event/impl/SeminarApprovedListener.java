@@ -7,57 +7,38 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
-import org.swd392.notification.event.EventListener;
-import org.swd392.notification.event.TicketBookedEvent;
+import org.swd392.notification.event.SeminarApprovedEvent;
 import freemarker.template.Template;
 import jakarta.mail.internet.MimeMessage;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
 @Service
-public class TicketBookedListener implements EventListener<TicketBookedEvent> {
+public class SeminarApprovedListener {
     private final JavaMailSender mailSender;
     private final FreeMarkerConfigurer freemarkerConfig;
-    public TicketBookedListener(JavaMailSender mailSender, FreeMarkerConfigurer freemarkerConfig) {
+
+    public SeminarApprovedListener(JavaMailSender mailSender, FreeMarkerConfigurer freemarkerConfig) {
         this.mailSender = mailSender;
         this.freemarkerConfig = freemarkerConfig;
     }
 
-    @RabbitListener(queues = "${rabbitmq.seminar.queue}")
-    @Override
-    public void consume(TicketBookedEvent event) {
-        log.info("TicketBookedEvent received: {}", event);
-
+    @RabbitListener(queues = "${rabbitmq.seminar-approved.queue}")
+    public void consume(SeminarApprovedEvent event) {
+        log.info("SeminarApprovedEvent received: {}", event);
         try {
-            // Create email context
             Map<String, Object> model = new HashMap<>();
-            model.put("email", event.getEmail());
-            model.put("fullName", event.getFullName());
-            model.put("paymentOrderCode", event.getPaymentOrderCode());
-            model.put("status", event.getStatus());
-            model.put("createdAt", event.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
-            
-            // Add amount and payment method if available
-            if (event.getAmount() != null) {
-                model.put("amount", event.getAmount());
-            }
-            if (event.getPaymentMethod() != null) {
-                model.put("paymentMethod", event.getPaymentMethod());
-            }
+            model.put("managerEmail", event.getManagerEmail());
+            model.put("managerFullName", event.getManagerFullName());
+            model.put("seminarTitle", event.getSeminarTitle());
+            model.put("approvedAt", event.getApprovedAt());
+            model.put("statusApprove", event.getStatusApprove());
 
-            log.info("Preparing to send ticket booking confirmation email to: {}", event.getEmail());
-            log.debug("Email template data: {}", model);
-
-            // Send email
-            sendEmail(event.getEmail(), "Ticket Booking Confirmation", "ticket-booking-confirmation.ftl", model);
-
-            log.info("Successfully sent ticket booking confirmation email to: {}", event.getEmail());
-
+            sendEmail(event.getManagerEmail(), "Seminar Approved Notification", "seminar-status-notification.ftl", model);
+            log.info("Successfully sent seminar approved notification email to: {}", event.getManagerEmail());
         } catch (Exception e) {
-            log.error("Error sending ticket booking confirmation email to: {}. Error: {}", event.getEmail(), e.getMessage());
-            log.debug("Full stack trace:", e);
+            log.error("Error sending seminar approved notification email to: {}. Error: {}", event.getManagerEmail(), e.getMessage());
         }
     }
 
@@ -65,14 +46,12 @@ public class TicketBookedListener implements EventListener<TicketBookedEvent> {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-
             Template template = freemarkerConfig.getConfiguration().getTemplate(templateName);
             String htmlContent = FreeMarkerTemplateUtils.processTemplateIntoString(template, model);
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(htmlContent, true);
             helper.setFrom("anhphamle2002@gmail.com", "Career Path System");
-
             mailSender.send(message);
             log.info("Successfully sent email to: {}", to);
         } catch (Exception e) {
@@ -80,4 +59,4 @@ public class TicketBookedListener implements EventListener<TicketBookedEvent> {
             throw new RuntimeException("Failed to send email", e);
         }
     }
-}
+} 

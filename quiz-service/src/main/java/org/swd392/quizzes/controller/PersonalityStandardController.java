@@ -53,14 +53,6 @@ public class PersonalityStandardController {
         return ResponseEntity.ok(standard);
     }
 
-    @PostMapping("/create")
-    @Operation(summary = "Create new personality standard", description = "Create a new personality standard")
-    public ResponseEntity<PersonalityStandardDTO> createPersonalityStandard(
-            @Valid @RequestBody PersonalityStandardDTO personalityStandardDTO) {
-        PersonalityStandardDTO createdStandard = personalityStandardService.createPersonalityStandard(personalityStandardDTO);
-        return new ResponseEntity<>(createdStandard, HttpStatus.CREATED);
-    }
-
     @PutMapping("/{id}")
     @Operation(summary = "Update personality standard", description = "Update an existing personality standard")
     public ResponseEntity<PersonalityStandardDTO> updatePersonalityStandard(

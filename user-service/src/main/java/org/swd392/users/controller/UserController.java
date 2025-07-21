@@ -44,6 +44,15 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/userid/{id}")
+    public  ResponseEntity<UserResponseDto> getUser (@PathVariable Long Id) {
+        UserResponseDto userResponseDto = userService.getUser(Id);
+        if (userResponseDto == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(userResponseDto);
+    }
+
     @PreAuthorize("hasRole('SYSTEM_ADMIN') or hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO) {

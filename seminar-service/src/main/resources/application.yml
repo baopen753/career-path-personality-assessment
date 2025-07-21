@@ -35,6 +35,9 @@ spring:
 rabbitmq:
   exchange: seminar.ticket-booked.direct.exchange
   routing-key: seminar.ticket-booked
+  seminar-approved:
+    exchange: seminar.approved.direct.exchange
+    routing-key: seminar.approved
 
   # OpenAPI/Swagger Configuration
 springdoc:

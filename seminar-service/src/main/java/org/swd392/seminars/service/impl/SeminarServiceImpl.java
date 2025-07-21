@@ -16,6 +16,8 @@ import org.swd392.seminars.repository.SeminarRepository;
 import org.swd392.seminars.service.SeminarService;
 import org.swd392.seminars.service.client.NotificationFeignClient;
 import org.swd392.seminars.service.client.UserFeignClient;
+import org.swd392.seminars.event.SeminarApprovedEvent;
+import org.swd392.seminars.event.producer.EventProducer;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -31,6 +33,7 @@ public class SeminarServiceImpl implements SeminarService {
     private final UserFeignClient userFeignClient;
     private final NotificationFeignClient notificationFeignClient;
     private final RestTemplate restTemplate;
+    private final EventProducer<SeminarApprovedEvent> seminarApprovedEventProducer;
 
     @Override
     @Transactional
@@ -41,6 +44,10 @@ public class SeminarServiceImpl implements SeminarService {
             // Validate that starting time is not in the past (Bean Validation @Future handles this, but we double-check for better error messages)
             if (request.getStartingTime().isBefore(LocalDateTime.now())) {
                 throw new SeminarTicketException("Starting time cannot be in the past");
+            }
+            // Validate ending time after starting time
+            if (request.getEndingTime().isBefore(request.getStartingTime()) || request.getEndingTime().isEqual(request.getStartingTime())) {
+                throw new SeminarTicketException("Ending time must be after starting time");
             }
 
             // Create and save seminar
@@ -165,7 +172,6 @@ public class SeminarServiceImpl implements SeminarService {
     public SeminarResponse approveSeminar(Integer adminId, Integer seminarId, Seminar.StatusApprove status) {
         log.info("Admin ID: {} approving seminar ID: {} with status: {}", adminId, seminarId, status);
 
-
         Seminar seminar = seminarRepository.findById(seminarId)
                 .orElseThrow(() -> new ResourceNotFoundException("Seminar not found with ID: " + seminarId));
 
@@ -175,13 +181,33 @@ public class SeminarServiceImpl implements SeminarService {
 
         seminar.setStatusApprove(status);
 
+        // Lấy thông tin manager từ user-service qua Feign
+        var userInfoResponse = userFeignClient.getUserDetails(Long.valueOf(seminar.getCreateBy()));
+        String managerEmail = null;
+        String managerFullName = null;
+        if (userInfoResponse.getBody() != null && userInfoResponse.getBody().getResult() != null) {
+            managerEmail = userInfoResponse.getBody().getResult().getEmail();
+            managerFullName = userInfoResponse.getBody().getResult().getFullName();
+        }
+        // Format thời gian duyệt
+        String approvedAtStr = java.time.LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"));
+        // Gửi event qua RabbitMQ cho cả APPROVED và REJECTED
+        SeminarApprovedEvent event = SeminarApprovedEvent.builder()
+                .seminarId(seminar.getId())
+                .seminarTitle(seminar.getTitle())
+                .managerEmail(managerEmail)
+                .managerFullName(managerFullName)
+                .approvedAt(approvedAtStr)
+                .statusApprove(status.name())
+                .build();
+        seminarApprovedEventProducer.sendMessage(event);
+
         if (status == Seminar.StatusApprove.APPROVED) {
             seminar.setStatus(Seminar.Status.PENDING); // Event manager will manage the status after approval
         } else if (status == Seminar.StatusApprove.REJECTED) {
             seminar.setStatus(Seminar.Status.CANCELLED);
         }
         Seminar updatedSeminar = seminarRepository.save(seminar);
-
 
         log.info("Successfully updated seminar ID: {} status to: {}", seminarId, status);
         return mapToResponse(updatedSeminar);

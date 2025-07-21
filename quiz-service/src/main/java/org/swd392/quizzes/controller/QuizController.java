@@ -22,11 +22,6 @@ public class QuizController {
 
     private final QuizService quizService;
 
-    @GetMapping("/test")
-    public String test(){
-        return "test";
-    }
-
     @GetMapping
     @Operation(summary = "Get all quizzes", description = "Retrieve all available quizzes")
     public ResponseEntity<List<QuizDTO>> getAllQuiz() {

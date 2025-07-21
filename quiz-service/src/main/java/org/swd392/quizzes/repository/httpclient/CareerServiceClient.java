@@ -11,12 +11,12 @@ import java.util.List;
 
 @FeignClient(name = "career", fallback = CareerServiceClientFallback.class)
 public interface CareerServiceClient {
-    @GetMapping(value = "/careers/search", params = "careerNames", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/career/careers/search", params = "careerNames", produces = MediaType.APPLICATION_JSON_VALUE)
     ApiResponse<List<CareerRecommendationResponse>> searchCareersByName(@RequestParam("careerNames") List<String> careerNames);
 
-    @GetMapping(value = "/careers/personality/{personalityType}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/career/careers/personality/{personalityType}", produces = MediaType.APPLICATION_JSON_VALUE)
     ApiResponse<List<CareerRecommendationResponse>> getCareersByPersonality(@PathVariable("personalityType") String personalityType);
 
-    @GetMapping("/careers")
+    @GetMapping("/career/careers")
     ApiResponse<List<CareerRecommendationResponse>> getAllCareers();
 }

@@ -44,18 +44,16 @@ public class QuizResultService {
      * Submit quiz result with complete microservices integration
      * This method integrates with auth-service, career-service, and university-service
      */
-    public PersonalityResultDTO submitQuizResultWithMicroservices(QuizSubmissionDTO submission, String userId) {
+    public PersonalityResultDTO submitQuizResultWithMicroservices(QuizSubmissionDTO submission, Long userId) {
         log.info("Processing quiz submission with microservices integration for user: {} and quiz: {}",
                 userId, submission.getQuizId());
 
         try {
-            // Convert String userId to Long for database storage
-            Long userIdLong = Long.valueOf(userId);
-            submission.setUserId(userIdLong);
+            submission.setUserId(userId);
 
             // 1. Calculate personality using existing logic
             PersonalityResultDTO personalityResult = personalityCalculationService.calculatePersonality(submission);
-            log.info("Calculated personality type: {} for user: {}", personalityResult.getPersonalityCode(), userIdLong);
+            log.info("Calculated personality type: {} for user: {}", personalityResult.getPersonalityCode(), userId);
 
             // 2. Enrich with career and university recommendations from microservices
             PersonalityResultDTO enrichedResult = microserviceIntegrationService.enrichPersonalityResult(personalityResult);
@@ -64,8 +62,6 @@ public class QuizResultService {
             // 3. Save quiz result to database
             QuizResult quizResult = saveQuizResult(submission, enrichedResult);
             log.info("Saved quiz result with ID: {}", quizResult.getId());
-
-            log.info("Quiz submission completed successfully for user: {}", userIdLong);
 
             return enrichedResult;
 
@@ -118,14 +114,24 @@ public class QuizResultService {
     /**
      * Get comprehensive quiz results for the authenticated user only
      */
-    public UserQuizResultsDTO getMyQuizResults(Long userId) {
+    public UserQuizResultsDTO getMyQuizResults(Long id) {
         try {
-            log.info("Fetching quiz results for authenticated user: {}", userId);
+            log.info("Fetching user details for authenticated user: {}", id);
+            // gọi user-service để lấy thông tin chi tiết của người dùng (tên, email,...)
+            ApiResponse<UserResponseDto> userResponse = authServiceClient.getUser(id);
+            UserResponseDto currentUser = userResponse.getResult();
 
-            List<QuizResult> results = quizResultRepository.findByUserIdWithPersonalityDetails(userId);
+            if (currentUser == null) {
+                log.error("Could not fetch user details for user ID: {}", id);
+                throw new RuntimeException("User not found with ID: " + id);
+            }
 
-            // Build response (pass null or minimal user info if not needed)
-            return buildUserQuizResultsDTO(null, results);
+            log.info("Fetching quiz results for authenticated user: {}", id);
+            // lấy danh sách kết quả bài trắc nghiệm từ DB như cũ
+            List<QuizResult> results = quizResultRepository.findByUserIdWithPersonalityDetails(id);
+
+            // xây dựng DTO trả về với thông tin người dùng đã được điền đầy đủ
+            return buildUserQuizResultsDTO(currentUser, results); // truyền đối tượng currentUser từ header vào
 
         } catch (Exception e) {
             log.error("Failed to get user results for authenticated user", e);
@@ -220,28 +226,6 @@ public class QuizResultService {
             throw new InvalidQuizSubmissionException("Invalid result JSON format");
         }
     }
-
-    /**
-     * Validate quiz submission
-     */
-    private void validateSubmission(QuizSubmissionDTO submission) {
-        if (submission == null) {
-            throw new InvalidQuizSubmissionException("Quiz submission cannot be null");
-        }
-
-        if (submission.getUserId() == null) {
-            throw new InvalidQuizSubmissionException("User ID cannot be null");
-        }
-
-        if (submission.getQuizId() == null) {
-            throw new InvalidQuizSubmissionException("Quiz ID cannot be null");
-        }
-
-        if (submission.getAnswers() == null || submission.getAnswers().isEmpty()) {
-            throw new InvalidQuizSubmissionException("Quiz answers cannot be null or empty");
-        }
-    }
-
     /**
      * Convert QuizResult entity to DTO
      */
@@ -259,68 +243,27 @@ public class QuizResultService {
     }
 
     /**
-     * Get quiz statistics (for admin dashboard)
-     */
-    @Transactional(readOnly = true)
-    public QuizStatisticsDTO getQuizStatistics(Long quizId) {
-        List<QuizResult> results = quizResultRepository.findAll().stream()
-                .filter(r -> r.getQuizId().equals(quizId))
-                .toList();
-
-        QuizStatisticsDTO stats = new QuizStatisticsDTO();
-        stats.setQuizId(quizId);
-        stats.setTotalAttempts(results.size());
-        stats.setUniqueUsers(results.stream()
-                .map(QuizResult::getUserId)
-                .collect(Collectors.toSet()).size());
-
-        // Most common personality types
-        stats.setPersonalityTypeDistribution(results.stream()
-                .collect(Collectors.groupingBy(
-                        QuizResult::getResultType,
-                        Collectors.counting())));
-
-        return stats;
-    }
-
-
-    /**
      * Get all quiz results for a user by their email address
      * This method supports both student self-access and parent access to student results
      */
-    public UserQuizResultsDTO getUserResultByEmail(String email, String parentUserId, String parentEmail) {
-        log.info("Parent {} requesting student {} quiz results", parentEmail, email);
+    public UserQuizResultsDTO getUserResultByEmail(String email, String parentId) {
+        log.info("Executing request for parent {} to get results of student {}", parentId, email);
 
         try {
-            // 1. Get parent's full details to verify role
-            ApiResponse<UserResponseDto> parentResponse = authServiceClient.getUserByEmail(parentEmail, null);
-            UserResponseDto parent = parentResponse.getResult();
-
-            if (parent == null) {
-                throw new RuntimeException("Unable to verify parent's information");
-            }
-
-            // 2. Verify parent role
-            if (!"PARENT".equals(parent.getRole().toString())) {
-                throw new RuntimeException("Only parents can view student results");
-            }
-
-            // 3. Get student's information
-            ApiResponse<UserResponseDto> studentResponse = authServiceClient.getUserByEmail(email, null);
+            // 1. Get student's information
+            ApiResponse<UserResponseDto> studentResponse = authServiceClient.getUserByEmail(email);
             UserResponseDto student = studentResponse.getResult();
 
             if (student == null) {
-                log.info("No student found with email: {}", email);
+                log.warn("No student found with email: {}", email);
                 return UserQuizResultsDTO.builder()
                         .email(email)
                         .totalQuizzesTaken(0)
                         .quizResults(new ArrayList<>())
                         .build();
             }
-
-            // 4. Get student's quiz results
+            // 3. Get student's quiz results
             List<QuizResult> quizResults = quizResultRepository.findByUserIdWithPersonalityDetails(student.getId());
-
             log.info("Successfully retrieved {} quiz results for student: {}", quizResults.size(), email);
 
             return buildUserQuizResultsDTO(student, quizResults);
@@ -379,16 +322,5 @@ public class QuizResultService {
                 .timeSubmit(quizResult.getTimeSubmit())
                 .resultJson(quizResult.getResultJson())
                 .build();
-    }
-
-    // Inner class for statistics with Lombok annotations
-    @lombok.Data
-    @lombok.NoArgsConstructor
-    @lombok.AllArgsConstructor
-    public static class QuizStatisticsDTO {
-        private Long quizId;
-        private Integer totalAttempts;
-        private Integer uniqueUsers;
-        private java.util.Map<String, Long> personalityTypeDistribution;
     }
 }
