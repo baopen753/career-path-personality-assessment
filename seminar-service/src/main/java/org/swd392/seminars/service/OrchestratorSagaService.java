@@ -9,6 +9,4 @@ public interface OrchestratorSagaService {
 
     PaymentInitiationResponse startBookTicketSaga(Integer userId, SeminarTicketRequest request);
 
-    SagaTransaction findSagaTransactionByPaymentOrderCode(String paymentOrderCode);
-
 }

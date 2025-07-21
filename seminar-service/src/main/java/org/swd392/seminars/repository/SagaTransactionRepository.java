@@ -14,8 +14,11 @@ import java.util.Optional;
 public interface SagaTransactionRepository extends JpaRepository<SagaTransaction, Long> {
     
     Optional<SagaTransaction> findByPaymentOrderCode(String paymentOrderCode);
-    
-    boolean existsByUserIdAndSeminarId(Integer userId, Integer seminarId);
+
+    @Query("SELECT CASE WHEN COUNT(s) > 0 THEN true ELSE false END " +
+            "FROM SagaTransaction s " +
+            "WHERE s.userId = :userId AND s.seminarId = :seminarId AND s.status = 'COMPLETED'")
+    boolean existsByUserIdAndSeminarIdAndStatus_Completed(@Param("userId") Integer userId, @Param("seminarId") Integer seminarId);
     
     List<SagaTransaction> findByCurrentStep(SagaTransaction.SagaStep currentStep);
     

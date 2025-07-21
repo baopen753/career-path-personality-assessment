@@ -82,11 +82,8 @@ eureka:
       defaultZone: http://localhost:8761/eureka  # URL of the Eureka server, this url can be hardcoded because it has only 1 Eureka server in the system
 
 
-
 # info of Eureka client on the Eureka Server Dashboard
 info:
   app:
     name: ${spring.application.name}
     description: "This is quiz service in Career Path Personality Assessment System"
-
-

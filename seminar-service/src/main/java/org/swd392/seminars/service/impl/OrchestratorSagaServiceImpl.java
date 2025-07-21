@@ -37,7 +37,7 @@ public class OrchestratorSagaServiceImpl implements OrchestratorSagaService {
     public PaymentInitiationResponse startBookTicketSaga(Integer userId, SeminarTicketRequest ticketRequest) {
 
         // Check if saga already exists for this user and seminar
-        if (sagaTransactionRepository.existsByUserIdAndSeminarId(userId, ticketRequest.getSeminarId())) {
+        if (sagaTransactionRepository.existsByUserIdAndSeminarIdAndStatus_Completed(userId, ticketRequest.getSeminarId())) {
             log.warn("Saga already exists for user {} and seminar {}", userId, ticketRequest.getSeminarId());
             throw new SagaTransactionException("Booking already in progress");
         }
@@ -102,11 +102,6 @@ public class OrchestratorSagaServiceImpl implements OrchestratorSagaService {
         }
     }
 
-    @Override
-    public SagaTransaction findSagaTransactionByPaymentOrderCode(String paymentOrderCode) {
-        return sagaTransactionRepository.findByPaymentOrderCode(paymentOrderCode)
-                .orElseThrow(() -> new SagaTransactionException("Saga transaction not found for payment order code: " + paymentOrderCode));
-    }
 
     // Handle PayOS callback
     @Transactional
