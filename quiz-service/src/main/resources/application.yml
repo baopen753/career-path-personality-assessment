@@ -7,7 +7,7 @@ spring:
   application:
     name: quiz
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:quizdb}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:quizDb}
     driverClassName: org.postgresql.Driver
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:root}

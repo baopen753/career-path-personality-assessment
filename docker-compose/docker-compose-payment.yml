@@ -2,9 +2,8 @@ name: career-path-personality-assessment
 
 services:
   payment:
+    image: baopen753/payment:1.0
     container_name: payment
-    build:
-      context: ../payment-service
     ports:
       - "8086:8086"
     environment:

@@ -2,9 +2,8 @@ name: career-path-personality-assessment
 
 services:
   eurekaserver:
+    image: baopen753/eurekaserver:1.0
     container_name: eurekaserver
-    build:
-      context: ../eureka-server
     ports:
       - "8761:8761"
     environment:
@@ -21,9 +20,8 @@ services:
     restart: on-failure
 
   gatewayserver:
+    image: baopen753/gatewayserver:1.0
     container_name: gatewayserver
-    build:
-      context: ../api-gateway
     ports:
       - "8072:8072"
     environment:
@@ -42,9 +40,8 @@ services:
     restart: on-failure
 
   user:
+    image: baopen753/user:1.0
     container_name: user
-    build:
-      context: ../user-service
     ports:
       - "8080:8080"
     environment:
@@ -71,9 +68,8 @@ services:
     restart: on-failure
 
   notification:
+    image: baopen753/notification:1.0
     container_name: notification
-    build:
-      context: ../notification-service
     ports:
       - "8084:8084"
     environment:
@@ -92,9 +88,8 @@ services:
     restart: on-failure
 
   career:
+    image: baopen753/career:1.0
     container_name: career
-    build:
-      context: ../career-service
     ports:
       - "8085:8085"
     environment:
@@ -120,9 +115,8 @@ services:
     restart: on-failure
 
   university:
+    image: baopen753/university:1.0
     container_name: university
-    build:
-      context: ../university-service
     ports:
       - "8081:8081"
     environment:
@@ -148,9 +142,8 @@ services:
     restart: on-failure
 
   quiz:
+    image: baopen753/quiz:1.0
     container_name: quiz
-    build:
-      context: ../quiz-service
     ports:
       - "8083:8083"
     environment:
@@ -175,9 +168,8 @@ services:
     restart: on-failure
 
   chatbox:
+    image: baopen753/chatbox:1.0
     container_name: chatbox
-    build:
-      context: ../chatbox-service
     ports:
       - "8087:8087"
     environment:
@@ -203,9 +195,8 @@ services:
     restart: on-failure
 
   seminar:
+    image: baopen753/seminar:1.0
     container_name: seminar
-    build:
-      context: ../seminar-service
     ports:
       - "8082:8082"
     environment:
