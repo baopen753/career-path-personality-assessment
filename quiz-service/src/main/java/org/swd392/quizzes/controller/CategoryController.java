@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
 @RestController
 @RequestMapping("/categories")
 @RequiredArgsConstructor
@@ -17,16 +18,15 @@ import java.util.List;
 public class CategoryController {
 
     private final CategoryService categoryService;
-     //Get all categories
-     @GetMapping
-     public ResponseEntity<List<CategoryDTO>> getAllCategories() {
-         log.info("Fetching all categories");
 
-         List<CategoryDTO> categories = categoryService.getAllCategories();
-         return ResponseEntity.ok(categories);
-     }
+    @GetMapping
+    public ResponseEntity<List<CategoryDTO>> getAllCategories() {
+        log.info("Fetching all categories");
 
-    //Get category by ID
+        List<CategoryDTO> categories = categoryService.getAllCategories();
+        return ResponseEntity.ok(categories);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<CategoryDTO> getCategoryById(@PathVariable Long id) {
         log.info("Fetching category with ID: {}", id);
@@ -35,16 +35,6 @@ public class CategoryController {
         return ResponseEntity.ok(category);
     }
 
-    //Create a new category (Admin only)
-    @PostMapping
-    public ResponseEntity<CategoryDTO> createCategory(@Valid @RequestBody CategoryDTO categoryDTO) {
-        log.info("Creating new category: {}", categoryDTO.getName());
-
-        CategoryDTO createdCategory = categoryService.createCategory(categoryDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdCategory);
-    }
-
-    //Update an existing category (Admin only)
     @PutMapping("/{id}")
     public ResponseEntity<CategoryDTO> updateCategory(
             @PathVariable Long id,
@@ -55,16 +45,6 @@ public class CategoryController {
         return ResponseEntity.ok(updatedCategory);
     }
 
-    //Delete a category (Admin only)
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
-        log.info("Deleting category with ID: {}", id);
-
-        categoryService.deleteCategory(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    //Exception handler for this controller
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception e) {
         log.error("Error in CategoryController", e);

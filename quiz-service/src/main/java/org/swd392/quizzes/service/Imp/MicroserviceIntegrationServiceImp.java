@@ -1,4 +1,4 @@
-package org.swd392.quizzes.service;
+package org.swd392.quizzes.service.Imp;
 
 import org.swd392.quizzes.dto.PersonalityResultDTO;
 import org.swd392.quizzes.dto.external.*;
@@ -17,20 +17,16 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class MicroserviceIntegrationService {
+public class MicroserviceIntegrationServiceImp {
 
     private final CareerServiceClient careerServiceClient;
     private final UniversityServiceClient universityServiceClient;
     private final PersonalityStandardRepository personalityStandardRepository;
 
-    /**
-     * Complete personality result enrichment with career and university recommendations
-     */
     public PersonalityResultDTO enrichPersonalityResult(PersonalityResultDTO result) {
         try {
             log.info("Enriching personality result with recommendations for type: {}", result.getPersonalityCode());
 
-            // Get personality standard to access career_mapping_personality
             Optional<PersonalityStandard> standardOpt = personalityStandardRepository
                     .findByPersonalityCode(result.getPersonalityCode());
 
@@ -39,7 +35,6 @@ public class MicroserviceIntegrationService {
                 String careerMappings = standard.getCareerMappingPersonality();
 
                 if (careerMappings != null && !careerMappings.isEmpty()) {
-                    // Split career mappings and clean the data
                     List<String> mappedCareers = Arrays.stream(careerMappings.split(","))
                             .map(String::trim)
                             .filter(s -> !s.isEmpty())
@@ -47,7 +42,6 @@ public class MicroserviceIntegrationService {
 
                     log.info("Searching for careers matching: {}", mappedCareers);
 
-                    // Get career recommendations based on mapped careers
                     ApiResponse<List<CareerRecommendationResponse>> careersResponse = careerServiceClient.searchCareersByName(mappedCareers);
 
                     if (careersResponse == null || careersResponse.getResult() == null || careersResponse.getResult().isEmpty()) {
@@ -58,7 +52,6 @@ public class MicroserviceIntegrationService {
 
                     List<CareerRecommendationResponse> careers = careersResponse.getResult();
 
-                    // Extract career names for matching with universities
                     List<String> careerNames = careers.stream()
                             .map(CareerRecommendationResponse::getName)
                             .collect(Collectors.toList());
@@ -66,7 +59,6 @@ public class MicroserviceIntegrationService {
                     log.info("Found {} matching careers, searching universities with majors: {}",
                             careers.size(), careerNames);
 
-                    // Find universities that offer these careers as majors
                     ApiResponse<List<UniversityRecommendationResponse>> universitiesResponse = universityServiceClient
                             .getUniversitiesByPrograms(careerNames);
 
@@ -78,11 +70,9 @@ public class MicroserviceIntegrationService {
 
                     List<UniversityRecommendationResponse> universities = universitiesResponse.getResult();
 
-                    // Format recommendations for storage
                     String formattedCareerRecommendations = formatCareerRecommendations(careers);
                     String formattedUniversityRecommendations = formatUniversityRecommendations(universities);
 
-                    // Update result with formatted recommendations
                     result.setCareerRecommendations(formattedCareerRecommendations);
                     result.setUniversityRecommendations(formattedUniversityRecommendations);
 

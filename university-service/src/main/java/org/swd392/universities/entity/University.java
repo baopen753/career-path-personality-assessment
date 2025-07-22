@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class University {
     @Id
-    private String id;  // MongoDB uses String IDs
+    private String id;
 
     private String name;
 

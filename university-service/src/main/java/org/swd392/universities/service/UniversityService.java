@@ -41,7 +41,6 @@ public class UniversityService {
         universityRepository.deleteById(id);
     }
 
-    // New methods to support quiz-service integration
     public List<University> findByMajorIn(List<String> majors) {
         return universityRepository.findByMajorIn(majors);
     }
