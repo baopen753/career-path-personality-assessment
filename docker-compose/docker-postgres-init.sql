@@ -1,1 +1,1 @@
-create database "UserDB";
+create database userdb;

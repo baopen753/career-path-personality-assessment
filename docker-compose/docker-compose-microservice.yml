@@ -50,7 +50,7 @@ services:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_NAME: UserDB
+      DB_NAME: userdb
       DB_USERNAME: root
       DB_PASSWORD: root
       RABBITMQ_HOST: rabbitmq
@@ -75,9 +75,52 @@ services:
     networks:
       - swd392
 
+  career:
+    container_name: career
+    build:
+      context: ../career-service
+    ports:
+      - "8085:8085"
+    environment:
+      SPRING_APPLICATION_NAME: career
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka
+      MONGODB_HOST: mongodb
+      MONGODB_PORT: 27017
+      MONGODB_DATABASE: careerdb
+      MONGODB_USERNAME: root
+      MONGODB_PASSWORD: root
+      MONGODB_AUTH_DB: admin
+    depends_on:
+      - mongodb
+    networks:
+      - swd392
+
+  university:
+    container_name: university
+    build:
+      context: ../university-service
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_APPLICATION_NAME: university
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka
+      MONGODB_HOST: mongodb
+      MONGODB_PORT: 27017
+      MONGODB_DATABASE: universitydb
+      MONGODB_USERNAME: root
+      MONGODB_PASSWORD: root
+      MONGODB_AUTH_DB: admin
+    depends_on:
+      - mongodb
+    networks:
+      - swd392
+
+
 networks:
   swd392:
     external: true
+
+
 
 
 #  career:
