@@ -1,5 +1,5 @@
 server:
-  port: 8083
+  port: 8084
   servlet:
     context-path: /notification
 
@@ -22,7 +22,7 @@ spring:
 
   # config connection with rabbitMQ broker
   rabbitmq:
-    host: rabbitmq
+    host: ${RABBITMQ_HOST:localhost}
     port: 5672
     username: guest
     password: guest
@@ -37,7 +37,10 @@ rabbitmq:
     exchange: user.registered.direct.exchange
     routing-key: user.registered
     queue: user.registered.notification.queue
-
+  seminar-approved:
+    exchange: seminar.approved.direct.exchange
+    routing-key: seminar.approved
+    queue: seminar.approved.notification.queue
 
 
   # OpenAPI/Swagger Configuration

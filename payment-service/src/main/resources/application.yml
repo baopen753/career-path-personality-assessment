@@ -34,7 +34,7 @@ eureka:
     fetch-registry: true # Tells eureka client to fetch the registry from the Eureka server
     register-with-eureka: true # tells eureka client to register itself with the Eureka server
     service-url:
-      defaultZone: http://localhost:8761/eureka  # URL of the Eureka server, this url can be hardcoded because it has only 1 Eureka server in the system
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka}
 
 
 # swagger-ui
