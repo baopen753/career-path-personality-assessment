@@ -2,7 +2,7 @@ FROM openjdk:23-slim
 
 WORKDIR /app
 
-COPY target/quizz-service-1.0.jar app.jar
+COPY target/quiz-service-1.0.jar app.jar
 
 EXPOSE 8080
 

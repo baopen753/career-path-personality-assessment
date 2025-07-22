@@ -66,7 +66,7 @@ services:
     build:
       context: ../notification-service
     ports:
-      - "8083:8083"
+      - "8084:8084"
     environment:
       SPRING_APPLICATION_NAME: notification
       RABBITMQ_HOST: rabbitmq
@@ -92,6 +92,7 @@ services:
       MONGODB_AUTH_DB: admin
     depends_on:
       - mongodb
+      - eurekaserver
     networks:
       - swd392
 
@@ -112,13 +113,35 @@ services:
       MONGODB_AUTH_DB: admin
     depends_on:
       - mongodb
+      - eurekaserver
     networks:
       - swd392
 
+  quiz:
+    container_name: quiz
+    build:
+      context: ../quiz-service
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_APPLICATION_NAME: quiz
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: quizdb
+      DB_USERNAME: root
+      DB_PASSWORD: root
+    depends_on:
+      - postgres
+      - eurekaserver
+    networks:
+      - swd392
 
 networks:
   swd392:
     external: true
+
+
 
 
 
