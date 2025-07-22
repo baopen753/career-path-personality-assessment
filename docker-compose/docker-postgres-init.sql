@@ -1,2 +1,3 @@
-create database userdb;
-create database quizdb;
+create database "userDb";
+create database "quizDb";
+create database "chatAIDb";

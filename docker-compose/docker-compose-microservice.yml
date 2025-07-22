@@ -18,6 +18,7 @@ services:
       start_period: 10s
     networks:
       - swd392
+    restart: on-failure
 
   gatewayserver:
     container_name: gatewayserver
@@ -38,6 +39,7 @@ services:
       - eurekaserver
     networks:
       - swd392
+    restart: on-failure
 
   user:
     container_name: user
@@ -50,16 +52,23 @@ services:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_NAME: userdb
+      DB_NAME: userDb
       DB_USERNAME: root
       DB_PASSWORD: root
       RABBITMQ_HOST: rabbitmq
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "curl --fail --silent localhost:8080/actuator/health | grep UP || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     depends_on:
       - postgres
       - rabbitmq
       - eurekaserver
     networks:
       - swd392
+    restart: on-failure
 
   notification:
     container_name: notification
@@ -70,10 +79,17 @@ services:
     environment:
       SPRING_APPLICATION_NAME: notification
       RABBITMQ_HOST: rabbitmq
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "curl --fail --silent localhost:8084/actuator/health | grep UP || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     depends_on:
       - rabbitmq
     networks:
       - swd392
+    restart: on-failure
 
   career:
     container_name: career
@@ -86,15 +102,22 @@ services:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka
       MONGODB_HOST: mongodb
       MONGODB_PORT: 27017
-      MONGODB_DATABASE: careerdb
+      MONGODB_DATABASE: careerDb
       MONGODB_USERNAME: root
       MONGODB_PASSWORD: root
       MONGODB_AUTH_DB: admin
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "curl --fail --silent localhost:8085/actuator/health | grep UP || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     depends_on:
       - mongodb
       - eurekaserver
     networks:
       - swd392
+    restart: on-failure
 
   university:
     container_name: university
@@ -107,15 +130,22 @@ services:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka
       MONGODB_HOST: mongodb
       MONGODB_PORT: 27017
-      MONGODB_DATABASE: universitydb
+      MONGODB_DATABASE: universityDb
       MONGODB_USERNAME: root
       MONGODB_PASSWORD: root
       MONGODB_AUTH_DB: admin
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "curl --fail --silent localhost:8081/actuator/health | grep UP || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     depends_on:
       - mongodb
       - eurekaserver
     networks:
       - swd392
+    restart: on-failure
 
   quiz:
     container_name: quiz
@@ -128,22 +158,54 @@ services:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_NAME: quizdb
+      DB_NAME: quizDb
       DB_USERNAME: root
       DB_PASSWORD: root
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "curl --fail --silent localhost:8083/actuator/health | grep UP || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     depends_on:
       - postgres
       - eurekaserver
     networks:
       - swd392
+    restart: on-failure
+
+
+  chatbox:
+    container_name: chatbox
+    build:
+      context: ../chatbox-service
+    ports:
+      - "8087:8087"
+    environment:
+      SPRING_APPLICATION_NAME: chatbox
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: chatAIDb
+      DB_USERNAME: root
+      DB_PASSWORD: root
+      GEMINI_API_KEY: AIzaSyAcmMJeavWAS6k8BI3thSXQgH86jJatO80
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "curl --fail --silent localhost:8087/actuator/health | grep UP || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    depends_on:
+      - postgres
+      - eurekaserver
+    networks:
+      - swd392
+    restart: on-failure
 
 networks:
   swd392:
     external: true
-
-
-
-
 
 
 #  career:
@@ -263,5 +325,3 @@ networks:
 #      extends:
 #        file: docker-compose/common-config.yml
 #        service: microservice-eureka-config
-
-

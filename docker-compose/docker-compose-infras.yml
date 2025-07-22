@@ -36,6 +36,7 @@ services:
       start_period: 10s
     networks:
       - swd392
+    restart: on-failure
 
   rabbitmq:
     image: rabbitmq:3.13.7-management-alpine
@@ -52,6 +53,7 @@ services:
       start_period: 5s
     networks:
       - swd392
+    restart: on-failure
 
 networks:
   swd392:
