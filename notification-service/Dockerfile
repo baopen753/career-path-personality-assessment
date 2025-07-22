@@ -2,8 +2,8 @@ FROM openjdk:23-slim
 
 WORKDIR /app
 
-COPY target/api-gateway-1.0.jar app.jar
+COPY target/notification-service-1.0.jar app.jar
 
-EXPOSE 8072
+EXPOSE 8083
 
 CMD ["java", "-jar", "app.jar"]

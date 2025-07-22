@@ -61,6 +61,20 @@ services:
     networks:
       - swd392
 
+  notification:
+    container_name: notification
+    build:
+      context: ../notification-service
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_APPLICATION_NAME: notification
+      RABBITMQ_HOST: rabbitmq
+    depends_on:
+      - rabbitmq
+    networks:
+      - swd392
+
 networks:
   swd392:
     external: true

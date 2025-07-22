@@ -19,10 +19,8 @@ spring:
           starttls:
             enable: true
         debug: true
-
-  # config connection with rabbitMQ broker
-  rabbitmq:
-    host: localhost
+  rabbitmq:     # config connection with rabbitMQ broker
+    host: ${RABBITMQ_HOST:localhost}
     port: 5672
     username: guest
     password: guest

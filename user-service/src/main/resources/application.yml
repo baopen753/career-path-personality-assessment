@@ -35,9 +35,7 @@ spring:
           auth: true
           starttls:
             enable: true
-
-  # config connection with rabbitMQ broker
-  rabbitmq:
+  rabbitmq:     # config connection with rabbitMQ broker
     host: ${RABBITMQ_HOST:localhost}
     port: 5672
     username: guest
