@@ -142,6 +142,7 @@ public class UserProfileController {
         userInfoDtoBuilder
                 .userId(userInDb.getId())
                 .email(userInDb.getEmail())
+                .role(userInDb.getRole().getRoleName())
                 .build();
 
         Optional<UserProfile> userProfileOpt = userProfileService.getProfileByUserId(id);

@@ -12,16 +12,9 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/universities")
-@CrossOrigin
 public class UniversityController {
     @Autowired
     private UniversityService universityService;
-
-    //Delete this
-    @GetMapping("/test")
-    public String test() {
-        return "Hello University";
-    }
 
     @PostMapping
     public ResponseEntity<ApiResponse<University>> createUniversity(@RequestBody UniversityDTO dto) {

@@ -13,7 +13,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/careers")
-@CrossOrigin
 public class CareerController {
     @Autowired
     private CareerService careerService;
