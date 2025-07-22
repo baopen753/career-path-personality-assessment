@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.swd392.seminars.annotation.RequireRole;
+import org.swd392.seminars.enums.UserRole;
 import org.swd392.seminars.payload.request.SeminarTicketRequest;
 import org.swd392.seminars.payload.response.SeminarTicketResponse;
 import org.swd392.seminars.service.SeminarTicketService;
@@ -35,6 +37,7 @@ public class SeminarTicketController {
             @ApiResponse(responseCode = "404", description = "Seminar not found")
     })
     @PostMapping("/book-ticket")
+    @RequireRole({UserRole.STUDENT, UserRole.PARENT})
     public ResponseEntity<SeminarTicketResponse> bookTicket(
             @RequestHeader("X-User-Id") Integer userId,
             @Valid @RequestBody SeminarTicketRequest request) {
@@ -67,6 +70,7 @@ public class SeminarTicketController {
     })
 
     @DeleteMapping("/{ticketId}")
+    @RequireRole({UserRole.STUDENT, UserRole.PARENT})
     public ResponseEntity<Void> cancelTicket(
             @RequestHeader("X-User-Id") Integer userId,
             @PathVariable Integer ticketId) {
@@ -87,6 +91,7 @@ public class SeminarTicketController {
         @ApiResponse(responseCode = "401", description = "Unauthorized - Not logged in")
     })
     @GetMapping("/my-tickets")
+    @RequireRole({UserRole.STUDENT, UserRole.PARENT})
     public ResponseEntity<List<SeminarTicketResponse>> getMyTickets(
             @RequestHeader("X-User-Id") Integer userId) {
         log.info("Getting tickets for user ID: {}", userId);
@@ -108,6 +113,7 @@ public class SeminarTicketController {
             @ApiResponse(responseCode = "404", description = "Seminar not found")
     })
     @GetMapping("/seminar/{seminarId}/tickets")
+    @RequireRole(UserRole.EVENT_MANAGER)
     public ResponseEntity<List<SeminarTicketResponse>> getSeminarTickets(
             @RequestHeader("X-User-Id") Integer userId,
             @PathVariable Integer seminarId) {
