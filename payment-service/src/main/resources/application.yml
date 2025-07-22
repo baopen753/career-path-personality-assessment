@@ -7,6 +7,9 @@ spring:
   application:
     name: payment
 
+# Frontend configuration
+frontend:
+  url: http://localhost:5173  # Updated to correct React/Vite port
 
 # config actuator endpoints
 management:
@@ -52,4 +55,4 @@ info:
 
 
 webhook:
-  base-uri: ${WEBHOOK_BASE_URI:https://3ea402476d4f.ngrok-free.app}
+  base-uri: ${WEBHOOK_BASE_URI:https://b0e999ecff8e.ngrok-free.app}

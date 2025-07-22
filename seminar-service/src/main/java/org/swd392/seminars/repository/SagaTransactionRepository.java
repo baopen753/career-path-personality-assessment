@@ -20,6 +20,10 @@ public interface SagaTransactionRepository extends JpaRepository<SagaTransaction
             "WHERE s.userId = :userId AND s.seminarId = :seminarId AND s.status = 'COMPLETED'")
     boolean existsByUserIdAndSeminarIdAndStatus_Completed(@Param("userId") Integer userId, @Param("seminarId") Integer seminarId);
     
+    // Add method to check for active saga transactions only (excluding failed ones)
+    @Query("SELECT COUNT(s) > 0 FROM SagaTransaction s WHERE s.userId = :userId AND s.seminarId = :seminarId AND s.status NOT IN ('FAILED')")
+    boolean existsActiveByUserIdAndSeminarId(@Param("userId") Integer userId, @Param("seminarId") Integer seminarId);
+
     List<SagaTransaction> findByCurrentStep(SagaTransaction.SagaStep currentStep);
     
     @Query("SELECT s FROM SagaTransaction s WHERE s.currentStep = :step AND s.createdAt < :before")
@@ -29,4 +33,5 @@ public interface SagaTransactionRepository extends JpaRepository<SagaTransaction
     );
     
     List<SagaTransaction> findByStatus(SagaTransaction.SagaStatus status);
-} 
+}
+

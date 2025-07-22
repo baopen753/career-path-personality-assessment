@@ -73,32 +73,32 @@ public class PaymentController {
     @PostMapping("/webhook")
     public ResponseEntity<String> handleWebhook(@RequestBody Webhook webhook) {
         log.info("📩 Received PayOS webhook: {}", webhook);
-    
+
         // Defensive: check for test/verification POST
         if (webhook == null) {
             log.info("Received test/verification webhook from PayOS. Ignoring.");
             return ResponseEntity.ok("Test webhook received");
         }
-    
+
         WebhookData data = payOSService.verifyWebhook(webhook);
-    
+
         Long orderCode = data.getOrderCode();
         String code = data.getCode();
-    
+
         System.out.println("✅ Webhook xác minh OK | Mã đơn: " + data.getOrderCode() +
                 " | Mã trạng thái: " + data.getCode() +
                 " | Mô tả: " + data.getDesc());
-    
+
         try {
             boolean isSuccess = "00".equals(code); // PayOS success code
             String message = isSuccess ? "Payment successful" : data.getDesc();
-    
+
             PaymentCallbackEvent paymentCallbackEvent = PaymentCallbackEvent.builder()
                     .paymentOrderCode(orderCode)
                     .success(isSuccess)
                     .message(message)
                     .build();
-    
+
             seminarFeignClient.handlePaymentCallback(paymentCallbackEvent);
             log.info("✅ Notified seminar service about payment status for order: {}", orderCode);
         } catch (Exception e) {

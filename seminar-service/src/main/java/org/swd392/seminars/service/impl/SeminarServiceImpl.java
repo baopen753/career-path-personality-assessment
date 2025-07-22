@@ -40,7 +40,7 @@ public class SeminarServiceImpl implements SeminarService {
     public SeminarResponse createSeminar(Integer eventManagerId, SeminarRequest request) {
         log.info("Creating new seminar by event manager ID: {} with request: {}", eventManagerId, request);
         try {
-            
+
             // Validate that starting time is not in the past (Bean Validation @Future handles this, but we double-check for better error messages)
             if (request.getStartingTime().isBefore(LocalDateTime.now())) {
                 throw new SeminarTicketException("Starting time cannot be in the past");
@@ -283,4 +283,4 @@ public class SeminarServiceImpl implements SeminarService {
         response.setEndingTime(seminar.getEndingTime());
         return response;
     }
-} 
+}

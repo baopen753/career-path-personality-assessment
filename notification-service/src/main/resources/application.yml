@@ -1,5 +1,5 @@
 server:
-  port: 8084
+  port: 8083
   servlet:
     context-path: /notification
 
@@ -19,8 +19,10 @@ spring:
           starttls:
             enable: true
         debug: true
-  rabbitmq:     # config connection with rabbitMQ broker
-    host: ${RABBITMQ_HOST:localhost}
+
+  # config connection with rabbitMQ broker
+  rabbitmq:
+    host: rabbitmq
     port: 5672
     username: guest
     password: guest
@@ -35,10 +37,6 @@ rabbitmq:
     exchange: user.registered.direct.exchange
     routing-key: user.registered
     queue: user.registered.notification.queue
-  seminar-approved:
-    exchange: seminar.approved.direct.exchange
-    routing-key: seminar.approved
-    queue: seminar.approved.notification.queue
 
 
 
