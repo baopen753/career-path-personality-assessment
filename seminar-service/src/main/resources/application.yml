@@ -9,8 +9,8 @@ spring:
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:seminarDb}
     driverClassName: org.postgresql.Driver
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:12345}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
@@ -24,9 +24,9 @@ spring:
     discovery:
       enabled: true
 
-# config connection with rabbitMQ broker
+  # config connection with rabbitMQ broker
   rabbitmq:
-    host: rabbitmq
+    host: ${RABBITMQ_HOST:localhost}
     port: 5672
     username: guest
     password: guest
@@ -82,7 +82,7 @@ eureka:
     fetch-registry: true # Tells eureka client to fetch the registry from the Eureka server
     register-with-eureka: true # tells eureka client to register itself with the Eureka server
     service-url:
-      defaultZone: http://localhost:8761/eureka  # URL of the Eureka server, this url can be hardcoded because it has only 1 Eureka server in the system
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka}  # URL of the Eureka server, this url can be hardcoded because it has only 1 Eureka server in the system
 
 
 # info of Eureka client on the Eureka Server Dashboard

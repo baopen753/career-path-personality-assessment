@@ -174,7 +174,6 @@ services:
       - swd392
     restart: on-failure
 
-
   chatbox:
     container_name: chatbox
     build:
@@ -202,6 +201,36 @@ services:
     networks:
       - swd392
     restart: on-failure
+
+  seminar:
+    container_name: seminar
+    build:
+      context: ../seminar-service
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_APPLICATION_NAME: seminar
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: seminarDb
+      DB_USERNAME: root
+      DB_PASSWORD: root
+      RABBITMQ_HOST: rabbitmq
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "curl --fail --silent localhost:8082/actuator/health | grep UP || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    depends_on:
+      - postgres
+      - rabbitmq
+      - eurekaserver
+    networks:
+      - swd392
+    restart: on-failure
+
 
 networks:
   swd392:
