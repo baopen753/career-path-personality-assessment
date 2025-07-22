@@ -9,7 +9,7 @@ spring:
 
 # Frontend configuration
 frontend:
-  url: http://localhost:5173  # Updated to correct React/Vite port
+  url: ${FRONTEND_URL:http://localhost:5173}  # Updated to correct React/Vite port
 
 # config actuator endpoints
 management:
@@ -55,4 +55,4 @@ info:
 
 
 webhook:
-  base-uri: ${WEBHOOK_BASE_URI:https://b0e999ecff8e.ngrok-free.app}
+  base-uri: ${WEBHOOK_BASE_URI:https://53c521c078f6.ngrok-free.app}
