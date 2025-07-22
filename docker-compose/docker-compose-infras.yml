@@ -1,0 +1,58 @@
+name: career-path-personality-assessment
+
+services:
+  postgres:
+    image: postgres:13.21-alpine3.21
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U root || exit 1" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 10s
+    volumes:
+      - ./docker-postgres-init.sql:/docker-entrypoint-initdb.d/docker-postgres-init.sql
+    networks:
+      - swd392
+
+  mongodb:
+    image: bitnami/mongodb:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGODB_ROOT_USER: root
+      MONGODB_ROOT_PASSWORD: root
+    healthcheck:
+      test: [ "CMD-SHELL", "mongosh","--eval","db.adminCommand('ping') || exit 1" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 10s
+    networks:
+      - swd392
+
+  rabbitmq:
+    image: rabbitmq:3.13.7-management-alpine
+    hostname: rabbitmq
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    networks:
+      - swd392
+
+networks:
+  swd392:
+    external: true

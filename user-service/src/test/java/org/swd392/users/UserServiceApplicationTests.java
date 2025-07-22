@@ -26,7 +26,7 @@ class UserServiceApplicationTests {
         UserRegisteredEvent event = UserRegisteredEvent.builder()
                 .email("youremail@gmail.com")
                 .accountType("STUDENT")
-                .registrationDate(LocalDateTime.now())
+                .registrationDate(LocalDateTime.now().toString())
                 .build();
 
         eventProducer.sendMessage(event);

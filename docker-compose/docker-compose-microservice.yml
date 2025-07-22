@@ -1,0 +1,187 @@
+name: career-path-personality-assessment
+
+services:
+  eurekaserver:
+    container_name: eurekaserver
+    build:
+      context: ../eureka-server
+    ports:
+      - "8761:8761"
+    environment:
+      SPRING_APPLICATION_NAME: "eurekaserver"
+      EUREKA_HOSTNAME: "eurekaserver"
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "curl --fail --silent localhost:8761/actuator/health | grep UP || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - swd392
+
+  gatewayserver:
+    container_name: gatewayserver
+    build:
+      context: ../api-gateway
+    ports:
+      - "8072:8072"
+    environment:
+      SPRING_APPLICATION_NAME: gatewayserver
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "curl --fail --silent localhost:8072/actuator/health | grep UP || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    depends_on:
+      - eurekaserver
+    networks:
+      - swd392
+
+  user:
+    container_name: user
+    build:
+      context: ../user-service
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_APPLICATION_NAME: user
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: UserDB
+      DB_USERNAME: root
+      DB_PASSWORD: root
+      RABBITMQ_HOST: rabbitmq
+    depends_on:
+      - postgres
+      - rabbitmq
+      - eurekaserver
+    networks:
+      - swd392
+
+networks:
+  swd392:
+    external: true
+
+
+#  career:
+#    image: "swd392/career-service:s1"
+#    container_name: career-ms
+#    ports:
+#      - "8080:8080"
+#    healthcheck:
+#      test: "curl --fail --silent localhost:8080/actuator/health/readiness | grep UP || exit 1"
+#      interval: 10s
+#      timeout: 5s
+#      retries: 10
+#      start_period: 10s
+#    environment:
+#      SPRING_APPLICATION_NAME: "career"
+#    extends:
+#      file: docker-compose/common-config.yml
+#      service: microservice-eureka-config
+#
+#  package:
+#    image: "swd392/package-service:s1"
+#    container_name: package-ms
+#    ports:
+#      - "8081:8080"
+#    healthcheck:
+#      test: "curl --fail --silent localhost:8080/actuator/health/readiness | grep UP || exit 1"
+#      interval: 10s
+#      timeout: 5s
+#      retries: 10
+#      start_period: 10s
+#    environment:
+#      SPRING_APPLICATION_NAME: "package"
+#    extends:
+#      file: docker-compose/common-config.yml
+#      service: microservice-eureka-config
+#
+#  quiz:
+#    image: "swd392/quiz-service:s1"
+#    container_name: quiz-ms
+#    ports:
+#      - "8082:8080"
+#    healthcheck:
+#      test: "curl --fail --silent localhost:8080/actuator/health/readiness | grep UP || exit 1"
+#      interval: 10s
+#      timeout: 5s
+#      retries: 10
+#      start_period: 10s
+#    environment:
+#      SPRING_APPLICATION_NAME: "quiz"
+#    extends:
+#      file: docker-compose/common-config.yml
+#      service: microservice-eureka-config
+#
+#  seminar:
+#    image: "swd392/seminar-service:s1"
+#    container_name: seminar-ms
+#    ports:
+#      - "8083:8080"
+#    healthcheck:
+#      test: "curl --fail --silent localhost:8080/actuator/health/readiness | grep UP || exit 1"
+#      interval: 10s
+#      timeout: 5s
+#      retries: 10
+#      start_period: 10s
+#    environment:
+#      SPRING_APPLICATION_NAME: "seminar"
+#    extends:
+#      file: docker-compose/common-config.yml
+#      service: microservice-eureka-config
+#
+#  university:
+#    image: "swd392/university-service:s1"
+#    container_name: university-ms
+#    ports:
+#      - "8084:8080"
+#    healthcheck:
+#      test: "curl --fail --silent localhost:8080/actuator/health/readiness | grep UP || exit 1"
+#      interval: 10s
+#      timeout: 5s
+#      retries: 10
+#      start_period: 10s
+#    environment:
+#      SPRING_APPLICATION_NAME: "university"
+#    extends:
+#      file: docker-compose/common-config.yml
+#      service: microservice-eureka-config
+#
+#  user:
+#    image: "swd392/user-service:s1"
+#    container_name: user-ms
+#    ports:
+#      - "8085:8080"
+#    healthcheck:
+#      test: "curl --fail --silent localhost:8080/actuator/health/readiness | grep UP || exit 1"
+#      interval: 10s
+#      timeout: 5s
+#      retries: 10
+#      start_period: 10s
+#    environment:
+#      SPRING_APPLICATION_NAME: "user"
+#    extends:
+#      file: docker-compose/common-config.yml
+#      service: microservice-eureka-config
+#    notification:
+#      image: "swd392/notification-service:s1"
+#      container_name: notification-ms
+#      ports:
+#        - "8086:8083"
+#      healthcheck:
+#        test: "curl --fail --silent localhost:8083/actuator/health/readiness | grep UP || exit 1"
+#        interval: 10s
+#        timeout: 5s
+#        retries: 10
+#        start_period: 10s
+#      environment:
+#        SPRING_APPLICATION_NAME: "notification"
+#      extends:
+#        file: docker-compose/common-config.yml
+#        service: microservice-eureka-config
+
+

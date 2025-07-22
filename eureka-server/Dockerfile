@@ -2,7 +2,7 @@ FROM openjdk:23-slim
 
 WORKDIR /app
 
-COPY target/qeureka-server-1.0.jar app.jar
+COPY target/eureka-server-1.0.jar app.jar
 
 EXPOSE 8080
 
