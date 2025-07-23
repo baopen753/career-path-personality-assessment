@@ -19,6 +19,11 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+    defer-datasource-initialization: true # tell hibernate to run sql init
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:data.sql
   jackson:
     serialization:
       write-dates-as-timestamps: false
