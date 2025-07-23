@@ -3,6 +3,7 @@ package org.swd392.users.dto;
 
 public class UserDTO {
 
+    private Long id;
     private String email;
     private String password; // Optional, if you want to include password in DTO
     private RoleDto roleDto;
@@ -10,6 +11,14 @@ public class UserDTO {
 
     // Constructors
     public UserDTO() {
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getEmail() {
@@ -44,5 +53,3 @@ public class UserDTO {
         this.status = status;
     }
 }
-    
-

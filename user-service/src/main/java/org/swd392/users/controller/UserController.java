@@ -45,8 +45,8 @@ public class UserController {
     }
 
     @GetMapping("/userid/{id}")
-    public  ResponseEntity<UserResponseDto> getUser (@PathVariable Long Id) {
-        UserResponseDto userResponseDto = userService.getUser(Id);
+    public ResponseEntity<UserResponseDto> getUser(@PathVariable Long id) {
+        UserResponseDto userResponseDto = userService.getUser(id);
         if (userResponseDto == null) {
             return ResponseEntity.notFound().build();
         }
@@ -63,25 +63,35 @@ public class UserController {
 
     @PreAuthorize("(hasAnyRole('SYSTEM_ADMIN','ADMIN') or (hasAnyRole('STUDENT','EVENT_MANAGER','PARENT') and #id == authentication.principal.id))")
     @PutMapping("/{id}")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody UserDTO userDTO) {
+    public ResponseEntity<ApiResponse<UserDTO>> updateUser(@PathVariable Long id, @RequestBody UserDTO userDTO) {
         User user = UserMapper.toEntity(userDTO);
         return userService.updateUser(id, user)
-                .map(UserMapper::toDTO)
-                .map(ResponseEntity::ok)
+                .map(updatedUser -> ResponseEntity.ok(ApiResponse.<UserDTO>builder()
+                        .code(200)
+                        .message("User updated successfully")
+                        .result(UserMapper.toDTO(updatedUser))
+                        .build()))
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PreAuthorize("hasAnyRole('SYSTEM_ADMIN','ADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<String>> deleteUser(@PathVariable Long id) {
         if (userService.deleteUser(id)) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok(ApiResponse.<String>builder()
+                    .code(200)
+                    .message("User deleted successfully")
+                    .result("User with ID " + id + " has been deleted")
+                    .build());
         }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(ApiResponse.<String>builder()
+                .code(404)
+                .message("User not found")
+                .result("User with ID " + id + " not found")
+                .build());
     }
     
     @GetMapping("/{userId}/email")
-    // No @PreAuthorize needed - this endpoint is in PUBLIC_ENDPOINTS for seminar-service calls
     public ResponseEntity<String> getUserEmail(@PathVariable Integer userId) {
         return userService.getUserById(userId.longValue())
                 .map(user -> ResponseEntity.ok(user.getEmail()))
@@ -89,19 +99,16 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/name")
-    // No @PreAuthorize needed - this endpoint is in PUBLIC_ENDPOINTS for seminar-service calls
     public ResponseEntity<String> getUserName(@PathVariable Integer userId) {
         return userService.getUserById(userId.longValue())
                 .map(user -> {
-                    // Try to get name from user profile or use email as fallback
-                    String name = user.getEmail().split("@")[0]; // Use email prefix as name fallback
+                    String name = user.getEmail().split("@")[0];
                     return ResponseEntity.ok(name);
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/{userId}/role")
-    // No @PreAuthorize needed - this endpoint is in PUBLIC_ENDPOINTS for seminar-service calls
     public ResponseEntity<String> getUserRole(@PathVariable Integer userId) {
         return userService.getUserById(userId.longValue())
                 .map(user -> ResponseEntity.ok(user.getRole().getRoleName()))
@@ -109,7 +116,6 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/info")
-    // No @PreAuthorize needed - this endpoint is in PUBLIC_ENDPOINTS for seminar-service calls
     public ResponseEntity<UserDTO> getUserInfo(@PathVariable Integer userId) {
         return userService.getUserById(userId.longValue())
                 .map(UserMapper::toDTO)
@@ -118,10 +124,21 @@ public class UserController {
     }
 
     @GetMapping("/by-email")
-    public ApiResponse<UserResponseDto> getUserByEmail(@RequestParam("email") String email) {
-        return ApiResponse.<UserResponseDto>builder()
-                .result(userService.getUserByEmail(email))
-                .build();
+    public ResponseEntity<ApiResponse<UserResponseDto>> getUserByEmailParam(@RequestParam("email") String email) {
+        try {
+            UserResponseDto userResponse = userService.getUserByEmail(email);
+            return ResponseEntity.ok(ApiResponse.<UserResponseDto>builder()
+                    .code(200)
+                    .message("User found successfully")
+                    .result(userResponse)
+                    .build());
+        } catch (Exception e) {
+            return ResponseEntity.ok(ApiResponse.<UserResponseDto>builder()
+                    .code(404)
+                    .message("User not found")
+                    .result(null)
+                    .build());
+        }
     }
 
     @GetMapping("/me")
@@ -136,6 +153,21 @@ public class UserController {
                 .code(200)
                 .message("Current user information retrieved successfully")
                 .result(response)
+                .build());
+    }
+
+    @PreAuthorize("hasAnyRole('SYSTEM_ADMIN','ADMIN')")
+    @GetMapping("/list")
+    public ResponseEntity<ApiResponse<List<UserDTO>>> getAllUsersWithResponse() {
+        List<User> users = userService.getAllUsers();
+        List<UserDTO> dtos = users.stream()
+                .map(UserMapper::toDTO)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(ApiResponse.<List<UserDTO>>builder()
+                .code(200)
+                .message("Users retrieved successfully")
+                .result(dtos)
                 .build());
     }
 }
