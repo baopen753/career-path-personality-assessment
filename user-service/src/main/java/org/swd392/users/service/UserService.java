@@ -33,7 +33,7 @@ public class UserService implements IUserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final EventProducer<UserRegisteredEvent> eventProducer;
-    private final String LOGIN_URL = "http://localhost:8072/swd391/user/authentication/login";
+    private final String LOGIN_URL = "http://localhost:5173/login";
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
