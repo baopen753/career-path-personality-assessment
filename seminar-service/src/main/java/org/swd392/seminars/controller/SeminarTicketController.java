@@ -84,22 +84,22 @@ public class SeminarTicketController {
         }
     }
 
-    @Operation(summary = "Get user's tickets",
-              description = "Get all tickets booked by the current user.")
+    @Operation(summary = "Get user's completed tickets",
+              description = "Get all completed tickets (with COMPLETED saga status) booked by the current user.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Successfully retrieved user's tickets"),
+        @ApiResponse(responseCode = "200", description = "Successfully retrieved user's completed tickets"),
         @ApiResponse(responseCode = "401", description = "Unauthorized - Not logged in")
     })
     @GetMapping("/my-tickets")
     @RequireRole({UserRole.STUDENT, UserRole.PARENT})
     public ResponseEntity<List<SeminarTicketResponse>> getMyTickets(
             @RequestHeader("X-User-Id") Integer userId) {
-        log.info("Getting tickets for user ID: {}", userId);
+        log.info("Getting completed tickets for user ID: {}", userId);
         try {
             List<SeminarTicketResponse> tickets = seminarTicketService.getTicketsByUser(userId);
             return ResponseEntity.ok(tickets);
         } catch (Exception e) {
-            log.error("Error getting user tickets: {}", e.getMessage());
+            log.error("Error getting user completed tickets: {}", e.getMessage());
             throw e;
         }
     }

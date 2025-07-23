@@ -16,4 +16,9 @@ public interface SeminarTicketRepository extends JpaRepository<SeminarTicket, In
     @Query("SELECT st FROM SeminarTicket st WHERE st.seminar.id = :seminarId AND st.userId = :userId")
     Optional<SeminarTicket> findBySeminarIdAndUserId(Integer seminarId, Integer userId);
 
+    @Query("SELECT st FROM SeminarTicket st " +
+           "JOIN SagaTransaction sg ON st.seminar.id = sg.seminarId AND st.userId = sg.userId " +
+           "WHERE st.userId = :userId AND sg.status = 'COMPLETED'")
+    List<SeminarTicket> findByUserIdWithCompletedSaga(Integer userId);
+
 }

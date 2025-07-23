@@ -253,9 +253,12 @@ public class SeminarServiceImpl implements SeminarService {
 
     @Override
     public List<SeminarResponse> getApprovedSeminars() {
-        log.info("Getting all approved seminars");
+        log.info("Getting all approved and ongoing seminars");
         try {
-            List<Seminar> seminars = seminarRepository.findByStatusApprove(Seminar.StatusApprove.APPROVED);
+            List<Seminar> seminars = seminarRepository.findByStatusAndStatusApprove(
+                    Seminar.Status.ONGOING, 
+                    Seminar.StatusApprove.APPROVED
+            );
             return seminars.stream()
                     .map(this::mapToResponse)
                     .collect(Collectors.toList());

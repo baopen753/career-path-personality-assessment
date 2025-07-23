@@ -13,4 +13,5 @@ public interface SeminarRepository extends JpaRepository<Seminar, Integer> {
     List<Seminar> findByStatus(Seminar.Status status);
     List<Seminar> findByStatusApprove(Seminar.StatusApprove statusApprove);
     List<Seminar> findByStatusAndEndingTimeBefore(Seminar.Status status, LocalDateTime endingTime);
+    List<Seminar> findByStatusAndStatusApprove(Seminar.Status status, Seminar.StatusApprove statusApprove);
 } 

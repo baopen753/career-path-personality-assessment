@@ -14,7 +14,6 @@ import org.swd392.seminars.repository.SeminarRepository;
 import org.swd392.seminars.repository.SeminarTicketRepository;
 import org.swd392.seminars.service.SeminarTicketService;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -113,7 +112,7 @@ public class SeminarTicketServiceImpl implements SeminarTicketService {
 
     @Override
     public List<SeminarTicketResponse> getTicketsByUser(Integer userId) {
-        return seminarTicketRepository.findByUserId(userId).stream()
+        return seminarTicketRepository.findByUserIdWithCompletedSaga(userId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
