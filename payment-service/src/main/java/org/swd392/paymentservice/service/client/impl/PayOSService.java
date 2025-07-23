@@ -17,7 +17,7 @@ import vn.payos.type.WebhookData;
 @RequiredArgsConstructor
 public class PayOSService {
 
-    private final String REDIRECT_URI = "http://localhost:8072";
+    private final String REDIRECT_URI = "http://localhost:8086";
 
     @Autowired
     private final PayOS payOS;
