@@ -55,4 +55,5 @@ info:
 
 
 webhook:
-  base-uri: ${WEBHOOK_BASE_URI:https://599050de7545.ngrok-free.app}
+  #base-uri: ${WEBHOOK_BASE_URI:https://599050de7545.ngrok-free.app}
+  base-uri: ${WEBHOOK_BASE_URI:https://292662657f2f.ngrok-free.app}

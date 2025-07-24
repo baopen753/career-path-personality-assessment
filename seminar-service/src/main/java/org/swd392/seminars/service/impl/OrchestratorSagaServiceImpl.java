@@ -2,24 +2,17 @@ package org.swd392.seminars.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.swd392.seminars.dto.PaymentRequestDTO;
-import org.swd392.seminars.dto.UserInfoDto;
 import org.swd392.seminars.entity.SagaTransaction;
-import org.swd392.seminars.event.PaymentCallbackEvent;
-import org.swd392.seminars.event.TicketBookedEvent;
-import org.swd392.seminars.event.producer.EventProducer;
 import org.swd392.seminars.exception.SagaTransactionException;
 import org.swd392.seminars.payload.request.SeminarTicketRequest;
 import org.swd392.seminars.payload.response.PaymentInitiationResponse;
-import org.swd392.seminars.payload.response.SeminarTicketResponse;
 import org.swd392.seminars.repository.SagaTransactionRepository;
 import org.swd392.seminars.service.OrchestratorSagaService;
 import org.swd392.seminars.service.SeminarTicketService;
 import org.swd392.seminars.service.client.PaymentFeignClient;
-import org.swd392.seminars.service.client.UserFeignClient;
 
 @Slf4j
 @Service
@@ -29,8 +22,6 @@ public class OrchestratorSagaServiceImpl implements OrchestratorSagaService {
     private final PaymentFeignClient paymentFeignClient;
     private final SeminarTicketService seminarTicketService;
     private final SagaTransactionRepository sagaTransactionRepository;
-    private final UserFeignClient userFeignClient;
-    private final EventProducer<TicketBookedEvent> eventProducer;
 
     @Override
     @Transactional
@@ -58,7 +49,7 @@ public class OrchestratorSagaServiceImpl implements OrchestratorSagaService {
         try {
             // Step 1: Book ticket
             ticketRequest.setUserId(userId);
-            SeminarTicketResponse seminarTicketResponse = seminarTicketService.bookTicket(ticketRequest);
+            seminarTicketService.bookTicket(ticketRequest);
 
             // Update saga state
             sagaTransaction.setCurrentStep(SagaTransaction.SagaStep.BOOKING_COMPLETED);
@@ -102,56 +93,6 @@ public class OrchestratorSagaServiceImpl implements OrchestratorSagaService {
         }
     }
 
-
-    // Handle PayOS callback
-    @Transactional
-    @EventListener             // succeed message only sent after transaction commits
-    public void handlePaymentCallback(PaymentCallbackEvent event) {
-        log.info("Received payment callback for payment order code: {}, success: {}",
-                event.getPaymentOrderCode(), event.isSuccess());
-
-        SagaTransaction sagaTransaction = sagaTransactionRepository
-                .findByPaymentOrderCode(event.getPaymentOrderCode())
-                .orElseThrow(() -> new SagaTransactionException("Saga transaction not found for payment order code: " + event.getPaymentOrderCode()));
-
-        if (event.isSuccess()) {
-            // Payment successful
-            sagaTransaction.setCurrentStep(SagaTransaction.SagaStep.PAYMENT_COMPLETED);
-            sagaTransaction.setStatus(SagaTransaction.SagaStatus.COMPLETED);
-            sagaTransactionRepository.save(sagaTransaction);
-
-            // get user detail from user-service
-            var userInfo = userFeignClient.getUserDetails(Long.valueOf(sagaTransaction.getUserId()));
-
-            TicketBookedEvent ticketEvent = null;
-            if (userInfo.getBody() != null)
-                ticketEvent = convertToTicketBookedEvent(sagaTransaction, userInfo.getBody().getResult());
-
-            // send succeed booking event to broker
-            eventProducer.sendMessage(ticketEvent);
-
-            log.info("Saga completed successfully for saga id: {}", sagaTransaction.getId());
-        } else {
-            // Payment failed - trigger compensation
-            log.error("Payment failed for saga id: {}, reason: {}",
-                    sagaTransaction.getId(), event.getMessage());
-            compensateBookingSaga(sagaTransaction);
-        }
-    }
-
-    private TicketBookedEvent convertToTicketBookedEvent(SagaTransaction sagaTransaction, UserInfoDto userInfo) {
-        TicketBookedEvent event = TicketBookedEvent.builder()
-                .userId(sagaTransaction.getUserId())
-                .paymentOrderCode(sagaTransaction.getPaymentOrderCode())
-                .email(userInfo.getEmail())
-                .fullName(userInfo.getFullName())
-                .status(sagaTransaction.getStatus().name())
-                .createdAt(sagaTransaction.getCreatedAt())
-                .amount(sagaTransaction.getAmount())
-                .paymentMethod(sagaTransaction.getPaymentMethod())
-                .build();
-        return event;
-    }
 
     private PaymentRequestDTO convertToPaymentRequestDto(SeminarTicketRequest seminarTicketRequest, Long sagaId) {
         PaymentRequestDTO paymentRequestDTO = PaymentRequestDTO.builder()

@@ -8,7 +8,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PaymentCallbackEvent {
-    private String paymentOrderCode;
+    private Long paymentOrderCode;  // Changed to Long to match payment-service
     private boolean success;
     private String message;
+    
+    // Helper method to get String version
+    public String getPaymentOrderCodeAsString() {
+        return paymentOrderCode != null ? paymentOrderCode.toString() : null;
+    }
 } 

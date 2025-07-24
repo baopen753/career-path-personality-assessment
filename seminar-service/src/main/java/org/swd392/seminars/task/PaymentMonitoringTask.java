@@ -32,9 +32,17 @@ public class PaymentMonitoringTask {
             if (saga.getCreatedAt().plusMinutes(15).isBefore(LocalDateTime.now())) {
                 log.warn("Payment timeout for sagaId: {}", saga.getId());
                 
-                // Trigger compensation
+                // Trigger compensation - Convert String paymentOrderCode to Long
+                Long paymentOrderCode = null;
+                try {
+                    paymentOrderCode = Long.parseLong(saga.getPaymentOrderCode());
+                } catch (NumberFormatException e) {
+                    log.error("Invalid payment order code format: {}", saga.getPaymentOrderCode());
+                    continue;
+                }
+                
                 PaymentCallbackEvent event = new PaymentCallbackEvent(
-                    saga.getPaymentOrderCode(),
+                    paymentOrderCode,  // Now Long instead of String
                     false, 
                     "Payment timeout"
                 );
