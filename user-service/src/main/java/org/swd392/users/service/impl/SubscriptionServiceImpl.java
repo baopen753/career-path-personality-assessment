@@ -33,7 +33,8 @@ public class SubscriptionServiceImpl implements ISubscriptionService {
     private final PaymentFeignClient paymentFeignClient;
     private final PackageRepository packageRepository;
 
-    public SubscriptionServiceImpl(IUserService userService, SubscriptionRepository subscriptionRepository, PaymentFeignClient paymentFeignClient, PackageRepository packageRepository) {
+    public SubscriptionServiceImpl(IUserService userService, SubscriptionRepository subscriptionRepository,
+            PaymentFeignClient paymentFeignClient, PackageRepository packageRepository) {
         this.userService = userService;
         this.subscriptionRepository = subscriptionRepository;
         this.paymentFeignClient = paymentFeignClient;
@@ -45,8 +46,7 @@ public class SubscriptionServiceImpl implements ISubscriptionService {
     public PaymentInitiationResponse upgrade(Long userId) {
 
         User userInDb = userService.getUserById(userId).orElseThrow(
-                () -> new UserNotFoundException("User not found with id: " + userId)
-        );
+                () -> new UserNotFoundException("User not found with id: " + userId));
 
         // check current package type, only upgrade for STANDARD --> PREMIUM
         if (!userInDb.getCurrentPackage().equalsIgnoreCase("standard"))
@@ -71,9 +71,9 @@ public class SubscriptionServiceImpl implements ISubscriptionService {
             subscriptionRepository.save(newSubscription);
 
             // Extract payment details
-            String paymentOrderCode = String.valueOf(response.getBody() != null ? response.getBody().getOrderCode() : null);
+            String paymentOrderCode = String
+                    .valueOf(response.getBody() != null ? response.getBody().getOrderCode() : null);
             String checkoutUrl = response.getBody() != null ? response.getBody().getCheckoutUrl() : null;
-
 
             log.info("Payment initiated for upgrading subscription: payment order code: {}, checkout URL: {}",
                     paymentOrderCode, checkoutUrl);
@@ -94,14 +94,15 @@ public class SubscriptionServiceImpl implements ISubscriptionService {
     }
 
     @Transactional
-    @EventListener    // succeed message only sent after transaction commits
+    @EventListener // succeed message only sent after transaction commits
     public void handlePaymentCallback(PaymentCallbackEvent event) {
         log.info("Received payment callback for payment order code: {}, success: {}",
                 event.getPaymentOrderCode(), event.isSuccess());
 
         Subscription subscription = subscriptionRepository
                 .findSubscriptionByPaymentOrderCode(event.getPaymentOrderCode())
-                .orElseThrow(() -> new SubscriptionNotFoundException("Subscription not found for payment order code: " + event.getPaymentOrderCode()));
+                .orElseThrow(() -> new SubscriptionNotFoundException(
+                        "Subscription not found for payment order code: " + event.getPaymentOrderCode()));
 
         if (event.isSuccess()) {
 
@@ -130,4 +131,7 @@ public class SubscriptionServiceImpl implements ISubscriptionService {
         subscription.setCreatedAt(LocalDateTime.now());
         return subscription;
     }
+
 }
+
+    

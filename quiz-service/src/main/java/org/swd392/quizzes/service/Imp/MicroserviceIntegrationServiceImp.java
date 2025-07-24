@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,8 +26,7 @@ public class MicroserviceIntegrationServiceImp {
 
     public PersonalityResultDTO enrichPersonalityResult(PersonalityResultDTO result) {
         try {
-            log.info("Enriching personality result with recommendations for type: {}", result.getPersonalityCode());
-
+            //get personality standard để acces vào career_mapping_personality
             Optional<PersonalityStandard> standardOpt = personalityStandardRepository
                     .findByPersonalityCode(result.getPersonalityCode());
 
@@ -35,14 +35,14 @@ public class MicroserviceIntegrationServiceImp {
                 String careerMappings = standard.getCareerMappingPersonality();
 
                 if (careerMappings != null && !careerMappings.isEmpty()) {
+                    // Split career mappings và clean data
                     List<String> mappedCareers = Arrays.stream(careerMappings.split(","))
                             .map(String::trim)
                             .filter(s -> !s.isEmpty())
                             .collect(Collectors.toList());
 
-                    log.info("Searching for careers matching: {}", mappedCareers);
-
-                    ApiResponse<List<CareerRecommendationResponse>> careersResponse = careerServiceClient.searchCareersByName(mappedCareers);
+                    ApiResponse<List<CareerRecommendationResponse>> careersResponse =
+                            careerServiceClient.searchCareersByName(mappedCareers);
 
                     if (careersResponse == null || careersResponse.getResult() == null || careersResponse.getResult().isEmpty()) {
                         log.warn("No careers found matching the personality mapping");
@@ -52,32 +52,28 @@ public class MicroserviceIntegrationServiceImp {
 
                     List<CareerRecommendationResponse> careers = careersResponse.getResult();
 
+                    List<String> formattedCareers = formatCareerRecommendations(careers);
+                    result.setCareerRecommendations(formattedCareers);
+
                     List<String> careerNames = careers.stream()
                             .map(CareerRecommendationResponse::getName)
                             .collect(Collectors.toList());
-
-                    log.info("Found {} matching careers, searching universities with majors: {}",
-                            careers.size(), careerNames);
 
                     ApiResponse<List<UniversityRecommendationResponse>> universitiesResponse = universityServiceClient
                             .getUniversitiesByPrograms(careerNames);
 
                     if (universitiesResponse == null || universitiesResponse.getResult() == null) {
                         log.warn("Failed to get university recommendations");
-                        result.setUniversityRecommendations("University recommendations are currently unavailable");
+                        result.setUniversityRecommendations(Collections.singletonList(
+                                "University recommendations are currently unavailable"
+                        ));
                         return result;
                     }
 
                     List<UniversityRecommendationResponse> universities = universitiesResponse.getResult();
+                    List<String> formattedUniversities = formatUniversityRecommendations(universities);
+                    result.setUniversityRecommendations(formattedUniversities);
 
-                    String formattedCareerRecommendations = formatCareerRecommendations(careers);
-                    String formattedUniversityRecommendations = formatUniversityRecommendations(universities);
-
-                    result.setCareerRecommendations(formattedCareerRecommendations);
-                    result.setUniversityRecommendations(formattedUniversityRecommendations);
-
-                    log.info("Successfully enriched personality result with {} careers and {} universities",
-                            careers.size(), universities.size());
                 } else {
                     log.warn("No career mappings found for personality type: {}", result.getPersonalityCode());
                     setDefaultRecommendations(result);
@@ -96,35 +92,67 @@ public class MicroserviceIntegrationServiceImp {
         }
     }
 
-    private String formatCareerRecommendations(List<CareerRecommendationResponse> careers) {
-        if (careers.isEmpty()) {
-            return "No specific career recommendations available for this personality type.";
+    private List<String> formatCareerRecommendations(List<CareerRecommendationResponse> careers) {
+        if (careers == null || careers.isEmpty()) {
+            return Collections.singletonList("No specific career recommendations available for this personality type.");
         }
 
         return careers.stream()
-                .map(career -> String.format("Career: %s\n- Description: %s",
-                        career.getName(),
-                        career.getDescription()))
-                .collect(Collectors.joining("\n\n"));
+                .map(career -> {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(String.format("Career: %s", career.getName())).append("\n");
+
+                    if (career.getDescription() != null && !career.getDescription().isEmpty()) {
+                        sb.append(String.format("- Description: %s", career.getDescription())).append("\n");
+                    }
+
+                    return sb.toString().trim();
+                })
+                .collect(Collectors.toList());
     }
 
-    private String formatUniversityRecommendations(List<UniversityRecommendationResponse> universities) {
-        if (universities.isEmpty()) {
-            return "No specific university recommendations available for these career paths.";
+    private List<String> formatUniversityRecommendations(List<UniversityRecommendationResponse> universities) {
+        if (universities == null || universities.isEmpty()) {
+            return Collections.singletonList("No specific university recommendations available for these career paths.");
         }
 
         return universities.stream()
-                .map(uni -> String.format("University: %s\n- Location: %s\n- Major: %s\n- Contact: %s\n- Description: %s",
-                        uni.getName(),
-                        uni.getLocation(),
-                        uni.getMajor(),
-                        uni.getHotline(),
-                        uni.getDescription()))
-                .collect(Collectors.joining("\n\n"));
+                .map(uni -> {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(String.format("University: %s", uni.getName())).append("\n");
+
+                    if (uni.getLocation() != null && !uni.getLocation().isEmpty()) {
+                        sb.append(String.format("- Location: %s", uni.getLocation())).append("\n");
+                    }
+
+                    if (uni.getMajor() != null && !uni.getMajor().isEmpty()) {
+                        sb.append(String.format("- Major: %s", uni.getMajor())).append("\n");
+                    }
+
+                    if (uni.getHotline() != null && !uni.getHotline().isEmpty()) {
+                        sb.append(String.format("- Contact: %s", uni.getHotline())).append("\n");
+                    }
+
+                    if (uni.getDescription() != null && !uni.getDescription().isEmpty()) {
+                        sb.append(String.format("- Description: %s", uni.getDescription())).append("\n");
+                    }
+
+                    return sb.toString().trim();
+                })
+                .collect(Collectors.toList());
     }
 
     private void setDefaultRecommendations(PersonalityResultDTO result) {
-        result.setCareerRecommendations("Career recommendations are currently unavailable. Please consult with a career advisor.");
-        result.setUniversityRecommendations("University recommendations are currently unavailable. Please check back later.");
+        result.setCareerRecommendations(Collections.singletonList(
+                "Career: General Career Advice\n" +
+                        "- Description: We couldn't find specific career recommendations for your personality type. " +
+                        "Consider speaking with a career advisor for personalized guidance."
+        ));
+
+        result.setUniversityRecommendations(Collections.singletonList(
+                "University: General University Information\n" +
+                        "- Description: Specific university recommendations are not available at this time. " +
+                        "Please check back later or contact university admissions offices for more information."
+        ));
     }
 }

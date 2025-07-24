@@ -7,7 +7,7 @@ spring:
   application:
     name: user
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:userdb}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:UserDB}
     driverClassName: org.postgresql.Driver
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:12345}
@@ -48,7 +48,6 @@ spring:
 rabbitmq:
   exchange: user.registered.direct.exchange
   routing-key: user.registered
-
 
 # config actuator endpoints
 management:

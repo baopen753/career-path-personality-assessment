@@ -31,11 +31,9 @@ public class QuizOptionServiceImp implements QuizOptionService {
     @Cacheable(value = "quiz-options", key = "#questionId")
     @Transactional(readOnly = true)
     public List<QuizOptionsDTO> getOptionsByQuestionId(Long questionId) {
-        log.debug("Fetching options for question ID: {} (checking cache first)", questionId);
 
         long startTime = System.currentTimeMillis();
 
-        // Verify question exists
         if (!quizQuestionRepository.existsById(questionId)) {
             throw new QuizNotFoundException("Quiz question not found with id: " + questionId);
         }
@@ -53,13 +51,11 @@ public class QuizOptionServiceImp implements QuizOptionService {
 
     @Transactional(readOnly = true)
     public List<QuizOptionsDTO> getOptionsByQuestionIds(List<Long> questionIds) {
-        log.debug("Fetching options for {} questions", questionIds.size());
 
         if (questionIds == null || questionIds.isEmpty()) {
             return List.of();
         }
 
-        // Verify all questions exist
         List<QuizQuestion> questions = quizQuestionRepository.findAllById(questionIds);
         if (questions.size() != questionIds.size()) {
             throw new QuizNotFoundException("One or more quiz questions not found");
@@ -73,7 +69,6 @@ public class QuizOptionServiceImp implements QuizOptionService {
 
     @Transactional(readOnly = true)
     public List<QuizOptionsDTO> getOptionsByTargetTrait(String targetTrait) {
-        log.debug("Fetching options for target trait: {}", targetTrait);
 
         if (targetTrait == null || targetTrait.trim().isEmpty()) {
             throw new InvalidQuizSubmissionException("Target trait cannot be empty");
@@ -87,7 +82,6 @@ public class QuizOptionServiceImp implements QuizOptionService {
 
     @Transactional(readOnly = true)
     public List<QuizOptionsDTO> getOptionsByScoreValue(QuizOptions.ScoreValue scoreValue) {
-        log.debug("Fetching options for score value: {}", scoreValue);
 
         if (scoreValue == null) {
             throw new InvalidQuizSubmissionException("Score value cannot be null");
@@ -101,7 +95,6 @@ public class QuizOptionServiceImp implements QuizOptionService {
 
     @Transactional(readOnly = true)
     public QuizOptionsDTO getOptionById(Long id) {
-        log.debug("Fetching option with ID: {}", id);
 
         QuizOptions option = quizOptionsRepository.findById(id)
                 .orElseThrow(() -> new QuizNotFoundException("Quiz option not found with id: " + id));
@@ -111,11 +104,9 @@ public class QuizOptionServiceImp implements QuizOptionService {
 
     @CacheEvict(value = "quiz-options", key = "#optionDTO.questionId")
     public QuizOptionsDTO createOption(QuizOptionsDTO optionDTO) {
-        log.info("Creating new option for question ID: {}", optionDTO.getQuestionId());
 
         validateOptionDTO(optionDTO);
 
-        // Verify question exists
         if (!quizQuestionRepository.existsById(optionDTO.getQuestionId())) {
             throw new QuizNotFoundException("Quiz question not found with id: " + optionDTO.getQuestionId());
         }
@@ -129,7 +120,6 @@ public class QuizOptionServiceImp implements QuizOptionService {
 
     @CacheEvict(value = "quiz-options", allEntries = true)
     public List<QuizOptionsDTO> createOptions(List<QuizOptionsDTO> optionDTOs) {
-        log.info("Creating {} new options", optionDTOs.size());
 
         if (optionDTOs == null || optionDTOs.isEmpty()) {
             throw new InvalidQuizSubmissionException("Options list cannot be empty");
@@ -167,7 +157,6 @@ public class QuizOptionServiceImp implements QuizOptionService {
 
     @CacheEvict(value = "quiz-options", key = "#optionDTO.questionId")
     public QuizOptionsDTO updateOption(Long id, QuizOptionsDTO optionDTO) {
-        log.info("Updating option with ID: {}", id);
 
         QuizOptions existingOption = quizOptionsRepository.findById(id)
                 .orElseThrow(() -> new QuizNotFoundException("Quiz option not found with id: " + id));
@@ -193,7 +182,6 @@ public class QuizOptionServiceImp implements QuizOptionService {
 
     @CacheEvict(value = "quiz-options", key = "#questionId")
     public void deleteOptionsByQuestionId(Long questionId) {
-        log.info("Deleting all options for question ID: {}", questionId);
 
         if (!quizQuestionRepository.existsById(questionId)) {
             throw new QuizNotFoundException("Quiz question not found with id: " + questionId);
@@ -210,8 +198,6 @@ public class QuizOptionServiceImp implements QuizOptionService {
 
     @Transactional(readOnly = true)
     public long countOptionsByQuestionId(Long questionId) {
-        log.debug("Counting options for question ID: {}", questionId);
-
         return quizOptionsRepository.countByQuestionId(questionId);
     }
 
@@ -222,7 +208,6 @@ public class QuizOptionServiceImp implements QuizOptionService {
 
     @Transactional(readOnly = true)
     public List<QuizOptionsDTO> getOptionsGroupedByTargetTrait(Long questionId, String targetTrait) {
-        log.debug("Fetching options for question ID: {} and target trait: {}", questionId, targetTrait);
 
         if (!quizQuestionRepository.existsById(questionId)) {
             throw new QuizNotFoundException("Quiz question not found with id: " + questionId);

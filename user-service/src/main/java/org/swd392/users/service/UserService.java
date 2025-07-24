@@ -16,9 +16,7 @@ import org.swd392.users.entity.UserProfile;
 import org.swd392.users.repository.RoleRepository;
 import org.swd392.users.repository.UserRepository;
 import org.swd392.users.service.impl.IUserService;
-import org.swd392.users.service.client.NotificationFeignClient;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
