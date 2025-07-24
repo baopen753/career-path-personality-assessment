@@ -4,7 +4,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 
@@ -27,14 +28,15 @@ public class QuizResult {
     @Column(name = "attempt_order")
     private Integer attemptOrder;
 
-    @Column(name = "result_json", columnDefinition = "jsonb")
+    @Column(name = "result_json")
+    @JdbcTypeCode(SqlTypes.JSON)
     private String resultJson;
 
     @Column(name = "quiz_id", nullable = false)
     private Long quizId;
 
     @Column(name = "user_id", nullable = false)
-    private Long userId;
+    private Long userId; // Changed from String to Long to match user-service
 
     @Column(name = "personality_id")
     private Long personalityId;

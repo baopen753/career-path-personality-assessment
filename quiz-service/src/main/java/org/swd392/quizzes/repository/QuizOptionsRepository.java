@@ -12,13 +12,11 @@ import java.util.List;
 public interface QuizOptionsRepository extends JpaRepository<QuizOptions, Long> {
 
     List<QuizOptions> findByQuestionId(Long questionId);
-
+    List<QuizOptions> findByQuestionIdIn(List<Long> questionIds);
     List<QuizOptions> findByTargetTrait(String targetTrait);
-
-    @Query("SELECT qo FROM QuizOptions qo WHERE qo.questionId IN :questionIds")
-    List<QuizOptions> findByQuestionIds(@Param("questionIds") List<Long> questionIds);
-
-    @Query("SELECT COUNT(qo) FROM QuizOptions qo WHERE qo.questionId = :questionId")
-    Long countByQuestionId(@Param("questionId") Long questionId);
+    List<QuizOptions> findByScoreValue(QuizOptions.ScoreValue scoreValue);
+    List<QuizOptions> findByQuestionIdAndTargetTrait(Long questionId, String targetTrait);
+    long countByQuestionId(Long questionId);
+    void deleteByQuestionId(Long questionId);
 }
 

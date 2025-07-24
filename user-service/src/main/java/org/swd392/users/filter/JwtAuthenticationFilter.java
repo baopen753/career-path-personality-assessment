@@ -14,10 +14,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.swd392.users.entity.User;
 import org.swd392.users.repository.UserRepository;
 import org.swd392.users.service.JwtService;
-import org.springframework.util.AntPathMatcher;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -29,35 +29,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private UserRepository userRepository;
 
-    private final AntPathMatcher pathMatcher = new AntPathMatcher();
-
-    private static final String[] PUBLIC_ENDPOINTS = {
+    private static final List<String> EXCLUDED_URLS = List.of(
+            "/v3/api-docs",
+            "/v3/api-docs/",
+            "/v3/api-docs/swagger-config",
+            "/swagger-ui.html",
+            "/swagger-ui/",
+            "/swagger-ui/index.html",
+            "/swagger-resources",
+            "/swagger-resources/",
+            "/webjars/",
             "/authentication/register",
             "/authentication/login",
-            "/authentication/logout",
-            "/v3/api-docs/**",
-            "/api-docs/**",
-            "/swagger-ui.html",
-            "/swagger-ui/**",
-            "/swagger-resources/**",
-            "/webjars/**"
-    };
-
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path = request.getServletPath();
-        for (String pattern : PUBLIC_ENDPOINTS) {
-            if (pathMatcher.match(pattern, path)) {
-                return true;
-            }
-        }
-        return false;
-    }
+            "/authentication/logout"
+    );
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+
+        if (shouldNotFilter(request)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         final String authenticationHeader = request.getHeader("Authorization");
 
         if (authenticationHeader == null || !authenticationHeader.startsWith("Bearer ")) {
@@ -87,5 +83,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+        return EXCLUDED_URLS.stream().anyMatch(path::equalsIgnoreCase)
+                || EXCLUDED_URLS.stream().anyMatch(path::startsWith);
+
     }
 }

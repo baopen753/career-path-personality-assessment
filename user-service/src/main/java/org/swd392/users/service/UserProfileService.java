@@ -2,8 +2,11 @@ package org.swd392.users.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.swd392.users.entity.Package;
 import org.swd392.users.entity.User;
 import org.swd392.users.entity.UserProfile;
+import org.swd392.users.exception.PackageNotFoundException;
+import org.swd392.users.repository.PackageRepository;
 import org.swd392.users.repository.UserProfileRepository;
 import org.swd392.users.repository.UserRepository;
 import org.swd392.users.dto.UserProfileDto;
@@ -20,8 +23,55 @@ public class UserProfileService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PackageRepository packageRepository;
+
     public Optional<UserProfile> getProfileByUserId(Long userId) {
         return profileRepository.findByUserId(userId);
+    }
+
+    public UserProfile createProfile(Long userId, UserProfileDto profileDetails) {
+        // Check if profile already exists
+        Optional<UserProfile> existingProfile = profileRepository.findByUserId(userId);
+        if (existingProfile.isPresent()) {
+            throw new RuntimeException("Profile already exists for user ID: " + userId);
+        }
+
+        // Get user from DB
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+
+        // Create new UserProfile
+        UserProfile profile = new UserProfile();
+        profile.setUser(user);
+        profile.setFullName(profileDetails.getFullName());
+        profile.setBirthDay(profileDetails.getBirthDay());
+        profile.setGender(profileDetails.getGender());
+        profile.setPhoneNumber(profileDetails.getPhoneNumber());
+        profile.setAddress(profileDetails.getAddress());
+        profile.setImageUrl(profileDetails.getImageUrl());
+        profile.setSchool(profileDetails.getSchool());
+
+        // Save to DB
+        return profileRepository.save(profile);
+    }
+
+    public UserProfile updateUserProfile(Long userId, UserProfileDto profileDetails) {
+        // Find existing profile
+        UserProfile profile = profileRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Profile not found for user ID: " + userId));
+
+        // Update profile data
+        profile.setFullName(profileDetails.getFullName());
+        profile.setBirthDay(profileDetails.getBirthDay());
+        profile.setGender(profileDetails.getGender());
+        profile.setPhoneNumber(profileDetails.getPhoneNumber());
+        profile.setAddress(profileDetails.getAddress());
+        profile.setImageUrl(profileDetails.getImageUrl());
+        profile.setSchool(profileDetails.getSchool());
+
+        // Save to DB
+        return profileRepository.save(profile);
     }
 
     public UserProfile createOrUpdateProfile(Long userId, UserProfileDto profileDetails) {
@@ -41,15 +91,9 @@ public class UserProfileService {
         profile.setAddress(profileDetails.getAddress());
         profile.setImageUrl(profileDetails.getImageUrl());
         profile.setSchool(profileDetails.getSchool());
-        profile.setAccountType(profileDetails.getAccountType());
 
         // Lưu vào DB
         return profileRepository.save(profile);
-    }
-
-    public UserProfile updateUserProfile(Long userId, UserProfileDto profileDetails) {
-        // Tương tự như createOrUpdateProfile
-        return createOrUpdateProfile(userId, profileDetails);
     }
 
     public boolean deleteProfile(Long userId) {

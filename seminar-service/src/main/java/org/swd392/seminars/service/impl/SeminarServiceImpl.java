@@ -2,8 +2,10 @@ package org.swd392.seminars.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 import org.swd392.seminars.entity.Seminar;
 import org.swd392.seminars.exception.ResourceNotFoundException;
 import org.swd392.seminars.exception.SeminarTicketException;
@@ -12,7 +14,13 @@ import org.swd392.seminars.payload.request.SeminarRequest;
 import org.swd392.seminars.payload.response.SeminarResponse;
 import org.swd392.seminars.repository.SeminarRepository;
 import org.swd392.seminars.service.SeminarService;
+import org.swd392.seminars.service.client.NotificationFeignClient;
+import org.swd392.seminars.service.client.UserFeignClient;
+import org.swd392.seminars.event.SeminarApprovedEvent;
+import org.swd392.seminars.event.producer.EventProducer;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,27 +30,24 @@ import java.util.stream.Collectors;
 public class SeminarServiceImpl implements SeminarService {
 
     private final SeminarRepository seminarRepository;
+    private final UserFeignClient userFeignClient;
+    private final NotificationFeignClient notificationFeignClient;
+    private final RestTemplate restTemplate;
+    private final EventProducer<SeminarApprovedEvent> seminarApprovedEventProducer;
 
     @Override
     @Transactional
     public SeminarResponse createSeminar(Integer eventManagerId, SeminarRequest request) {
         log.info("Creating new seminar by event manager ID: {} with request: {}", eventManagerId, request);
         try {
-            // Validate required fields
-            if (request.getTitle() == null || request.getTitle().trim().isEmpty()) {
-                throw new SeminarTicketException("Title is required");
+
+            // Validate that starting time is not in the past (Bean Validation @Future handles this, but we double-check for better error messages)
+            if (request.getStartingTime().isBefore(LocalDateTime.now())) {
+                throw new SeminarTicketException("Starting time cannot be in the past");
             }
-            if (request.getDescription() == null || request.getDescription().trim().isEmpty()) {
-                throw new SeminarTicketException("Description is required");
-            }
-            if (request.getDuration() == null || request.getDuration() <= 0) {
-                throw new SeminarTicketException("Duration must be greater than 0");
-            }
-            if (request.getPrice() == null || request.getPrice() < 0) {
-                throw new SeminarTicketException("Price cannot be negative");
-            }
-            if (request.getSlot() == null || request.getSlot() <= 0) {
-                throw new SeminarTicketException("Slot must be greater than 0");
+            // Validate ending time after starting time
+            if (request.getEndingTime().isBefore(request.getStartingTime()) || request.getEndingTime().isEqual(request.getStartingTime())) {
+                throw new SeminarTicketException("Ending time must be after starting time");
             }
 
             // Create and save seminar
@@ -57,6 +62,8 @@ public class SeminarServiceImpl implements SeminarService {
                 seminar.setCreateBy(eventManagerId);
                 seminar.setPrice(request.getPrice());
                 seminar.setImageUrl(request.getImageUrl());
+                seminar.setStartingTime(request.getStartingTime());
+                seminar.setEndingTime(request.getEndingTime());
                 seminar.setStatus(Seminar.Status.PENDING);
                 seminar.setStatusApprove(Seminar.StatusApprove.PENDING);
 
@@ -81,6 +88,7 @@ public class SeminarServiceImpl implements SeminarService {
     @Override
     public SeminarResponse updateSeminar(Integer eventManagerId, Integer seminarId, SeminarRequest request) {
         log.info("Updating seminar ID: {} by event manager ID: {}", seminarId, eventManagerId);
+
         
         Seminar seminar = seminarRepository.findById(seminarId)
                 .orElseThrow(() -> new ResourceNotFoundException("Seminar not found with ID: " + seminarId));
@@ -93,6 +101,11 @@ public class SeminarServiceImpl implements SeminarService {
             throw new SeminarTicketException("Can only update pending seminars");
         }
 
+        // Validate that starting time is not in the past for updates
+        if (request.getStartingTime().isBefore(LocalDateTime.now())) {
+            throw new SeminarTicketException("Starting time cannot be in the past");
+        }
+
         seminar.setTitle(request.getTitle());
         seminar.setDescription(request.getDescription());
         seminar.setDuration(request.getDuration());
@@ -101,6 +114,8 @@ public class SeminarServiceImpl implements SeminarService {
         seminar.setSlot(request.getSlot());
         seminar.setPrice(request.getPrice());
         seminar.setImageUrl(request.getImageUrl());
+        seminar.setStartingTime(request.getStartingTime());
+        seminar.setEndingTime(request.getEndingTime());
 
         Seminar updatedSeminar = seminarRepository.save(seminar);
         log.info("Successfully updated seminar ID: {}", seminarId);
@@ -156,7 +171,7 @@ public class SeminarServiceImpl implements SeminarService {
     @Override
     public SeminarResponse approveSeminar(Integer adminId, Integer seminarId, Seminar.StatusApprove status) {
         log.info("Admin ID: {} approving seminar ID: {} with status: {}", adminId, seminarId, status);
-        
+
         Seminar seminar = seminarRepository.findById(seminarId)
                 .orElseThrow(() -> new ResourceNotFoundException("Seminar not found with ID: " + seminarId));
 
@@ -165,21 +180,45 @@ public class SeminarServiceImpl implements SeminarService {
         }
 
         seminar.setStatusApprove(status);
-        
+
+        // Lấy thông tin manager từ user-service qua Feign
+        var userInfoResponse = userFeignClient.getUserDetails(Long.valueOf(seminar.getCreateBy()));
+        String managerEmail = null;
+        String managerFullName = null;
+        if (userInfoResponse.getBody() != null && userInfoResponse.getBody().getResult() != null) {
+            managerEmail = userInfoResponse.getBody().getResult().getEmail();
+            managerFullName = userInfoResponse.getBody().getResult().getFullName();
+        }
+        // Format thời gian duyệt
+        String approvedAtStr = java.time.LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"));
+        // Gửi event qua RabbitMQ cho cả APPROVED và REJECTED
+        SeminarApprovedEvent event = SeminarApprovedEvent.builder()
+                .seminarId(seminar.getId())
+                .seminarTitle(seminar.getTitle())
+                .managerEmail(managerEmail)
+                .managerFullName(managerFullName)
+                .approvedAt(approvedAtStr)
+                .statusApprove(status.name())
+                .build();
+        seminarApprovedEventProducer.sendMessage(event);
+
         if (status == Seminar.StatusApprove.APPROVED) {
             seminar.setStatus(Seminar.Status.PENDING); // Event manager will manage the status after approval
         } else if (status == Seminar.StatusApprove.REJECTED) {
             seminar.setStatus(Seminar.Status.CANCELLED);
         }
-
         Seminar updatedSeminar = seminarRepository.save(seminar);
+
         log.info("Successfully updated seminar ID: {} status to: {}", seminarId, status);
         return mapToResponse(updatedSeminar);
     }
 
+
+
     @Override
     public SeminarResponse updateStatus(Integer eventManagerId, Integer seminarId, Seminar.Status status) {
         log.info("Event manager ID: {} updating seminar ID: {} status to: {}", eventManagerId, seminarId, status);
+
         
         Seminar seminar = seminarRepository.findById(seminarId)
                 .orElseThrow(() -> new ResourceNotFoundException("Seminar not found with ID: " + seminarId));
@@ -214,9 +253,12 @@ public class SeminarServiceImpl implements SeminarService {
 
     @Override
     public List<SeminarResponse> getApprovedSeminars() {
-        log.info("Getting all approved seminars");
+        log.info("Getting all approved and ongoing seminars");
         try {
-            List<Seminar> seminars = seminarRepository.findByStatusApprove(Seminar.StatusApprove.APPROVED);
+            List<Seminar> seminars = seminarRepository.findByStatusAndStatusApprove(
+                    Seminar.Status.ONGOING, 
+                    Seminar.StatusApprove.APPROVED
+            );
             return seminars.stream()
                     .map(this::mapToResponse)
                     .collect(Collectors.toList());
@@ -240,6 +282,8 @@ public class SeminarServiceImpl implements SeminarService {
         response.setCreateBy(seminar.getCreateBy());
         response.setPrice(seminar.getPrice());
         response.setImageUrl(seminar.getImageUrl());
+        response.setStartingTime(seminar.getStartingTime());
+        response.setEndingTime(seminar.getEndingTime());
         return response;
     }
-} 
+}

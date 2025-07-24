@@ -1,0 +1,24 @@
+name: career-path-personality-assessment
+
+services:
+  payment:
+    image: baopen753/payment:1.0
+    container_name: payment
+    ports:
+      - "8086:8086"
+    environment:
+      SPRING_APPLICATION_NAME: payment
+      WEBHOOK_BASE_URI: ${WEBHOOK_BASE_URI}
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "curl --fail --silent localhost:8086/actuator/health | grep UP || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - swd392
+
+networks:
+  swd392:
+    external: true

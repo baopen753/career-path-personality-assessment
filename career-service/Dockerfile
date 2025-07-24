@@ -4,6 +4,6 @@ WORKDIR /app
 
 COPY target/career-service-1.0.jar app.jar
 
-EXPOSE 8080
+EXPOSE 8085
 
 CMD ["java", "-jar", "app.jar"]

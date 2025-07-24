@@ -1,4 +1,5 @@
 package org.swd392.quizzes.dto;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -20,5 +21,5 @@ public class QuizRequestDTO {
     private String description;
 
     @Positive(message = "Question quality must be positive")
-    private Integer questionQuality;
+    private Integer questionQuantity;
 }

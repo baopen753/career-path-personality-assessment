@@ -1,0 +1,227 @@
+name: career-path-personality-assessment
+
+services:
+  eurekaserver:
+    image: baopen753/eurekaserver:1.0
+    container_name: eurekaserver
+    ports:
+      - "8761:8761"
+    environment:
+      SPRING_APPLICATION_NAME: "eurekaserver"
+      EUREKA_HOSTNAME: "eurekaserver"
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "curl --fail --silent localhost:8761/actuator/health | grep UP || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - swd392
+    restart: on-failure
+
+  gatewayserver:
+    image: baopen753/gatewayserver:1.0
+    container_name: gatewayserver
+    ports:
+      - "8072:8072"
+    environment:
+      SPRING_APPLICATION_NAME: gatewayserver
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "curl --fail --silent localhost:8072/actuator/health | grep UP || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    depends_on:
+      - eurekaserver
+    networks:
+      - swd392
+    restart: on-failure
+
+  user:
+    image: baopen753/user:1.0
+    container_name: user
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_APPLICATION_NAME: user
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: userDb
+      DB_USERNAME: root
+      DB_PASSWORD: root
+      RABBITMQ_HOST: rabbitmq
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "curl --fail --silent localhost:8080/actuator/health | grep UP || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    depends_on:
+      - postgres
+      - rabbitmq
+      - eurekaserver
+    networks:
+      - swd392
+    restart: on-failure
+
+  notification:
+    image: baopen753/notification:1.0
+    container_name: notification
+    ports:
+      - "8084:8084"
+    environment:
+      SPRING_APPLICATION_NAME: notification
+      RABBITMQ_HOST: rabbitmq
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "curl --fail --silent localhost:8084/actuator/health | grep UP || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    depends_on:
+      - rabbitmq
+    networks:
+      - swd392
+    restart: on-failure
+
+  career:
+    image: baopen753/career:1.0
+    container_name: career
+    ports:
+      - "8085:8085"
+    environment:
+      SPRING_APPLICATION_NAME: career
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka
+      MONGODB_HOST: mongodb
+      MONGODB_PORT: 27017
+      MONGODB_DATABASE: careerDb
+      MONGODB_USERNAME: root
+      MONGODB_PASSWORD: root
+      MONGODB_AUTH_DB: admin
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "curl --fail --silent localhost:8085/actuator/health | grep UP || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    depends_on:
+      - mongodb
+      - eurekaserver
+    networks:
+      - swd392
+    restart: on-failure
+
+  university:
+    image: baopen753/university:1.0
+    container_name: university
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_APPLICATION_NAME: university
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka
+      MONGODB_HOST: mongodb
+      MONGODB_PORT: 27017
+      MONGODB_DATABASE: universityDb
+      MONGODB_USERNAME: root
+      MONGODB_PASSWORD: root
+      MONGODB_AUTH_DB: admin
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "curl --fail --silent localhost:8081/actuator/health | grep UP || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    depends_on:
+      - mongodb
+      - eurekaserver
+    networks:
+      - swd392
+    restart: on-failure
+
+  quiz:
+    image: baopen753/quiz:1.0
+    container_name: quiz
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_APPLICATION_NAME: quiz
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: quizDb
+      DB_USERNAME: root
+      DB_PASSWORD: root
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "curl --fail --silent localhost:8083/actuator/health | grep UP || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    depends_on:
+      - postgres
+      - eurekaserver
+    networks:
+      - swd392
+    restart: on-failure
+
+  chatbox:
+    image: baopen753/chatbox:1.0
+    container_name: chatbox
+    ports:
+      - "8087:8087"
+    environment:
+      SPRING_APPLICATION_NAME: chatbox
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: chatAIDb
+      DB_USERNAME: root
+      DB_PASSWORD: root
+      GEMINI_API_KEY: AIzaSyAcmMJeavWAS6k8BI3thSXQgH86jJatO80
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "curl --fail --silent localhost:8087/actuator/health | grep UP || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    depends_on:
+      - postgres
+      - eurekaserver
+    networks:
+      - swd392
+    restart: on-failure
+
+  seminar:
+    image: baopen753/seminar:1.0
+    container_name: seminar
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_APPLICATION_NAME: seminar
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: seminarDb
+      DB_USERNAME: root
+      DB_PASSWORD: root
+      RABBITMQ_HOST: rabbitmq
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "curl --fail --silent localhost:8082/actuator/health | grep UP || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    depends_on:
+      - postgres
+      - rabbitmq
+      - eurekaserver
+    networks:
+      - swd392
+    restart: on-failure
+
+networks:
+  swd392:
+    external: true

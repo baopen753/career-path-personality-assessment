@@ -29,6 +29,7 @@ public class JwtService {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", user.getRole().getRoleName());
         claims.put("id", user.getId());
+        claims.put("email", user.getEmail());
         return createToken(claims, user.getEmail());
     }
 
@@ -47,6 +48,32 @@ public class JwtService {
         return !invalidatedTokens.contains(token)
                 && extractEmail(token).equals(user.getEmail())
                 && !isTokenExpired(token);
+    }
+
+    // Add missing methods for quiz-service integration
+    public boolean isValidToken(String token) {
+        try {
+            return !invalidatedTokens.contains(token) && !isTokenExpired(token);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public Long extractUserId(String token) {
+        return extractClaim(token, claims -> {
+            Object idClaim = claims.get("id");
+            if (idClaim instanceof Integer) {
+                return ((Integer) idClaim).longValue();
+            } else if (idClaim instanceof Long) {
+                return (Long) idClaim;
+            } else {
+                throw new RuntimeException("Invalid user ID type in token: " + idClaim.getClass());
+            }
+        });
+    }
+
+    public String extractRole(String token) {
+        return extractClaim(token, claims -> claims.get("role", String.class));
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {

@@ -1,10 +1,15 @@
 server:
-  port: 8080
+  port: 8086
+  servlet:
+    context-path: /payment
 
 spring:
   application:
     name: payment
 
+# Frontend configuration
+frontend:
+  url: http://localhost:5173  # Updated to correct React/Vite port
 
 # config actuator endpoints
 management:
@@ -29,7 +34,17 @@ eureka:
     fetch-registry: true # Tells eureka client to fetch the registry from the Eureka server
     register-with-eureka: true # tells eureka client to register itself with the Eureka server
     service-url:
-      defaultZone: http://localhost:8761/eureka  # URL of the Eureka server, this url can be hardcoded because it has only 1 Eureka server in the system
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka}
+
+
+# swagger-ui
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+
 
 
 # info of Eureka client on the Eureka Server Dashboard
@@ -38,3 +53,6 @@ info:
     name: ${spring.application.name}
     description: "This is quiz service in Career Path Personality Assessment System"
 
+
+webhook:
+  base-uri: ${WEBHOOK_BASE_URI:https://599050de7545.ngrok-free.app}

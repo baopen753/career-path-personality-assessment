@@ -1,13 +1,13 @@
 server:
-   port: 8083
-   servlet:
-     context-path: /quiz
+  port: 8083
+  servlet:
+    context-path: /quiz
 
 spring:
   application:
     name: quiz
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5434}/${DB_NAME:QuizDB}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:quizDb}
     driverClassName: org.postgresql.Driver
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:root}
@@ -19,6 +19,11 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+    defer-datasource-initialization: true # tell hibernate to run sql init
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:data.sql
   jackson:
     serialization:
       write-dates-as-timestamps: false
@@ -49,8 +54,7 @@ management:
         include: "*"  # Expose all actuator endpoints over HTTP
   endpoint:
     shutdown:
-      access: unrestricted  # Allow unrestricted access to the shutdown endpoint
-                            # NOTE: only use this shutdown endpoint config in dev env
+      enabled: true
   info:
     env:
       enabled: true         # show info env in /actuator/info
@@ -63,9 +67,8 @@ eureka:
   client:
     fetch-registry: true # Tells eureka client to fetch the registry from the Eureka server
     register-with-eureka: true # tells eureka client to register itself with the Eureka server
-
     service-url:
-        defaultZone: http://localhost:8761/eureka  # URL of the Eureka server, this url can be hardcoded because it has only 1 Eureka server in the system
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka}  # URL of the Eureka server, this url can be hardcoded because it has only 1 Eureka server in the system
 
 
 
@@ -74,3 +77,5 @@ info:
   app:
     name: ${spring.application.name}
     description: "This is quiz service in Career Path Personality Assessment System"
+    version: 1.0.0
+

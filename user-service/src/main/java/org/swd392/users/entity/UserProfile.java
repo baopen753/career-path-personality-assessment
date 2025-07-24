@@ -33,9 +33,7 @@ public class UserProfile {
     @Column(name = "school", length = 30)
     private String school;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "account_type", length = 20)
-    private AccountType accountType;
+
     @Enumerated(EnumType.STRING)
     private Gender gender;
 

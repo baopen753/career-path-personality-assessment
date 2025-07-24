@@ -3,15 +3,14 @@ server:
   servlet:
     context-path: /user
 
-
 spring:
   application:
     name: user
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5437}/${DB_NAME:UserDB}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:userdb}
     driverClassName: org.postgresql.Driver
-    username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:root}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:12345}
   jpa:
     hibernate:
       ddl-auto: create
@@ -25,6 +24,30 @@ spring:
     init:
       mode: always
       data-locations: classpath:data.sql  # Location of the data.sql file to initialize the database
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: testpersonality134@gmail.com
+    password: okjl jixz grdk qcuh
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+
+  # config connection with rabbitMQ broker
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: 5672
+    username: guest
+    password: guest
+
+  # config exchange for producer
+rabbitmq:
+  exchange: user.registered.direct.exchange
+  routing-key: user.registered
 
 
 # config actuator endpoints
@@ -50,8 +73,7 @@ eureka:
     fetch-registry: true # Tells eureka client to fetch the registry from the Eureka server
     register-with-eureka: true # tells eureka client to register itself with the Eureka server
     service-url:
-      defaultZone: http://localhost:8761/eureka  # URL of the Eureka server, this url can be hardcoded because it has only 1 Eureka server in the system
-
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka}
 
 # info of Eureka client on the Eureka Server Dashboard
 info:
@@ -68,3 +90,9 @@ logging:
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+
+notification:
+  service:
+    url: ${NOTIFICATION_SERVICE_URL:http://localhost:8083/notification}
+
+

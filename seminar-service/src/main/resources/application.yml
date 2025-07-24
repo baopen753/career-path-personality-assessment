@@ -2,16 +2,15 @@ server:
   port: 8082
   servlet:
     context-path: /seminar
- 
 
 spring:
   application:
     name: seminar
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5435}/${DB_NAME:seminarDb}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:seminarDb}
     driverClassName: org.postgresql.Driver
-    username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:root}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:12345}
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
@@ -21,6 +20,24 @@ spring:
   sql:
     init:
       mode: always
+  cloud:
+    discovery:
+      enabled: true
+
+# config connection with rabbitMQ broker
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: 5672
+    username: guest
+    password: guest
+
+# config exchange for producer
+rabbitmq:
+  exchange: seminar.ticket-booked.direct.exchange
+  routing-key: seminar.ticket-booked
+  seminar-approved:
+    exchange: seminar.approved.direct.exchange
+    routing-key: seminar.approved
 
   # OpenAPI/Swagger Configuration
 springdoc:
@@ -39,6 +56,7 @@ springdoc:
   default-consumes-media-type: application/json
   writer-with-default-pretty-printer: true
 
+# host url database: http://localhost:8080/h2-console
 
 
 # config actuator endpoints
@@ -65,7 +83,6 @@ eureka:
     register-with-eureka: true # tells eureka client to register itself with the Eureka server
     service-url:
       defaultZone: http://localhost:8761/eureka  # URL of the Eureka server, this url can be hardcoded because it has only 1 Eureka server in the system
-
 
 
 # info of Eureka client on the Eureka Server Dashboard

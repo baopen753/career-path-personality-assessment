@@ -11,7 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.swd392.seminars.annotation.RequireRole;
 import org.swd392.seminars.entity.Seminar;
+import org.swd392.seminars.enums.UserRole;
 import org.swd392.seminars.exception.ResourceNotFoundException;
 import org.swd392.seminars.exception.SeminarTicketException;
 import org.swd392.seminars.exception.UnauthorizedException;
@@ -39,7 +41,7 @@ public class SeminarController {
         @ApiResponse(responseCode = "403", description = "Forbidden - Insufficient permissions")
     })
     @PostMapping("/create-seminar")
-    @PreAuthorize("hasRole('EVENT_MANAGER')")
+    @RequireRole(UserRole.EVENT_MANAGER)
     public ResponseEntity<SeminarResponse> createSeminar(
             @RequestHeader("X-User-Id") Integer eventManagerId,
             @Valid @RequestBody SeminarRequest request) {
@@ -64,7 +66,7 @@ public class SeminarController {
         @ApiResponse(responseCode = "404", description = "Seminar not found")
     })
     @PutMapping("/{seminarId}/update-seminar")
-   // @PreAuthorize("hasRole('EVENT_MANAGER')")
+    @RequireRole(UserRole.EVENT_MANAGER)
     public ResponseEntity<SeminarResponse> updateSeminar(
             @RequestHeader("X-User-Id") Integer eventManagerId,
             @PathVariable Integer seminarId,
@@ -130,7 +132,7 @@ public class SeminarController {
         @ApiResponse(responseCode = "401", description = "Unauthorized - Not an event manager")
     })
     @GetMapping("/event-manager-seminars-list")
-    @PreAuthorize("hasRole('EVENT_MANAGER')")
+    @RequireRole(UserRole.EVENT_MANAGER)
     public ResponseEntity<List<SeminarResponse>> getSeminarsByEventManager(
             @RequestHeader("X-User-Id") Integer eventManagerId) {
         log.info("Getting all seminars for event manager ID: {}", eventManagerId);
@@ -167,7 +169,7 @@ public class SeminarController {
         @ApiResponse(responseCode = "404", description = "Seminar not found")
     })
     @PutMapping("/{seminarId}/status-approve")
-    @PreAuthorize("hasRole('ADMIN')")
+    @RequireRole({UserRole.ADMIN, UserRole.SYSTEM_ADMIN})
     public ResponseEntity<SeminarResponse> approveSeminar(
             @RequestHeader("X-User-Id") Integer adminId,
             @PathVariable Integer seminarId,
@@ -194,7 +196,7 @@ public class SeminarController {
         @ApiResponse(responseCode = "404", description = "Seminar not found")
     })
     @PutMapping("/{seminarId}/status")
-    @PreAuthorize("hasRole('EVENT_MANAGER')")
+    @RequireRole(UserRole.EVENT_MANAGER)
     public ResponseEntity<SeminarResponse> updateStatus(
             @RequestHeader("X-User-Id") Integer eventManagerId,
             @PathVariable Integer seminarId,
@@ -225,15 +227,15 @@ public class SeminarController {
         return ResponseEntity.ok(seminars);
     }
 
-    @Operation(summary = "Get approved seminars", 
-              description = "Get all approved seminars.")
+    @Operation(summary = "Get approved-ongoing seminars", 
+              description = "Get all approved and ongoing seminars.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Successfully retrieved approved seminars")
+        @ApiResponse(responseCode = "200", description = "Successfully retrieved approved and ongoing seminars")
     })
     @GetMapping("/approved-list")
     public ResponseEntity<List<SeminarResponse>> getApprovedSeminars() {
-        log.info("Getting all approved seminars");
-        List<SeminarResponse> seminars = seminarService.getSeminarsByStatus(Seminar.Status.ONGOING);
+        log.info("Getting all approved and ongoing seminars");
+        List<SeminarResponse> seminars = seminarService.getApprovedSeminars();
         return ResponseEntity.ok(seminars);
     }
 }

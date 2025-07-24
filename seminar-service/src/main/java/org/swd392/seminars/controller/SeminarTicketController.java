@@ -9,11 +9,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.swd392.seminars.exception.ResourceNotFoundException;
-import org.swd392.seminars.exception.SeminarTicketException;
-import org.swd392.seminars.exception.UnauthorizedException;
+import org.swd392.seminars.annotation.RequireRole;
+import org.swd392.seminars.enums.UserRole;
 import org.swd392.seminars.payload.request.SeminarTicketRequest;
 import org.swd392.seminars.payload.response.SeminarTicketResponse;
 import org.swd392.seminars.service.SeminarTicketService;
@@ -22,30 +20,30 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/seminar-tickets")
+@RequestMapping("/api/tickets")
 @RequiredArgsConstructor
 @Tag(name = "Seminar Ticket Management", description = "APIs for managing seminar tickets")
 public class SeminarTicketController {
 
     private final SeminarTicketService seminarTicketService;
 
-    @Operation(summary = "Book a seminar ticket", 
-              description = "Book a ticket for a seminar. Accessible by students and parents.")
+    @Operation(summary = "Book a seminar ticket",
+            description = "Book a ticket for a seminar. Accessible by students and parents.")
     @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "Ticket booked successfully"),
-        @ApiResponse(responseCode = "400", description = "Invalid ticket data provided"),
-        @ApiResponse(responseCode = "401", description = "Unauthorized - Not logged in"),
-        @ApiResponse(responseCode = "403", description = "Forbidden - Not a student or parent"),
-        @ApiResponse(responseCode = "404", description = "Seminar not found")
+            @ApiResponse(responseCode = "201", description = "Ticket booked successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid ticket data provided"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - Not logged in"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Not a student or parent"),
+            @ApiResponse(responseCode = "404", description = "Seminar not found")
     })
     @PostMapping("/book-ticket")
-    @PreAuthorize("hasAnyRole('STUDENT', 'PARENT')")
+    @RequireRole({UserRole.STUDENT, UserRole.PARENT})
     public ResponseEntity<SeminarTicketResponse> bookTicket(
-            @RequestHeader("X-User-Id") Integer userProfileId,
+            @RequestHeader("X-User-Id") Integer userId,
             @Valid @RequestBody SeminarTicketRequest request) {
-        log.info("User ID: {} booking ticket for seminar ID: {}", userProfileId, request.getSeminarId());
+        log.info("User ID: {} booking ticket for seminar ID: {}", userId, request.getSeminarId());
         try {
-            request.setUserProfileId(userProfileId);
+            request.setUserId(userId);
             SeminarTicketResponse response = seminarTicketService.bookTicket(request);
             log.info("Successfully booked ticket ID: {} for seminar ID: {}", response.getId(), request.getSeminarId());
             return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -55,23 +53,30 @@ public class SeminarTicketController {
         }
     }
 
-    @Operation(summary = "Cancel a seminar ticket", 
-              description = "Cancel a booked seminar ticket. Accessible by students and parents.")
+    @PostMapping("/compensate")
+    public ResponseEntity<?> compensate(@Valid @RequestBody SeminarTicketRequest request) {
+        seminarTicketService.deleteBookedTicket(request.getSeminarId(), request.getUserId());
+        return ResponseEntity.noContent().build();
+    }
+
+
+    @Operation(summary = "Cancel a seminar ticket",
+              description = "Cancel a booked ticket. Only the ticket owner can cancel their ticket.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Ticket cancelled successfully"),
-        @ApiResponse(responseCode = "401", description = "Unauthorized - Not logged in"),
-        @ApiResponse(responseCode = "403", description = "Forbidden - Not the ticket owner"),
-        @ApiResponse(responseCode = "404", description = "Ticket not found")
+            @ApiResponse(responseCode = "200", description = "Ticket cancelled successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - Not logged in"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Not the ticket owner"),
+            @ApiResponse(responseCode = "404", description = "Ticket not found")
     })
-    @PutMapping("/{ticketId}/cancel-ticket")
-    @PreAuthorize("hasAnyRole('STUDENT', 'PARENT')")
+
+    @DeleteMapping("/{ticketId}")
+    @RequireRole({UserRole.STUDENT, UserRole.PARENT})
     public ResponseEntity<Void> cancelTicket(
-            @RequestHeader("X-User-Id") Integer userProfileId,
+            @RequestHeader("X-User-Id") Integer userId,
             @PathVariable Integer ticketId) {
-        log.info("User ID: {} cancelling ticket ID: {}", userProfileId, ticketId);
+        log.info("User ID: {} cancelling ticket ID: {}", userId, ticketId);
         try {
-            seminarTicketService.cancelTicket(userProfileId, ticketId);
-            log.info("Successfully cancelled ticket ID: {}", ticketId);
+            seminarTicketService.cancelTicket(userId, ticketId);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             log.error("Error cancelling ticket: {}", e.getMessage());
@@ -79,56 +84,40 @@ public class SeminarTicketController {
         }
     }
 
-    @Operation(summary = "Get ticket details", 
-              description = "Get detailed information about a specific ticket.")
+    @Operation(summary = "Get user's completed tickets",
+              description = "Get all completed tickets (with COMPLETED saga status) booked by the current user.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Successfully retrieved ticket details"),
-        @ApiResponse(responseCode = "401", description = "Unauthorized - Not logged in"),
-        @ApiResponse(responseCode = "403", description = "Forbidden - Not the ticket owner or event manager"),
-        @ApiResponse(responseCode = "404", description = "Ticket not found")
+        @ApiResponse(responseCode = "200", description = "Successfully retrieved user's completed tickets"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized - Not logged in")
     })
-    @GetMapping("/{ticketId}/ticket-details")
-    public ResponseEntity<SeminarTicketResponse> getTicket(
-            @RequestHeader("X-User-Id") Integer userProfileId,
-            @PathVariable Integer ticketId) {
-        log.info("Getting ticket details for ID: {} by user ID: {}", ticketId, userProfileId);
+    @GetMapping("/my-tickets")
+    @RequireRole({UserRole.STUDENT, UserRole.PARENT})
+    public ResponseEntity<List<SeminarTicketResponse>> getMyTickets(
+            @RequestHeader("X-User-Id") Integer userId) {
+        log.info("Getting completed tickets for user ID: {}", userId);
         try {
-            SeminarTicketResponse response = seminarTicketService.getTicket(ticketId);
-            return ResponseEntity.ok(response);
+            List<SeminarTicketResponse> tickets = seminarTicketService.getTicketsByUser(userId);
+            return ResponseEntity.ok(tickets);
         } catch (Exception e) {
-            log.error("Error getting ticket details: {}", e.getMessage());
+            log.error("Error getting user completed tickets: {}", e.getMessage());
             throw e;
         }
     }
 
-    @Operation(summary = "Get my tickets", 
-              description = "Get all tickets booked by the current user.")
+    @Operation(summary = "Get seminar tickets - Event Manager",
+            description = "Get all tickets for a specific seminar. Only accessible by the event manager who created the seminar.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Successfully retrieved user's tickets"),
-        @ApiResponse(responseCode = "401", description = "Unauthorized - Not logged in")
-    })
-    @GetMapping("/my-tickets")
-    public ResponseEntity<List<SeminarTicketResponse>> getMyTickets(
-            @RequestHeader("X-User-Id") Integer userProfileId) {
-        log.info("Getting all tickets for user ID: {}", userProfileId);
-        List<SeminarTicketResponse> tickets = seminarTicketService.getTicketsByUser(userProfileId);
-        return ResponseEntity.ok(tickets);
-    }
-
-    @Operation(summary = "Get seminar tickets - Event Manager", 
-              description = "Get all tickets for a specific seminar. Only accessible by the event manager who created the seminar.")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Successfully retrieved seminar tickets"),
-        @ApiResponse(responseCode = "401", description = "Unauthorized - Not an event manager"),
-        @ApiResponse(responseCode = "403", description = "Forbidden - Not the seminar owner"),
-        @ApiResponse(responseCode = "404", description = "Seminar not found")
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved seminar tickets"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - Not an event manager"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Not the seminar owner"),
+            @ApiResponse(responseCode = "404", description = "Seminar not found")
     })
     @GetMapping("/seminar/{seminarId}/tickets")
-    @PreAuthorize("hasRole('EVENT_MANAGER')")
+    @RequireRole(UserRole.EVENT_MANAGER)
     public ResponseEntity<List<SeminarTicketResponse>> getSeminarTickets(
-            @RequestHeader("X-User-Id") Integer eventManagerId,
+            @RequestHeader("X-User-Id") Integer userId,
             @PathVariable Integer seminarId) {
-        log.info("Event manager ID: {} getting tickets for seminar ID: {}", eventManagerId, seminarId);
+        log.info("Event manager ID: {} getting tickets for seminar ID: {}", userId, seminarId);
         try {
             List<SeminarTicketResponse> tickets = seminarTicketService.getTicketsBySeminar(seminarId);
             return ResponseEntity.ok(tickets);

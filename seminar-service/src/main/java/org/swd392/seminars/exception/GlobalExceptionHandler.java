@@ -28,8 +28,20 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGlobalException(
             Exception ex, WebRequest request) {
-        return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, 
+        return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR,
             "An unexpected error occurred", request);
+    }
+
+    @ExceptionHandler(SeminarTicketException.class)
+    public ResponseEntity<Object> handleSeminarTicketException(
+            SeminarTicketException ex, WebRequest request) {
+        return createErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(SagaTransactionException.class)
+    public ResponseEntity<Object> handleSagaTransactionException(
+            SagaTransactionException ex, WebRequest request) {
+        return createErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
     }
 
     private ResponseEntity<Object> createErrorResponse(

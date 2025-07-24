@@ -7,10 +7,11 @@ import java.util.List;
 
 public interface SeminarTicketService {
     SeminarTicketResponse bookTicket(SeminarTicketRequest request);
-    void cancelTicket(Integer userProfileId, Integer ticketId);
+    void cancelTicket(Integer userId, Integer ticketId);
     List<SeminarTicketResponse> getTicketsBySeminar(Integer seminarId);
-    List<SeminarTicketResponse> getTicketsByUser(Integer userProfileId);
+    List<SeminarTicketResponse> getTicketsByUser(Integer userId);
     SeminarTicketResponse getTicket(Integer ticketId);
-    boolean hasActiveTicket(Integer seminarId, Integer userProfileId);
+    boolean hasActiveTicket(Integer seminarId, Integer userId);
     long getBookedTicketsCount(Integer seminarId);
+    void deleteBookedTicket(Integer seminarId, Integer userId);
 }

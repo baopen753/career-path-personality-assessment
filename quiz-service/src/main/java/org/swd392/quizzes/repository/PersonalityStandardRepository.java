@@ -9,9 +9,6 @@ import java.util.Optional;
 
 @Repository
 public interface PersonalityStandardRepository extends JpaRepository<PersonalityStandard, Long> {
-
-    List<PersonalityStandard> findByStandard(PersonalityStandard.StandardType standard);
-
     Optional<PersonalityStandard> findByPersonalityCode(String personalityCode);
 
     boolean existsByPersonalityCode(String personalityCode);

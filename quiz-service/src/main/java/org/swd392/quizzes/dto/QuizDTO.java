@@ -1,4 +1,5 @@
 package org.swd392.quizzes.dto;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,7 +16,7 @@ public class QuizDTO {
     private String title;
     private Long categoryId;
     private String description;
-    private Integer questionQuality;
+    private Integer questionQuantity;
     private String categoryName;
     private List<QuizQuestionDTO> questions;
 }
