@@ -4,6 +4,7 @@
 *.iml
 *.md
 .vscode/
+docker-compose/.env
 
 # Ignore .gitattributes files in modules
 **/.gitattributes
