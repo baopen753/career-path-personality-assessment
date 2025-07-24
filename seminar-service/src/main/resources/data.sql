@@ -4,13 +4,13 @@ VALUES
     ('Web Development Workshop', 'Learn about modern web development', 120, 0, 'https://meet.google.com/web',
      'https://forms.google.com/web', 'PENDING', 'PENDING', 20, 'https://example.com/web.jpg', 5, 
      '2025-07-20 09:00:00', '2025-07-20 11:00:00'),
-    ('Data Science Seminar', 'Introduction to Data Science', 90, 700000, 'https://meet.google.com/data',
+    ('Data Science Seminar', 'Introduction to Data Science', 90, 2000, 'https://meet.google.com/data',
      'https://forms.google.com/data', 'ONGOING', 'APPROVED', 15, 'https://example.com/data.jpg', 5,
      '2025-11-10 14:00:00', '2025-11-10 15:30:00'),
-    ('AI Workshop', 'Deep dive into AI and Machine Learning', 180, 1000000, 'https://meet.google.com/ai',
+    ('AI Workshop', 'Deep dive into AI and Machine Learning', 180, 2000, 'https://meet.google.com/ai',
      'https://forms.google.com/ai', 'COMPLETED', 'APPROVED', 10, 'https://example.com/ai.jpg', 10,
      '2024-09-22 10:00:00', '2024-09-22 13:00:00'),
-    ('Cloud Computing Basics', 'Explore the fundamentals of cloud platforms', 100, 600000,
+    ('Cloud Computing Basics', 'Explore the fundamentals of cloud platforms', 100, 2000,
      'https://meet.google.com/cloud', 'https://forms.google.com/cloud', 'ONGOING', 'APPROVED', 10,
      'https://example.com/cloud.jpg', 10, '2025-12-15 10:00:00', '2025-12-15 11:40:00');
 

@@ -21,7 +21,7 @@ VALUES (2, true, 'admin@example.com', null, '$2a$12$Sqd5lHHmpeuThlWd3xyL2eYsT1Wj
 
 INSERT INTO packages (package_name, price)
 VALUES ('STANDARD', 0),
-       ('PREMIUM', 4000);
+       ('PREMIUM', 2000);
 
 -- Insert user profiles
 INSERT INTO user_profile (birth_day, user_id, school, address, full_name, gender, image_url, phone_number)

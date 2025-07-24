@@ -108,6 +108,9 @@ public class SubscriptionServiceImpl implements ISubscriptionService {
             // if checkout successfully, then set payment code for the subscription
             subscription.setPaymentOrderCode(event.getPaymentOrderCode());
 
+            User subscriptedUser = subscription.getUser();
+            subscriptedUser.setCurrentPackage("PREMIUM");
+
             // Payment successful
             subscriptionRepository.save(subscription);
             log.error("Payment succeed for order code: {}", event.getPaymentOrderCode());

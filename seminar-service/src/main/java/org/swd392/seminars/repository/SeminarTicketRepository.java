@@ -12,7 +12,6 @@ public interface SeminarTicketRepository extends JpaRepository<SeminarTicket, In
     List<SeminarTicket> findByUserId(Integer userId);
     boolean existsBySeminarIdAndUserId(Integer seminarId, Integer userId);
     long countBySeminarIdAndStatusTrue(Integer seminarId);
-
     @Query("SELECT st FROM SeminarTicket st WHERE st.seminar.id = :seminarId AND st.userId = :userId")
     Optional<SeminarTicket> findBySeminarIdAndUserId(Integer seminarId, Integer userId);
 
