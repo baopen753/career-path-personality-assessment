@@ -14,7 +14,6 @@ import org.swd392.seminars.repository.SeminarRepository;
 import org.swd392.seminars.repository.SeminarTicketRepository;
 import org.swd392.seminars.service.SeminarTicketService;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;

@@ -227,15 +227,15 @@ public class SeminarController {
         return ResponseEntity.ok(seminars);
     }
 
-    @Operation(summary = "Get approved seminars", 
-              description = "Get all approved seminars.")
+    @Operation(summary = "Get approved-ongoing seminars", 
+              description = "Get all approved and ongoing seminars.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Successfully retrieved approved seminars")
+        @ApiResponse(responseCode = "200", description = "Successfully retrieved approved and ongoing seminars")
     })
     @GetMapping("/approved-list")
     public ResponseEntity<List<SeminarResponse>> getApprovedSeminars() {
-        log.info("Getting all approved seminars");
-        List<SeminarResponse> seminars = seminarService.getSeminarsByStatus(Seminar.Status.ONGOING);
+        log.info("Getting all approved and ongoing seminars");
+        List<SeminarResponse> seminars = seminarService.getApprovedSeminars();
         return ResponseEntity.ok(seminars);
     }
 }

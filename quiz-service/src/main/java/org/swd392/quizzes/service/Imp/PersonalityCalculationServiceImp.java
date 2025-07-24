@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -69,7 +70,7 @@ public class PersonalityCalculationServiceImp {
             String trait = entry.getKey();
             Integer value = entry.getValue();
             if (discScores.containsKey(trait)) {
-
+                //neu la disc no se tinh diem 2
                 discScores.put(trait, discScores.get(trait) + value);
             }
         }
@@ -128,6 +129,7 @@ public class PersonalityCalculationServiceImp {
         boolean isMBTI = isMBTIQuiz(quiz);
         boolean isDISC = isDISCQuiz(quiz);
 
+        // Initialize scores for MBTI
         if (isMBTI) {
             dimensionScores.put("E", 0);
             dimensionScores.put("I", 0);
@@ -166,14 +168,9 @@ public class PersonalityCalculationServiceImp {
                     }
 
                     dimensionScores.merge(targetTrait, scoreValue, Integer::sum);
-
-                    log.debug("Question {}: Selected option targets '{}' with score {}",
-                            question.getId(), targetTrait, scoreValue);
                 }
             }
         }
-
-        log.debug("Final calculated dimension scores: {}", dimensionScores);
         return dimensionScores;
     }
 
@@ -188,7 +185,7 @@ public class PersonalityCalculationServiceImp {
             case POSITIVE_ONE:
                 return 1;
             case DISC_TWO:
-                return 1;
+                return 1; // Treat as positive for MBTI if accidentally used
             default:
                 return 0;
         }
@@ -205,14 +202,13 @@ public class PersonalityCalculationServiceImp {
             case ZERO:
                 return 0;  // Neutral
             case NEGATIVE_ONE:
-                return 0;  // Disagreement
+                return 0;  // Disagreement (counts as 0 in DISC)
             default:
                 return 0;
         }
     }
 
     private String determineDISCType(int d, int i, int s, int c) {
-        // Find the highest score
         Map<String, Integer> scores = Map.of("D", d, "I", i, "S", s, "C", c);
         String dominantType = scores.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
@@ -222,6 +218,7 @@ public class PersonalityCalculationServiceImp {
     }
 
     private String determineMBTIType(int e, int i, int s, int n, int t, int f, int j, int p) {
+        //nếu tất cả đều là neutral thì trả default là ISFJ
         if (e == 0 && i == 0 && s == 0 && n == 0 && t == 0 && f == 0 && j == 0 && p == 0) {
             log.warn("All MBTI scores are neutral. Returning ISFJ as default result.");
             return "ISFJ";
@@ -229,15 +226,19 @@ public class PersonalityCalculationServiceImp {
 
         StringBuilder personalityCode = new StringBuilder();
 
+        // E vs I nếu = nhau thì E (Extraversion)
         personalityCode.append(Math.abs(e) > Math.abs(i) ? "E" :
                 Math.abs(i) > Math.abs(e) ? "I" : "I");
 
+        // S vs N nếu = nhau thì S (Sensing)
         personalityCode.append(Math.abs(s) > Math.abs(n) ? "S" :
                 Math.abs(n) > Math.abs(s) ? "N" : "S");
 
+        // T vs F nếu = nhau th F (Feeling)
         personalityCode.append(Math.abs(t) > Math.abs(f) ? "T" :
                 Math.abs(f) > Math.abs(t) ? "F" : "F");
 
+        // J vs P nếu = nhau thì J (Judging)
         personalityCode.append(Math.abs(j) > Math.abs(p) ? "J" :
                 Math.abs(p) > Math.abs(j) ? "P" : "J");
 
@@ -261,13 +262,31 @@ public class PersonalityCalculationServiceImp {
             result.setNickname(standard.getNickname());
             result.setKeyTraits(standard.getKeyTraits());
             result.setDescription(standard.getDescription());
-            result.setCareerRecommendations(standard.getCareerMappingPersonality());
+
+            String careerMapping = standard.getCareerMappingPersonality();
+            if (careerMapping != null && !careerMapping.trim().isEmpty()) {
+                List<String> formattedCareers = Arrays.stream(careerMapping.split(","))
+                        .map(String::trim)
+                        .filter(s -> !s.isEmpty())
+                        .map(career -> String.format("Career: %s\n- Description: Career information not available", career))
+                        .collect(Collectors.toList());
+                result.setCareerRecommendations(formattedCareers);
+            } else {
+                result.setCareerRecommendations(Collections.singletonList(
+                        "Career: General Career Advice\n" +
+                                "- Description: No specific career recommendations available. Please consult with a career advisor."
+                ));
+            }
         } else {
             log.warn("No personality standard found for code: {}", result.getPersonalityCode());
             result.setNickname("Unknown");
             result.setKeyTraits("No traits available");
             result.setDescription("No description available");
-            result.setCareerRecommendations("No career recommendations available");
+            result.setCareerRecommendations(Collections.singletonList(
+                    "Career: No Recommendations Available\n" +
+                            "- Description: We couldn't find career recommendations for your personality type. " +
+                            "Please check back later or speak with a career advisor."
+            ));
         }
     }
 
