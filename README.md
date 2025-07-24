@@ -60,10 +60,3 @@ Follow these steps to set up and run the backend:
   docker compose -f docker-compose-infras.yml -f docker-compose-microservice.yml up --build -d
   docker compose -f docker-compose-payment.yml up --build -d
 ```
-
-#### 6. Run the application:
-
-```bash
-  # Using Maven
-  mvn spring-boot:run
-```
