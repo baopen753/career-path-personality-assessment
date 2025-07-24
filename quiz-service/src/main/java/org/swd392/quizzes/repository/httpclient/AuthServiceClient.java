@@ -6,7 +6,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-@FeignClient(name = "user", fallback = AuthServiceClientFallback.class)
+@FeignClient(name = "user")
 public interface AuthServiceClient {
     @GetMapping(value = "/user/api/users/by-email", produces = MediaType.APPLICATION_JSON_VALUE)
     ApiResponse<UserResponseDto> getUserByEmail(@RequestParam("email") String email);

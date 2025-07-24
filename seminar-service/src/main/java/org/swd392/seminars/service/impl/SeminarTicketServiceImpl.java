@@ -112,7 +112,7 @@ public class SeminarTicketServiceImpl implements SeminarTicketService {
 
     @Override
     public List<SeminarTicketResponse> getTicketsByUser(Integer userId) {
-        return seminarTicketRepository.findByUserIdWithCompletedSaga(userId).stream()
+        return seminarTicketRepository.findByUserId(userId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }

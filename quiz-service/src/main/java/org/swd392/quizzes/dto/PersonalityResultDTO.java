@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.Map;
 
 @Data
@@ -14,8 +15,8 @@ public class PersonalityResultDTO {
     private String nickname;
     private String keyTraits;
     private String description;
-    private String careerRecommendations;
     private Map<String, Integer> scores; // dimension -> score
-    private String universityRecommendations;
+    private List<String> careerRecommendations;
+    private List<String> universityRecommendations;
 }
 

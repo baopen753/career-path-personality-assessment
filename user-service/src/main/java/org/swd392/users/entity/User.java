@@ -3,6 +3,10 @@ package org.swd392.users.entity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import org.swd392.users.entity.subscription.Subscription;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Entity
@@ -33,6 +37,9 @@ public class User {
 
     @Column(name = "current_package")
     private String currentPackage;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Subscription> subscriptions;
 
     public User() {
     }

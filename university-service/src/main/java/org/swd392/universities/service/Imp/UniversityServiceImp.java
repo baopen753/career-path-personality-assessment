@@ -25,6 +25,7 @@ public class UniversityServiceImp implements UniversityService {
         return universityRepository.findAll();
     }
 
+
     public Optional<University> getUniversityById(String id) {
         return universityRepository.findById(id);
     }

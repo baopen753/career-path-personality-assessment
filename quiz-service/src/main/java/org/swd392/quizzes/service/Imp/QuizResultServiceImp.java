@@ -45,22 +45,23 @@ public class QuizResultServiceImp implements QuizResultService {
                 userId, submission.getQuizId());
 
         try {
+            // Set user ID in submission
             submission.setUserId(userId);
 
+            //Calculate personality using existing logic
             PersonalityResultDTO personalityResult = personalityCalculationService.calculatePersonality(submission);
             log.info("Calculated personality type: {} for user: {}", personalityResult.getPersonalityCode(), userId);
 
+            //Enrich with career and university recommendations
             PersonalityResultDTO enrichedResult = microserviceIntegrationService.enrichPersonalityResult(personalityResult);
             log.info("Enriched personality result with microservices data");
 
+            //Save quiz result to database
             QuizResult quizResult = saveQuizResult(submission, enrichedResult);
             log.info("Saved quiz result with ID: {}", quizResult.getId());
 
             return enrichedResult;
 
-        } catch (NumberFormatException e) {
-            log.error("Invalid user ID format: {}", userId, e);
-            throw new RuntimeException("Invalid user ID format: " + userId);
         } catch (Exception e) {
             log.error("Failed to process quiz submission with microservices for user: {}", userId, e);
             throw new RuntimeException("Failed to submit quiz: " + e.getMessage());
@@ -69,9 +70,10 @@ public class QuizResultServiceImp implements QuizResultService {
 
     private QuizResult saveQuizResult(QuizSubmissionDTO submission, PersonalityResultDTO personalityResult) {
         try {
-
+            // Convert PersonalityResultDTO to JSON for storage
             String personalityJson = objectMapper.writeValueAsString(personalityResult);
 
+            // Create QuizResult entity manually (no builder pattern)
             QuizResult quizResult = new QuizResult();
             quizResult.setUserId(submission.getUserId());
             quizResult.setQuizId(submission.getQuizId());
@@ -80,6 +82,7 @@ public class QuizResultServiceImp implements QuizResultService {
             quizResult.setTimeSubmit(LocalDateTime.now());
             quizResult.setAttemptOrder(getNextAttemptOrder(submission.getUserId(), submission.getQuizId()));
 
+            // Find and set personality standard
             Optional<PersonalityStandard> personalityStandard = personalityStandardRepository
                     .findByPersonalityCode(personalityResult.getPersonalityCode());
             personalityStandard.ifPresent(standard -> quizResult.setPersonalityId(standard.getId()));
@@ -96,26 +99,37 @@ public class QuizResultServiceImp implements QuizResultService {
         return getQuizAttemptCount(userId, quizId) + 1;
     }
 
-    public UserQuizResultsDTO getMyQuizResults(Long id) {
+    public UserQuizResultsDTO getMyQuizResults(Long userId) {
         try {
-            log.info("Fetching user details for authenticated user: {}", id);
-            // gọi user-service để lấy thông tin chi tiết của người dùng (tên, email,...)
-            ApiResponse<UserResponseDto> userResponse = authServiceClient.getUser(id);
-            UserResponseDto currentUser = userResponse.getResult();
+            log.info("Fetching quiz results for user: {}", userId);
 
-            if (currentUser == null) {
-                log.error("Could not fetch user details for user ID: {}", id);
-                throw new RuntimeException("User not found with ID: " + id);
+            // Directly fetch quiz results from database using userId
+            List<QuizResult> results = quizResultRepository.findByUserIdWithPersonalityDetails(userId);
+
+            // Try to get user details but don't fail the entire request if auth service is down
+            UserResponseDto currentUser = null;
+            try {
+                log.info("Attempting to fetch user details for user: {}", userId);
+                ApiResponse<UserResponseDto> userResponse = authServiceClient.getUser(userId);
+                currentUser = userResponse.getResult();
+
+                if (currentUser == null) {
+                    log.warn("Auth service returned null user for ID: {}", userId);
+                }
+            } catch (Exception e) {
+                log.warn("Could not fetch user details for user ID: {} - Error: {}", userId, e.getMessage());
+                // Continue without user details - auth service might be down or user might not exist there
             }
 
-            log.info("Fetching quiz results for authenticated user: {}", id);
-
-            List<QuizResult> results = quizResultRepository.findByUserIdWithPersonalityDetails(id);
-
-            return buildUserQuizResultsDTO(currentUser, results); // truyền đối tượng currentUser từ header vào
+            // Build DTO - if we have user details use them, otherwise create a minimal response
+            if (currentUser != null) {
+                return buildUserQuizResultsDTO(currentUser, results);
+            } else {
+                return buildUserQuizResultsDTOWithoutUserDetails(userId, results);
+            }
 
         } catch (Exception e) {
-            log.error("Failed to get user results for authenticated user", e);
+            log.error("Failed to get quiz results for user: {}", userId, e);
             throw new RuntimeException("Failed to fetch user results", e);
         }
     }
@@ -128,6 +142,17 @@ public class QuizResultServiceImp implements QuizResultService {
                 .orElseThrow(() -> new QuizNotFoundException("Quiz result not found with id: " + id));
         return convertToDTO(result);
     }
+
+    @Transactional(readOnly = true)
+    public List<QuizResultDTO> getResultsByQuizAndUser(Long quizId, Long userId) {
+        log.debug("Fetching quiz results for quiz: {} and user: {}", quizId, userId);
+
+        List<QuizResult> results = quizResultRepository.findByQuizIdAndUserId(quizId, userId);
+        return results.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
     @Transactional(readOnly = true)
     public Integer getQuizAttemptCount(Long userId, Long quizId) {
         return quizResultRepository.countByQuizIdAndUserId(quizId, userId);
@@ -150,6 +175,7 @@ public class QuizResultServiceImp implements QuizResultService {
         log.info("Executing request for parent {} to get results of student {}", parentId, email);
 
         try {
+            //Get student's information
             ApiResponse<UserResponseDto> studentResponse = authServiceClient.getUserByEmail(email);
             UserResponseDto student = studentResponse.getResult();
 
@@ -161,6 +187,7 @@ public class QuizResultServiceImp implements QuizResultService {
                         .quizResults(new ArrayList<>())
                         .build();
             }
+            //Get student's quiz results
             List<QuizResult> quizResults = quizResultRepository.findByUserIdWithPersonalityDetails(student.getId());
             log.info("Successfully retrieved {} quiz results for student: {}", quizResults.size(), email);
 
@@ -173,7 +200,6 @@ public class QuizResultServiceImp implements QuizResultService {
     }
 
     private UserQuizResultsDTO buildUserQuizResultsDTO(UserResponseDto user, List<QuizResult> quizResults) {
-
         List<UserQuizResultsDTO.QuizResultSummaryDTO> resultSummaries = quizResults.stream()
                 .map(this::convertToResultSummary)
                 .collect(Collectors.toList());
@@ -191,6 +217,30 @@ public class QuizResultServiceImp implements QuizResultService {
         return UserQuizResultsDTO.builder()
                 .userId(user.getId())
                 .email(user.getEmail())
+                .totalQuizzesTaken(quizResults.size())
+                .firstQuizDate(firstQuizDate)
+                .lastQuizDate(lastQuizDate)
+                .quizResults(resultSummaries)
+                .build();
+    }
+    private UserQuizResultsDTO buildUserQuizResultsDTOWithoutUserDetails(Long userId, List<QuizResult> quizResults) {
+        List<UserQuizResultsDTO.QuizResultSummaryDTO> resultSummaries = quizResults.stream()
+                .map(this::convertToResultSummary)
+                .collect(Collectors.toList());
+
+        LocalDateTime firstQuizDate = quizResults.stream()
+                .map(QuizResult::getTimeSubmit)
+                .min(LocalDateTime::compareTo)
+                .orElse(null);
+
+        LocalDateTime lastQuizDate = quizResults.stream()
+                .map(QuizResult::getTimeSubmit)
+                .max(LocalDateTime::compareTo)
+                .orElse(null);
+
+        return UserQuizResultsDTO.builder()
+                .userId(userId)
+                .email("") // Empty email when user details are not available
                 .totalQuizzesTaken(quizResults.size())
                 .firstQuizDate(firstQuizDate)
                 .lastQuizDate(lastQuizDate)
