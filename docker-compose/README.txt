@@ -8,7 +8,7 @@ This file is useful for building docker containers
     + Sau khi cài đặt, vô cmd window, đứng ở đường dẫn chứa folder ngrok vừa tải
     + Gõ lệnh:
         1. docker network create swp391
-        2. docker run --rm -it --network swd392 -e NGROK_AUTHTOKEN=2afapkwFcXNMiPIvWcwXrWNh8F7_6BvQfVpLQwC8ysQww4UQ6 -p 4040:4040 ngrok/ngrok:3 http localhost:8086
+        2. docker run --rm -it --network swd392 -e NGROK_AUTHTOKEN=[your_ngrok_key] -p 4040:4040 ngrok/ngrok:3 http localhost:8086
 
     + Nhìn ở dòng Forwarding: copy toàn bộ đường dẫn bên trái của mũi tên '->'      ví dụ:  https://.....ngrok-free.app       WARNING: ko được tắt terminal của ngrok đang chạy
 
